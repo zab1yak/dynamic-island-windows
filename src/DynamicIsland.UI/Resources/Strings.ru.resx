@@ -8,6 +8,8 @@
   <data name="Error.Fatal" xml:space="preserve"><value>Dynamic Island несколько раз подряд столкнулся с ошибкой и будет закрыт. Логи: {0}</value></data>
   <data name="Error.Recovered" xml:space="preserve"><value>Ошибка записана в лог, остров продолжает работать.</value></data>
   <data name="Error.Title" xml:space="preserve"><value>Что-то пошло не так</value></data>
+  <data name="Hotkey.Taken" xml:space="preserve"><value>{0} уже использует другое приложение. Остров по-прежнему раскрывается при наведении.</value></data>
+  <data name="Hotkey.TakenTitle" xml:space="preserve"><value>Горячая клавиша занята</value></data>
   <data name="Tray.Exit" xml:space="preserve"><value>Выход</value></data>
   <data name="Tray.Restart" xml:space="preserve"><value>Перезапустить</value></data>
   <data name="Tray.Settings" xml:space="preserve"><value>Настройки…</value></data>

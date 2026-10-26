@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using DynamicIsland.App.Hosting;
+using DynamicIsland.App.Island;
 using DynamicIsland.App.Services;
+using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Settings;
 using DynamicIsland.Platform.Windows;
 using DynamicIsland.UI.Localization;
@@ -40,6 +42,7 @@ public partial class App : Application
     {
         try
         {
+            _host.Services.GetRequiredService<IslandWindow>().Close();
             _host.Services.GetRequiredService<TrayIconService>().Dispose();
             // Off the UI thread: a hosted service waiting for the dispatcher must not deadlock us.
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
@@ -63,7 +66,13 @@ public partial class App : Application
             await settings.LoadAsync();
             Loc.Instance.SetLanguage(settings.Current.Language);
 
-            services.GetRequiredService<TrayIconService>().Show();
+            var tray = services.GetRequiredService<TrayIconService>();
+            tray.Show();
+
+            var island = services.GetRequiredService<IslandWindow>();
+            island.HotkeyUnavailable += (_, hotkey) =>
+                tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));
+            island.Show();
 
             _instance.SetHandler(args => Dispatcher.BeginInvoke(() => HandleArguments(CommandLine.Parse(args))));
             HandleArguments(_commandLine);
@@ -79,5 +88,13 @@ public partial class App : Application
     private void HandleArguments(CommandLine commandLine)
     {
         _logger.LogDebug("Arguments: {CommandLine}", commandLine);
+        if (commandLine.Show)
+        {
+            var stateMachine = _host.Services.GetRequiredService<IslandStateMachine>();
+            if (!IslandMetrics.IsExpanded(stateMachine.Mode))
+            {
+                stateMachine.HotkeyPressed();
+            }
+        }
     }
 }
