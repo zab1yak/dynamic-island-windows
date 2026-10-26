@@ -1,0 +1,62 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:w="clr-namespace:DynamicIsland.Modules.Water"
+                    xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+                    xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
+
+    <!-- Expanded page: percent ring, "0.3 / 2.0 L" with a bar, Drink / Undo / reminders. -->
+    <DataTemplate DataType="{x:Type w:WaterViewModel}">
+        <Grid VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Width="64" Height="64">
+                <c:RingProgress Value="{Binding Progress}" Thickness="7" ProgressBrush="{DynamicResource Brush.Blue}" />
+                <TextBlock Text="{Binding PercentText}" Style="{DynamicResource Text.Title}" FontSize="13"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+
+            <StackPanel Grid.Column="1" Margin="16,0,16,0" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <c:Icon Glyph="Droplet" Width="18" Height="18" Foreground="{DynamicResource Brush.Blue}" Margin="0,0,6,0" />
+                    <c:RollingText Text="{Binding TotalText}" TextStyle="{DynamicResource Text.Title}" />
+                </StackPanel>
+                <ProgressBar Style="{DynamicResource ProgressBar.Pill}" Margin="0,10,0,0" Minimum="0" Maximum="1"
+                             Value="{Binding Progress, Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <ToggleButton Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding RemindersEnabled, Mode=OneWay}"
+                                  Command="{Binding ToggleRemindersCommand}"
+                                  AutomationProperties.Name="{loc:Tr Water.Reminders}" />
+                    <TextBlock Text="{Binding ReminderText}" Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{DynamicResource IconButton}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}"
+                        AutomationProperties.Name="{loc:Tr Water.Undo}" ToolTip="{loc:Tr Water.Undo}" Margin="0,0,8,0">
+                    <c:Icon Glyph="Undo" Foreground="{DynamicResource Brush.TextSecondary}" />
+                </Button>
+                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="40" Padding="18,0"
+                        Command="{Binding DrinkCommand}" AutomationProperties.Name="{Binding DrinkText}">
+                    <StackPanel Orientation="Horizontal">
+                        <c:Icon Glyph="GlassWater" Width="16" Height="16" Margin="0,0,6,0" />
+                        <TextBlock Text="{Binding DrinkText}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Live pill: reminder. -->
+    <DataTemplate DataType="{x:Type w:WaterLiveViewModel}">
+        <StackPanel Orientation="Horizontal" Height="34">
+            <c:Icon Glyph="Droplet" Width="16" Height="16" Foreground="{DynamicResource Brush.Blue}" VerticalAlignment="Center" />
+            <TextBlock Text="{loc:Tr Water.ReminderTitle}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.TextPrimary}"
+                       Margin="8,0,0,0" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Water.PercentText}" Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

@@ -1,0 +1,34 @@
+{
+  "Water.Title": {
+    "en": "Water",
+    "ru": "Вода"
+  },
+  "Water.Liters": {
+    "en": "L",
+    "ru": "л"
+  },
+  "Water.Drink": {
+    "en": "Drink {0} ml",
+    "ru": "Выпить {0} мл"
+  },
+  "Water.Undo": {
+    "en": "Undo last drink",
+    "ru": "Отменить последнее"
+  },
+  "Water.Reminders": {
+    "en": "Reminders",
+    "ru": "Напоминания"
+  },
+  "Water.Every": {
+    "en": "Every {0} min",
+    "ru": "Каждые {0} мин"
+  },
+  "Water.ReminderTitle": {
+    "en": "Time for some water",
+    "ru": "Пора выпить воды"
+  },
+  "Water.ReminderBody": {
+    "en": "So far today: {0}",
+    "ru": "Сегодня выпито: {0}"
+  }
+}
