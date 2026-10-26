@@ -143,8 +143,9 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
                 ShowNotice(Loc.Instance["Shelf.SomeFailed"]);
             }
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
+            // Drops come from untrusted sources: never let a strange payload take the island down.
             _logger.LogWarning(ex, "Adding to the shelf failed");
             ShowNotice(Loc.Instance["Shelf.SomeFailed"]);
         }
@@ -170,6 +171,14 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
     {
         if (item is null)
         {
+            return;
+        }
+
+        if (item.Item.Kind != ShelfItemKind.Folder && ShelfNames.IsExecutable(item.Path))
+        {
+            // Never run a program on a single click: show it in Explorer instead.
+            Reveal(item);
+            ShowNotice(Loc.Instance["Shelf.ExecutableRevealed"]);
             return;
         }
 
@@ -211,7 +220,14 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
         var paths = Selected(item).Select(i => i.Path).ToList();
         if (paths.Count > 0)
         {
-            System.Windows.Clipboard.SetText(string.Join(Environment.NewLine, paths));
+            try
+            {
+                System.Windows.Clipboard.SetText(string.Join(Environment.NewLine, paths));
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                _logger.LogWarning(ex, "Clipboard is busy");
+            }
         }
     }
 
@@ -279,6 +295,11 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
 
     private async Task LoadThumbnailAsync(ShelfItemViewModel item)
     {
+        if (!ShelfNames.IsAcceptableSource(item.Path))
+        {
+            return;
+        }
+
         var image = await _thumbnails.GetAsync(item.Path, 96);
         _dispatcher.Post(() => item.Thumbnail = image);
     }

@@ -41,8 +41,10 @@ public sealed class ShellThumbnails : IDisposable
     public void Dispose()
     {
         _queue.CompleteAdding();
-        _thread.Join(TimeSpan.FromSeconds(1));
-        _queue.Dispose();
+        if (_thread.Join(TimeSpan.FromSeconds(1)))
+        {
+            _queue.Dispose();
+        }
     }
 
     private void Run()
@@ -53,9 +55,10 @@ public sealed class ShellThumbnails : IDisposable
             {
                 result.SetResult(Load(path, size));
             }
-            catch (Exception ex) when (ex is COMException or ArgumentException or InvalidOperationException or FileNotFoundException or UnauthorizedAccessException)
+            catch (Exception)
             {
-                result.SetResult(null);
+                // Any failure in a third-party thumbnail handler only costs this one thumbnail.
+                result.TrySetResult(null);
             }
         }
     }

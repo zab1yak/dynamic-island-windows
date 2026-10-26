@@ -8,6 +8,7 @@
   <data name="Shelf.CopyPath" xml:space="preserve"><value>Копировать путь</value></data>
   <data name="Shelf.DropHere" xml:space="preserve"><value>Перетащите файлы сюда</value></data>
   <data name="Shelf.DropHint" xml:space="preserve"><value>Вытащите в любой момент · клик — открыть</value></data>
+  <data name="Shelf.ExecutableRevealed" xml:space="preserve"><value>Программы не запускаются по клику — показываю в проводнике</value></data>
   <data name="Shelf.Folder" xml:space="preserve"><value>Папка</value></data>
   <data name="Shelf.Open" xml:space="preserve"><value>Открыть</value></data>
   <data name="Shelf.OpenFailed" xml:space="preserve"><value>Не удалось открыть файл</value></data>

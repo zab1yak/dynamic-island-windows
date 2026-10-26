@@ -26,6 +26,36 @@ public sealed class ShelfNamesTests
     }
 
     [Fact]
+    public void Bidi_and_zero_width_characters_cannot_disguise_the_extension()
+    {
+        var name = ShelfNames.Sanitize("invoice\u202Excod.exe");
+        Assert.DoesNotContain('\u202E', name);
+        Assert.EndsWith(".exe", name, StringComparison.Ordinal);
+        Assert.Equal("a_b.txt", ShelfNames.Sanitize("a\u200Bb.txt"));
+    }
+
+    [Theory]
+    [InlineData("setup.exe", true)]
+    [InlineData("link.LNK", true)]
+    [InlineData("photo.png", false)]
+    [InlineData("notes.txt", false)]
+    public void Executables_are_recognised(string name, bool executable)
+    {
+        Assert.Equal(executable, ShelfNames.IsExecutable(name));
+    }
+
+    [Theory]
+    [InlineData(@"C:\Users\me\a.txt", true)]
+    [InlineData(@"relative\a.txt", false)]
+    [InlineData(@"\\server\share\a.txt", false)]
+    [InlineData(@"\\?\C:\a.txt", false)]
+    [InlineData("", false)]
+    public void Only_local_absolute_sources_are_accepted(string path, bool ok)
+    {
+        Assert.Equal(ok, ShelfNames.IsAcceptableSource(path));
+    }
+
+    [Fact]
     public void Long_names_are_cut_keeping_the_extension()
     {
         var name = ShelfNames.Sanitize(new string('a', 500) + ".pdf");
@@ -185,6 +215,59 @@ public sealed class ShelfStoreTests : IDisposable
 
         await _store.RemoveAsync(_store.Items.Select(i => i.Id), ct);
         Assert.Empty(_store.Items);
+    }
+
+    [Fact]
+    public async Task Dropping_the_shelf_or_its_parent_is_refused()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await _store.LoadAsync(ct);
+        await _store.AddPathsAsync([MakeFile("seed.txt")], ct);
+
+        var (fromRoot, _) = await _store.AddPathsAsync([_store.Root], ct);
+        var (fromParent, _) = await _store.AddPathsAsync([_temp.Path], ct);
+
+        Assert.Empty(fromRoot);
+        Assert.Empty(fromParent);
+        Assert.Single(_store.Items);
+    }
+
+    [Fact]
+    public async Task Virtual_files_are_marked_as_downloaded_from_the_internet()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await _store.LoadAsync(ct);
+
+        var item = await _store.AddVirtualFileAsync("tool.exe", [1, 2], ct);
+
+        var zone = await File.ReadAllTextAsync(_store.ResolvePath(item!)! + ":Zone.Identifier", ct);
+        Assert.Contains("ZoneId=3", zone, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Orphan_item_folders_are_swept_on_load()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var orphan = Path.Combine(_store.Root, "items", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(orphan);
+        await File.WriteAllTextAsync(Path.Combine(orphan, "x.txt"), "x", ct);
+
+        await _store.LoadAsync(ct);
+
+        Assert.False(Directory.Exists(orphan));
+    }
+
+    [Fact]
+    public async Task Null_items_and_negative_sizes_in_the_index_are_ignored()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        Directory.CreateDirectory(_store.Root);
+        await File.WriteAllTextAsync(Path.Combine(_store.Root, "index.json"),
+            """{ "items": [ null, { "name": "a", "storedPath": "items\\x\\a", "sizeBytes": -99999 } ] }""", ct);
+
+        await _store.LoadAsync(ct);
+
+        Assert.Equal(0, _store.UsedBytes);
     }
 
     [Fact]

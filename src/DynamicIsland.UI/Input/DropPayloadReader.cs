@@ -25,12 +25,27 @@ public static class DropPayloadReader
     /// <summary>Reads everything usable from <paramref name="data"/>.</summary>
     public static DropPayload Read(IDataObject data)
     {
-        var files = SafeGet<string[]>(data, DataFormats.FileDrop) ?? [];
-        var virtualFiles = files.Length == 0 ? ReadVirtualFiles(data) : [];
-        var png = files.Length == 0 && virtualFiles.Count == 0 ? ReadImage(data) : null;
-        var text = SafeGet<string>(data, DataFormats.UnicodeText) ?? SafeGet<string>(data, DataFormats.Text);
-        return new DropPayload(files, text, png, virtualFiles);
+        try
+        {
+            var files = SafeGet<string[]>(data, DataFormats.FileDrop) ?? [];
+            var virtualFiles = files.Length == 0 ? ReadVirtualFiles(data) : [];
+            var png = files.Length == 0 && virtualFiles.Count == 0 ? ReadImage(data) : null;
+            var text = SafeGet<string>(data, DataFormats.UnicodeText) ?? SafeGet<string>(data, DataFormats.Text);
+            if (text is { Length: > MaxTextLength })
+            {
+                text = text[..MaxTextLength];
+            }
+
+            return new DropPayload(files, text, png, virtualFiles);
+        }
+        catch (Exception)
+        {
+            return new DropPayload([], null, null, []);
+        }
     }
+
+    /// <summary>Longest text taken from a drop (characters).</summary>
+    public const int MaxTextLength = 5_000_000;
 
     /// <summary>Reads the clipboard (call on the UI thread).</summary>
     public static DropPayload ReadClipboard()
@@ -84,7 +99,8 @@ public static class DropPayloadReader
             return png.ToArray();
         }
 
-        if (SafeGet<BitmapSource>(data, DataFormats.Bitmap) is { } bitmap)
+        if (SafeGet<BitmapSource>(data, DataFormats.Bitmap) is { } bitmap
+            && bitmap.PixelWidth is > 0 and <= 8192 && bitmap.PixelHeight is > 0 and <= 8192)
         {
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmap));
@@ -103,8 +119,9 @@ public static class DropPayloadReader
         {
             return data.GetDataPresent(format) ? data.GetData(format) as T : null;
         }
-        catch (Exception ex) when (ex is COMException or OutOfMemoryException or InvalidOperationException or ExternalException)
+        catch (Exception)
         {
+            // Data from another process can fail in any way (COM, formats, memory): treat as absent.
             return null;
         }
     }

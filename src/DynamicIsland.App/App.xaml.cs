@@ -108,9 +108,16 @@ public partial class App : Application
             island.DropTargetShown += (_, _) => modules.ShowModule(modules.Pages.FirstOrDefault(m => m.AcceptsDrop)?.Id ?? string.Empty);
             island.Dropped += async (_, payload) =>
             {
-                if (modules.Pages.OfType<IDropHandler>().FirstOrDefault() is { } handler)
+                try
                 {
-                    await handler.HandleDropAsync(payload, CancellationToken.None);
+                    if (modules.Pages.OfType<IDropHandler>().FirstOrDefault() is { } handler)
+                    {
+                        await handler.HandleDropAsync(payload, CancellationToken.None);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Handling a drop failed");
                 }
             };
 

@@ -8,6 +8,7 @@
   <data name="Shelf.CopyPath" xml:space="preserve"><value>Copy path</value></data>
   <data name="Shelf.DropHere" xml:space="preserve"><value>Drop files here</value></data>
   <data name="Shelf.DropHint" xml:space="preserve"><value>Drag out anytime · click to open</value></data>
+  <data name="Shelf.ExecutableRevealed" xml:space="preserve"><value>Programs are shown in Explorer instead of being run</value></data>
   <data name="Shelf.Folder" xml:space="preserve"><value>Folder</value></data>
   <data name="Shelf.Open" xml:space="preserve"><value>Open</value></data>
   <data name="Shelf.OpenFailed" xml:space="preserve"><value>The file could not be opened</value></data>

@@ -63,6 +63,12 @@ public sealed class ShelfIndex
         AutoCleanupDays = Math.Clamp(AutoCleanupDays, 0, 365);
         MaxSizeMb = Math.Clamp(MaxSizeMb, 50, 100_000);
         Items ??= [];
+        Items.RemoveAll(i => i is null);
+        foreach (var item in Items)
+        {
+            item.SizeBytes = Math.Clamp(item.SizeBytes, 0, 1L << 50);
+            item.Name = ShelfNames.Sanitize(item.Name);
+        }
     }
 }
 
@@ -118,7 +124,7 @@ public sealed class ShelfStore
                 await using var stream = File.OpenRead(path);
                 _index = await JsonSerializer.DeserializeAsync<ShelfIndex>(stream, JsonDefaults.Options, cancellationToken) ?? new ShelfIndex();
             }
-            catch (JsonException)
+            catch (Exception ex) when (ex is JsonException or IOException or NotSupportedException or UnauthorizedAccessException)
             {
                 _index = new ShelfIndex();
             }
@@ -126,6 +132,33 @@ public sealed class ShelfStore
 
         _index.Normalize();
         _index.Items.RemoveAll(i => !IsValid(i) || ResolvePath(i) is not { } p || !(File.Exists(p) || Directory.Exists(p)));
+        SweepOrphans();
+    }
+
+    /// <summary>Deletes <c>items\&lt;guid&gt;</c> folders the index no longer knows about (failed or interrupted adds).</summary>
+    private void SweepOrphans()
+    {
+        var items = Path.Combine(Root, ItemsFolder);
+        if (!Directory.Exists(items))
+        {
+            return;
+        }
+
+        var known = _index.Items.Select(i => i.Id.ToString("N")).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var folder in new DirectoryInfo(items).EnumerateDirectories())
+        {
+            if (!known.Contains(folder.Name) && Guid.TryParseExact(folder.Name, "N", out _))
+            {
+                try
+                {
+                    folder.Delete(recursive: true);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    // Still locked; next start tries again.
+                }
+            }
+        }
     }
 
     /// <summary>Saves the index atomically.</summary>
@@ -166,34 +199,68 @@ public sealed class ShelfStore
     {
         var added = new List<ShelfItem>();
         var error = ShelfAddError.None;
-        foreach (var path in paths)
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var full = Path.GetFullPath(path);
-            var isFolder = Directory.Exists(full);
-            if (!isFolder && !File.Exists(full))
+            foreach (var path in paths)
             {
-                error = ShelfAddError.NotFound;
-                continue;
+                cancellationToken.ThrowIfCancellationRequested();
+                var result = await AddOneAsync(path, cancellationToken);
+                if (result.Item is { } item)
+                {
+                    added.Add(item);
+                }
+                else
+                {
+                    error = result.Error;
+                }
             }
+        }
+        finally
+        {
+            await SaveAsync(CancellationToken.None);
+        }
 
+        return (added, error);
+    }
+
+    private async Task<(ShelfItem? Item, ShelfAddError Error)> AddOneAsync(string path, CancellationToken cancellationToken)
+    {
+        if (!ShelfNames.IsAcceptableSource(path))
+        {
+            return (null, ShelfAddError.NotFound);
+        }
+
+        var full = Path.GetFullPath(path);
+        // Dropping the shelf itself (or a folder that contains it) would copy the copy forever.
+        if (ShelfNames.IsInside(Root, full) || ShelfNames.IsInside(full, Root) || string.Equals(full.TrimEnd('\\'), Root.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+        {
+            return (null, ShelfAddError.Failed);
+        }
+
+        var (isFolder, exists) = await Task.Run(() => (Directory.Exists(full), File.Exists(full) || Directory.Exists(full)), cancellationToken);
+        if (!exists)
+        {
+            return (null, ShelfAddError.NotFound);
+        }
+
+        try
+        {
             if (_index.Mode == ShelfMode.Link)
             {
-                added.Add(Register(new ShelfItem
+                return (Register(new ShelfItem
                 {
-                    Name = Path.GetFileName(full.TrimEnd(Path.DirectorySeparatorChar)),
+                    Name = ShelfNames.Sanitize(Path.GetFileName(full.TrimEnd(Path.DirectorySeparatorChar))),
                     Kind = isFolder ? ShelfItemKind.Folder : KindOf(full),
                     LinkedPath = full,
                     SizeBytes = isFolder ? 0 : new FileInfo(full).Length,
-                }));
-                continue;
+                }), ShelfAddError.None);
             }
 
-            var size = isFolder ? FolderSize(new DirectoryInfo(full)) : new FileInfo(full).Length;
-            if (UsedBytes + size > _index.MaxSizeMb * 1024L * 1024L)
+            var budget = (_index.MaxSizeMb * 1024L * 1024L) - UsedBytes;
+            var size = await Task.Run(() => isFolder ? FolderSize(new DirectoryInfo(full)) : new FileInfo(full).Length, cancellationToken);
+            if (size > budget)
             {
-                error = ShelfAddError.TooLarge;
-                continue;
+                return (null, ShelfAddError.TooLarge);
             }
 
             var item = new ShelfItem { Kind = isFolder ? ShelfItemKind.Folder : KindOf(full), SizeBytes = size };
@@ -203,29 +270,84 @@ public sealed class ShelfStore
             {
                 if (isFolder)
                 {
-                    await Task.Run(() => CopyFolder(new DirectoryInfo(full), new DirectoryInfo(target), cancellationToken), cancellationToken);
+                    var copied = 0L;
+                    await Task.Run(() => CopyFolder(new DirectoryInfo(full), new DirectoryInfo(target), budget, ref copied, cancellationToken), cancellationToken);
+                    item.SizeBytes = copied;
                 }
                 else
                 {
-                    await using var source = new FileStream(full, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 81920, useAsync: true);
-                    await using var destination = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, useAsync: true);
-                    await source.CopyToAsync(destination, cancellationToken);
+                    await using (var source = new FileStream(full, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 81920, useAsync: true))
+                    await using (var destination = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, useAsync: true))
+                    {
+                        item.SizeBytes = await CopyLimitedAsync(source, destination, budget, cancellationToken);
+                    }
+
+                    CopyZoneIdentifier(full, target);
                 }
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or OperationCanceledException or InvalidOperationException)
             {
                 DeleteItemFolder(item);
-                error = ShelfAddError.Failed;
-                continue;
+                return (null, ex is QuotaExceededException ? ShelfAddError.TooLarge : ShelfAddError.Failed);
             }
 
             item.Name = name;
             item.StoredPath = Path.GetRelativePath(Root, target);
-            added.Add(Register(item));
+            return (Register(item), ShelfAddError.None);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            return (null, ShelfAddError.Failed);
+        }
+    }
+
+    private sealed class QuotaExceededException() : IOException("Shelf size limit reached.");
+
+    private static async Task<long> CopyLimitedAsync(Stream source, Stream destination, long budget, CancellationToken ct)
+    {
+        var buffer = new byte[81920];
+        long total = 0;
+        int read;
+        while ((read = await source.ReadAsync(buffer, ct)) > 0)
+        {
+            total += read;
+            if (total > budget)
+            {
+                // The file grew while we copied it.
+                throw new QuotaExceededException();
+            }
+
+            await destination.WriteAsync(buffer.AsMemory(0, read), ct);
         }
 
-        await SaveAsync(cancellationToken);
-        return (added, error);
+        return total;
+    }
+
+    /// <summary>Keeps the "downloaded from the internet" mark, so Windows still warns before running the copy.</summary>
+    private static void CopyZoneIdentifier(string source, string target)
+    {
+        try
+        {
+            var zone = File.ReadAllText(source + ":Zone.Identifier");
+            File.WriteAllText(target + ":Zone.Identifier", zone);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            // No mark on the original (or a file system without streams): nothing to keep.
+        }
+    }
+
+    /// <summary>Marks content that came from another app (browser, mail) as Internet zone.</summary>
+    private static void MarkFromInternet(string target)
+    {
+        try
+        {
+            File.WriteAllText(target + ":Zone.Identifier", "[ZoneTransfer]\r\nZoneId=3\r\n");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            // Best effort.
+        }
     }
 
     /// <summary>Saves dropped text as a <c>.txt</c> file.</summary>
@@ -238,7 +360,7 @@ public sealed class ShelfStore
 
     /// <summary>Saves a file that came as content (browser download, mail attachment).</summary>
     public Task<ShelfItem?> AddVirtualFileAsync(string name, byte[] content, CancellationToken cancellationToken = default) =>
-        AddContentAsync(ShelfNames.Sanitize(name), content, null, cancellationToken);
+        AddContentAsync(ShelfNames.Sanitize(name), content, null, cancellationToken, fromInternet: true);
 
     /// <summary>Removes items (and their copies).</summary>
     public async Task RemoveAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
@@ -273,7 +395,7 @@ public sealed class ShelfStore
         return old.Count;
     }
 
-    private async Task<ShelfItem?> AddContentAsync(string name, byte[] content, ShelfItemKind? kind, CancellationToken cancellationToken)
+    private async Task<ShelfItem?> AddContentAsync(string name, byte[] content, ShelfItemKind? kind, CancellationToken cancellationToken, bool fromInternet = false)
     {
         if (UsedBytes + content.Length > _index.MaxSizeMb * 1024L * 1024L)
         {
@@ -283,7 +405,20 @@ public sealed class ShelfStore
         var safe = ShelfNames.Sanitize(name);
         var item = new ShelfItem { Name = safe, Kind = kind ?? KindOf(safe), SizeBytes = content.Length };
         var target = TargetPath(item, safe);
-        await File.WriteAllBytesAsync(target, content, cancellationToken);
+        try
+        {
+            await File.WriteAllBytesAsync(target, content, cancellationToken);
+            if (fromInternet)
+            {
+                MarkFromInternet(target);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or OperationCanceledException)
+        {
+            DeleteItemFolder(item);
+            return null;
+        }
+
         item.StoredPath = Path.GetRelativePath(Root, target);
         Register(item);
         await SaveAsync(cancellationToken);
@@ -329,11 +464,13 @@ public sealed class ShelfStore
     }
 
     private static bool IsValid(ShelfItem item) =>
-        item.StoredPath is not null ^ item.LinkedPath is not null;
+        (item.StoredPath is not null ^ item.LinkedPath is not null)
+        && (item.LinkedPath is null || ShelfNames.IsAcceptableSource(item.LinkedPath));
 
-    private static void CopyFolder(DirectoryInfo source, DirectoryInfo target, CancellationToken ct)
+    private static void CopyFolder(DirectoryInfo source, DirectoryInfo target, long budget, ref long copied, CancellationToken ct)
     {
         target.Create();
+        var taken = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var entry in source.EnumerateFileSystemInfos())
         {
             ct.ThrowIfCancellationRequested();
@@ -343,14 +480,24 @@ public sealed class ShelfStore
                 continue;
             }
 
-            var name = ShelfNames.Sanitize(entry.Name);
+            // Long names cut to the same prefix must not collide.
+            var name = ShelfNames.Unique(ShelfNames.Sanitize(entry.Name), taken);
+            taken.Add(name);
             if (entry is DirectoryInfo dir)
             {
-                CopyFolder(dir, new DirectoryInfo(Path.Combine(target.FullName, name)), ct);
+                CopyFolder(dir, new DirectoryInfo(Path.Combine(target.FullName, name)), budget, ref copied, ct);
             }
             else if (entry is FileInfo file)
             {
-                file.CopyTo(Path.Combine(target.FullName, name), overwrite: false);
+                copied += file.Length;
+                if (copied > budget)
+                {
+                    throw new QuotaExceededException();
+                }
+
+                var destination = Path.Combine(target.FullName, name);
+                file.CopyTo(destination, overwrite: false);
+                CopyZoneIdentifier(file.FullName, destination);
             }
         }
     }

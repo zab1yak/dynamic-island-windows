@@ -33,7 +33,12 @@ public static class ShelfNames
         var builder = new StringBuilder(raw.Length);
         foreach (var c in raw)
         {
-            builder.Append(char.IsControl(c) || invalid.Contains(c) ? '_' : c);
+            // Format characters (U+202E RLO, zero-width, isolates) can disguise "cod.exe" as "exe.doc".
+            var category = char.GetUnicodeCategory(c);
+            var hidden = category is System.Globalization.UnicodeCategory.Format or System.Globalization.UnicodeCategory.LineSeparator
+                or System.Globalization.UnicodeCategory.ParagraphSeparator or System.Globalization.UnicodeCategory.PrivateUse
+                or System.Globalization.UnicodeCategory.Surrogate;
+            builder.Append(char.IsControl(c) || invalid.Contains(c) || hidden ? '_' : c);
         }
 
         var clean = builder.ToString().Trim().TrimEnd('.', ' ');
@@ -45,7 +50,7 @@ public static class ShelfNames
         var stem = Path.GetFileNameWithoutExtension(clean);
         var extension = Path.GetExtension(clean);
         // "CON", "con.txt", "COM1.tar.gz" are all device names to Windows.
-        var device = stem.Split('.')[0];
+        var device = stem.Split('.')[0].TrimEnd(' ');
         if (Reserved.Contains(device))
         {
             stem = "_" + stem;
@@ -88,6 +93,26 @@ public static class ShelfNames
             }
         }
     }
+
+    /// <summary>Extensions that run code when opened; such items are revealed in Explorer instead of opened.</summary>
+    public static readonly IReadOnlySet<string> ExecutableExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ".exe", ".com", ".scr", ".pif", ".bat", ".cmd", ".ps1", ".psm1", ".vbs", ".vbe", ".js", ".jse", ".wsf", ".wsh",
+        ".hta", ".lnk", ".url", ".msi", ".msp", ".msix", ".appx", ".appinstaller", ".reg", ".jar", ".cpl", ".dll",
+        ".sys", ".inf", ".application", ".gadget", ".scf", ".chm", ".iso", ".img", ".vhd", ".vhdx", ".settingcontent-ms",
+    };
+
+    /// <summary>Whether opening <paramref name="name"/> would run code.</summary>
+    public static bool IsExecutable(string name) => ExecutableExtensions.Contains(Path.GetExtension(name));
+
+    /// <summary>
+    /// A local, fully qualified path we are willing to read: no relative paths (they resolve against
+    /// the current folder), no UNC shares (Windows would authenticate to the remote host) and no
+    /// device paths.
+    /// </summary>
+    public static bool IsAcceptableSource(string path) =>
+        !string.IsNullOrWhiteSpace(path) && path.IndexOf('\0') < 0 && Path.IsPathFullyQualified(path)
+        && !path.StartsWith(@"\\", StringComparison.Ordinal) && !path.StartsWith("//", StringComparison.Ordinal);
 
     /// <summary>Whether <paramref name="path"/> resolves inside <paramref name="root"/>.</summary>
     public static bool IsInside(string root, string path)

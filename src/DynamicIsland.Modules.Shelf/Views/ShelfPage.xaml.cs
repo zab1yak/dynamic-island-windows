@@ -129,6 +129,7 @@ public partial class ShelfPage : UserControl
         var payload = DropPayloadReader.ReadClipboard();
         if (!payload.IsEmpty && ViewModel is { } vm)
         {
+            // HandleDropAsync catches its own failures.
             _ = vm.HandleDropAsync(payload, CancellationToken.None);
         }
     }
