@@ -56,7 +56,7 @@
                         <c:Icon Glyph="Previous" Filled="True" Width="18" Height="18" />
                     </Button>
                     <Button Style="{DynamicResource IconButton}" Width="44" Height="44" Margin="4,0" Command="{Binding PlayPauseCommand}"
-                            AutomationProperties.Name="{loc:Tr Media.Play}">
+                            AutomationProperties.Name="{Binding PlayPauseLabel}" ToolTip="{Binding PlayPauseLabel}">
                         <Grid>
                             <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="24" Height="24" RenderTransformOrigin="0.5,0.5">
                                 <c:Icon.RenderTransform><ScaleTransform /></c:Icon.RenderTransform>

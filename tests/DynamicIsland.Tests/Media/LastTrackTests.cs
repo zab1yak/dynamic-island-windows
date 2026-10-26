@@ -102,7 +102,9 @@ internal sealed class FakeLauncher(FakeMediaSource source, MediaSnapshot? appear
 
     public bool CanLaunch { get; set; } = true;
 
-    public bool TryLaunch(string appId)
+    public Task<bool> TryLaunchAsync(string appId) => Task.FromResult(TryLaunch(appId));
+
+    private bool TryLaunch(string appId)
     {
         Launched.Add(appId);
         if (CanLaunch && appears is not null)

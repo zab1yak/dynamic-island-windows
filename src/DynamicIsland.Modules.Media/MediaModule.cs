@@ -19,13 +19,14 @@ internal static class MediaStrings
 /// Music page: controls whatever plays in Windows (GSMTC) and remembers the last track across
 /// reboots (shown paused; resumed only when the user presses Play).
 /// </summary>
-public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource source, LastTrackStore store, RestoreFlow restore, ILogger<MediaModule> logger)
+public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource source, LastTrackStore store, RestoreFlow restore, TimeProvider time, ILogger<MediaModule> logger)
     : IIslandModule
 {
     /// <summary>Module id.</summary>
     public const string ModuleId = "media";
 
     private bool _restoring;
+    private ITimer? _saveTimer;
 
     /// <inheritdoc />
     public string Id => ModuleId;
@@ -53,7 +54,12 @@ public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource so
     {
         Loc.Instance.Register(MediaStrings.Manager);
         viewModel.CommandFallback = ResumeSavedTrackAsync;
-        viewModel.SnapshotChanged += (_, _) => _ = SaveAsync(force: false);
+        viewModel.SnapshotChanged += (_, _) =>
+        {
+            _ = SaveAsync(force: false);
+            UpdateSaveTimer();
+        };
+        Microsoft.Win32.SystemEvents.PowerModeChanged += OnPowerModeChanged;
         await source.StartAsync(cancellationToken);
         viewModel.Refresh();
 
@@ -79,8 +85,46 @@ public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource so
     /// <inheritdoc />
     public async Task ShutdownAsync()
     {
+        Microsoft.Win32.SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+        _saveTimer?.Dispose();
         await FlushAsync();
         viewModel.Dispose();
+    }
+
+    /// <summary>Saves the position every 5 s while playing, whatever the island shows.</summary>
+    private void UpdateSaveTimer()
+    {
+        var playing = viewModel.CurrentSnapshot?.IsPlaying == true && viewModel.RestoredAppId is null;
+        if (playing && _saveTimer is null)
+        {
+            _saveTimer = time.CreateTimer(_ => _ = SaveAsync(force: false), null, LastTrackStore.PeriodicInterval, LastTrackStore.PeriodicInterval);
+        }
+        else if (!playing && _saveTimer is not null)
+        {
+            _saveTimer.Dispose();
+            _saveTimer = null;
+        }
+    }
+
+    /// <summary>After sleep the media session manager may stop sending events: reconnect.</summary>
+    private void OnPowerModeChanged(object sender, Microsoft.Win32.PowerModeChangedEventArgs e)
+    {
+        if (e.Mode == Microsoft.Win32.PowerModes.Resume)
+        {
+            _ = ReconnectAsync();
+        }
+    }
+
+    private async Task ReconnectAsync()
+    {
+        try
+        {
+            await source.StartAsync(CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or InvalidOperationException)
+        {
+            logger.LogWarning(ex, "Reconnecting to media sessions after resume failed");
+        }
     }
 
     /// <summary>Periodic saves come from the progress of a playing track.</summary>

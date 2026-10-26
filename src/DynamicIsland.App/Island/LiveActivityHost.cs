@@ -25,9 +25,19 @@ internal sealed partial class LiveActivityHost : ObservableObject
     [ObservableProperty]
     private string? _secondaryIcon;
 
-    public LiveActivityHost(IEnumerable<IIslandModule> modules, TimeProvider time, IslandStateMachine stateMachine)
+    private readonly ModuleHost _host;
+
+    public LiveActivityHost(IEnumerable<IIslandModule> modules, TimeProvider time, IslandStateMachine stateMachine, ModuleHost host)
     {
         _modules = modules.ToList();
+        _host = host;
+        host.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ModuleHost.Pages))
+            {
+                Refresh();
+            }
+        };
         _arbiter = new LiveActivityArbiter(time);
         _stateMachine = stateMachine;
         _retry = new DispatcherTimer { Interval = LiveActivityArbiter.Hysteresis };
@@ -48,7 +58,8 @@ internal sealed partial class LiveActivityHost : ObservableObject
     private void Refresh()
     {
         _retry.Stop();
-        _arbiter.Update(_modules.Select(m => m.LiveActivities?.Current));
+        // Disabled or failed modules never reach the pill.
+        _arbiter.Update(_host.Pages.Select(m => m.LiveActivities?.Current));
         var result = _arbiter.Current;
         Primary = result.Primary?.ViewModel;
         Secondary = result.Secondary?.ViewModel;

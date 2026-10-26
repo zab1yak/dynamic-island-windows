@@ -117,7 +117,7 @@ public sealed class Scrubber : FrameworkElement
 
         IsDragging = false;
         ReleaseMouseCapture();
-        Value = _dragValue;
+        SetCurrentValue(ValueProperty, _dragValue);
         if (SeekCommand?.CanExecute(_dragValue) == true)
         {
             SeekCommand.Execute(_dragValue);

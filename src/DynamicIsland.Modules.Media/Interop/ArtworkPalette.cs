@@ -30,6 +30,11 @@ internal static class ArtworkPalette
             }
 
             var decoder = await BitmapDecoder.CreateAsync(stream);
+            if (decoder.PixelWidth == 0 || decoder.PixelHeight == 0 || decoder.PixelWidth > 4096 || decoder.PixelHeight > 4096)
+            {
+                return DominantColor.Fallback;
+            }
+
             var transform = new BitmapTransform { ScaledWidth = SampleSize, ScaledHeight = SampleSize, InterpolationMode = BitmapInterpolationMode.Linear };
             var pixels = await decoder.GetPixelDataAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, transform,
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);

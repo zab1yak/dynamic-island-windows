@@ -7,10 +7,11 @@ using Microsoft.Win32;
 namespace DynamicIsland.Modules.Media.Interop;
 
 /// <summary>
-/// Starts a media app from its AppUserModelID, using only well-defined, safe routes:
-/// 1) packaged / Start-menu apps through <c>shell:AppsFolder\&lt;AUMID&gt;</c>;
-/// 2) a known URL protocol (Spotify, Yandex Music) if it is registered;
-/// 3) a desktop app's exe registered under <c>App Paths</c>.
+/// Starts a media app from its AppUserModelID, using only well-defined, safe routes, cheapest first:
+/// 1) a known URL protocol (Spotify, Yandex Music) if it is registered;
+/// 2) packaged apps (<c>Package!App</c>) through <c>shell:AppsFolder\&lt;AUMID&gt;</c>;
+/// 3) a desktop app's exe registered machine-wide under <c>HKLM\…\App Paths</c> (local disk only);
+/// 4) a Start-menu entry with this AUMID, found by enumerating <c>shell:AppsFolder</c>.
 /// The AUMID is never passed to a shell command line, only as a single argument.
 /// </summary>
 internal sealed class AppLauncher(ILogger<AppLauncher> logger) : IAppLauncher
@@ -23,28 +24,41 @@ internal sealed class AppLauncher(ILogger<AppLauncher> logger) : IAppLauncher
         ["Yandex.Music"] = "yandexmusic",
     };
 
+    private static readonly string Explorer = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
+
     /// <inheritdoc />
-    public bool TryLaunch(string appId)
+    public Task<bool> TryLaunchAsync(string appId)
     {
         if (!IsPlausibleAppId(appId))
         {
             logger.LogWarning("Refusing to launch an implausible app id");
-            return false;
+            return Task.FromResult(false);
         }
 
-        if (appId.Contains('!', StringComparison.Ordinal) || IsInAppsFolder(appId))
-        {
-            return Start("explorer.exe", $@"shell:AppsFolder\{appId}");
-        }
+        // Registry and Shell enumeration can take a moment: never on the UI thread.
+        return Task.Run(() => TryLaunch(appId));
+    }
 
+    private bool TryLaunch(string appId)
+    {
         if (KnownProtocols.TryGetValue(appId, out var protocol) && IsProtocolRegistered(protocol))
         {
             return StartShell($"{protocol}:");
         }
 
+        if (appId.Contains('!', StringComparison.Ordinal))
+        {
+            return Start(Explorer, $@"shell:AppsFolder\{appId}");
+        }
+
         if (appId.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && FindAppPath(appId) is { } exe)
         {
             return Start(exe, null);
+        }
+
+        if (IsInAppsFolder(appId))
+        {
+            return Start(Explorer, $@"shell:AppsFolder\{appId}");
         }
 
         logger.LogInformation("No known way to start {App}", appId);
@@ -98,25 +112,23 @@ internal sealed class AppLauncher(ILogger<AppLauncher> logger) : IAppLauncher
 
     private static string? FindAppPath(string exeName)
     {
-        foreach (var hive in new[] { Registry.CurrentUser, Registry.LocalMachine })
+        // HKLM only: HKCU App Paths can be written by any process of the user.
+        using var key = Registry.LocalMachine.OpenSubKey($@"Software\Microsoft\Windows\CurrentVersion\App Paths\{exeName}");
+        if (key?.GetValue(null) is not string raw)
         {
-            using var key = hive.OpenSubKey($@"Software\Microsoft\Windows\CurrentVersion\App Paths\{exeName}");
-            if (key?.GetValue(null) is string path)
-            {
-                path = Environment.ExpandEnvironmentVariables(path.Trim('"'));
-                if (Path.IsPathFullyQualified(path) && File.Exists(path))
-                {
-                    return path;
-                }
-            }
+            return null;
         }
 
-        return null;
+        var path = Environment.ExpandEnvironmentVariables(raw.Trim('"'));
+        var isLocal = Path.IsPathFullyQualified(path) && !path.StartsWith(@"\\", StringComparison.Ordinal)
+            && path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+        return isLocal && File.Exists(path) ? path : null;
     }
 
     /// <summary>Whether a Start-menu entry with this AUMID exists (Shell.Application → AppsFolder).</summary>
     private bool IsInAppsFolder(string appId)
     {
+        object? shell = null;
         try
         {
             var type = Type.GetTypeFromProgID("Shell.Application");
@@ -125,11 +137,13 @@ internal sealed class AppLauncher(ILogger<AppLauncher> logger) : IAppLauncher
                 return false;
             }
 
-            dynamic shell = Activator.CreateInstance(type)!;
-            dynamic folder = shell.NameSpace("shell:AppsFolder");
+            shell = Activator.CreateInstance(type)!;
+            dynamic folder = ((dynamic)shell).NameSpace("shell:AppsFolder");
             foreach (var item in folder.Items())
             {
-                if (string.Equals((string)item.Path, appId, StringComparison.OrdinalIgnoreCase))
+                var path = (string)item.Path;
+                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(item);
+                if (string.Equals(path, appId, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -138,6 +152,13 @@ internal sealed class AppLauncher(ILogger<AppLauncher> logger) : IAppLauncher
         catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or Microsoft.CSharp.RuntimeBinder.RuntimeBinderException or InvalidCastException)
         {
             logger.LogDebug(ex, "AppsFolder lookup failed");
+        }
+        finally
+        {
+            if (shell is not null)
+            {
+                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell);
+            }
         }
 
         return false;

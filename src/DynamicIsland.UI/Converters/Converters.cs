@@ -12,8 +12,11 @@ public sealed class BytesToImageConverter : IValueConverter
 {
     private static readonly ConditionalWeakTable<byte[], BitmapImage> Cache = new();
 
-    /// <summary>Decode width in pixels (artwork is shown at most ~64 DIP).</summary>
-    public int DecodePixelWidth { get; set; } = 160;
+    private const int MaxDimension = 4096;
+    private const long MaxPixels = 16_000_000;
+
+    /// <summary>Decode width in pixels (artwork is shown at most ~84 DIP, 2x for high DPI).</summary>
+    public int DecodePixelWidth { get; set; } = 192;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -29,8 +32,17 @@ public sealed class BytesToImageConverter : IValueConverter
 
         try
         {
-            var image = new BitmapImage();
             using var stream = new MemoryStream(bytes, writable: false);
+            // Untrusted artwork: read the header first and refuse decompression bombs.
+            var frame = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None).Frames[0];
+            if (frame.PixelWidth <= 0 || frame.PixelHeight <= 0 || frame.PixelWidth > MaxDimension || frame.PixelHeight > MaxDimension
+                || (long)frame.PixelWidth * frame.PixelHeight > MaxPixels)
+            {
+                return null;
+            }
+
+            stream.Position = 0;
+            var image = new BitmapImage();
             image.BeginInit();
             image.CacheOption = BitmapCacheOption.OnLoad;
             image.DecodePixelWidth = DecodePixelWidth;
@@ -40,7 +52,8 @@ public sealed class BytesToImageConverter : IValueConverter
             Cache.AddOrUpdate(bytes, image);
             return image;
         }
-        catch (Exception ex) when (ex is NotSupportedException or FileFormatException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is NotSupportedException or FileFormatException or InvalidOperationException or ArgumentException
+            or FormatException or OutOfMemoryException or System.Runtime.InteropServices.COMException or IOException)
         {
             return null;
         }

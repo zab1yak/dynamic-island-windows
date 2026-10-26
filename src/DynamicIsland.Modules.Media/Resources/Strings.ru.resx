@@ -14,6 +14,7 @@
   <data name="Media.Restore.Browser" xml:space="preserve"><value>Откройте вкладку в браузере, чтобы продолжить</value></data>
   <data name="Media.Restore.CannotLaunch" xml:space="preserve"><value>Откройте приложение сами, чтобы продолжить</value></data>
   <data name="Media.Restore.NoPosition" xml:space="preserve"><value>Играет, но приложение не вернуло позицию</value></data>
+  <data name="Media.Restore.PressPlay" xml:space="preserve"><value>Нажмите Play, чтобы продолжить в приложении</value></data>
   <data name="Media.Restore.Starting" xml:space="preserve"><value>Открываю приложение…</value></data>
   <data name="Media.Restore.TimedOut" xml:space="preserve"><value>Приложение открылось, но не начало воспроизведение вовремя</value></data>
   <data name="Media.SwitchSource" xml:space="preserve"><value>Сменить источник</value></data>

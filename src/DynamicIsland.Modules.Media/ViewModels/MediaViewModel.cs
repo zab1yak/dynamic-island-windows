@@ -15,7 +15,7 @@ namespace DynamicIsland.Modules.Media.ViewModels;
 public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySource, IDisposable
 {
     private static readonly TimeSpan ProgressInterval = TimeSpan.FromMilliseconds(250);
-    private static readonly TimeSpan VisualizerInterval = TimeSpan.FromMilliseconds(33);
+    private static readonly TimeSpan VisualizerInterval = TimeSpan.FromMilliseconds(50);
     private static readonly TimeSpan RecentPauseWindow = TimeSpan.FromMinutes(5);
 
     private readonly IMediaSessionSource _source;
@@ -28,6 +28,7 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
 
     private ITimer? _progressTimer;
     private ITimer? _visualizerTimer;
+    private ITimer? _pauseExpiry;
     private string? _selectedAppId;
     private MediaSnapshot? _current;
     private byte[]? _accentFor;
@@ -81,6 +82,9 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
 
     [ObservableProperty]
     private string? _notice;
+
+    [ObservableProperty]
+    private string _playPauseLabel = string.Empty;
 
     /// <summary>Creates the view model.</summary>
     /// <param name="accent">Computes the accent colour from artwork bytes.</param>
@@ -139,6 +143,7 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
     {
         _progressTimer?.Dispose();
         _visualizerTimer?.Dispose();
+        _pauseExpiry?.Dispose();
     }
 
     /// <summary>Re-reads sessions and selection (call after start-up and resume).</summary>
@@ -163,6 +168,13 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
     {
         if (_current is null)
         {
+            return;
+        }
+
+        if (!_current.IsPlaying && RestoredAppId is not null && CommandFallback is not null)
+        {
+            // The saved track from before the reboot: only Play may start the app again.
+            await CommandFallback();
             return;
         }
 
@@ -228,14 +240,10 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
     /// <summary>Hook for the last-track restore flow when a command has no live session to act on.</summary>
     public Func<Task<bool>>? CommandFallback { get; set; }
 
-    private async Task OnCommandFailedAsync()
+    private Task OnCommandFailedAsync()
     {
-        if (CommandFallback is not null && await CommandFallback())
-        {
-            return;
-        }
-
-        ShowNotice(MediaStrings.Get("Media.CommandFailed"));
+        ShowNotice(MediaStrings.Get(RestoredAppId is null ? "Media.CommandFailed" : "Media.Restore.PressPlay"));
+        return Task.CompletedTask;
     }
 
     private void OnSessionsChanged()
@@ -295,7 +303,13 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         else if (snapshot is not null && !snapshot.IsPlaying && previous?.IsPlaying == true)
         {
             _pausedAt = _time.GetUtcNow();
+            // The "recently paused" pill must disappear on time even if no media event arrives.
+            _pauseExpiry?.Dispose();
+            _pauseExpiry = _time.CreateTimer(_ => _dispatcher.Post(() => Changed?.Invoke(this, EventArgs.Empty)),
+                null, RecentPauseWindow + TimeSpan.FromSeconds(1), Timeout.InfiniteTimeSpan);
         }
+
+        PlayPauseLabel = MediaStrings.Get(IsPlaying ? "Media.Pause" : "Media.Play");
 
         if (!ReferenceEquals(_accentFor, snapshot?.Artwork))
         {
@@ -331,21 +345,17 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         var now = _time.GetUtcNow();
         PositionText = PositionInterpolator.Format(PositionInterpolator.At(_current, now));
         Progress = PositionInterpolator.Progress(_current, now);
-        if (_current.IsPlaying && RestoredAppId is null)
-        {
-            // Lets the last-track store save the position every few seconds while playing.
-            SnapshotChanged?.Invoke(this, EventArgs.Empty);
-        }
     }
 
     private void UpdateTimers()
     {
         var mode = _island.Mode;
         var playing = _current?.IsPlaying == true;
-        var visible = mode != IslandMode.Hidden;
+        // Bars are on screen only in the live pill and on the expanded page.
+        var barsVisible = mode == IslandMode.LiveActivity || IslandMetrics.IsExpanded(mode);
 
         SetTimer(ref _progressTimer, playing && IslandMetrics.IsExpanded(mode), ProgressInterval, UpdateProgress);
-        SetTimer(ref _visualizerTimer, playing && visible, VisualizerInterval, TickVisualizer);
+        SetTimer(ref _visualizerTimer, playing && barsVisible, VisualizerInterval, TickVisualizer);
         if (!playing)
         {
             _visualizer.Rest();
@@ -374,7 +384,17 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         }
 
         _visualizer.Push(_audio.ReadPeak());
-        Levels = [.. _visualizer.Levels];
+        var next = _visualizer.Levels;
+        var changed = false;
+        for (var i = 0; i < next.Count && !changed; i++)
+        {
+            changed = i >= Levels.Count || Math.Abs(next[i] - Levels[i]) > 0.01;
+        }
+
+        if (changed)
+        {
+            Levels = [.. next];
+        }
     }
 }
 

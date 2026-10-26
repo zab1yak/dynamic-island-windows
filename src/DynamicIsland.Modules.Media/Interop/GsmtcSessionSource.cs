@@ -14,16 +14,22 @@ namespace DynamicIsland.Modules.Media.Interop;
 /// <summary>
 /// <see cref="IMediaSessionSource"/> over the Windows Global System Media Transport Controls: works
 /// with every app that shows up in the Windows media flyout (Spotify, Yandex Music, browsers, players).
+/// WinRT events arrive on thread-pool threads; every state change goes through one async gate and
+/// the UI only ever sees immutable snapshot lists.
 /// </summary>
-internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<GsmtcSessionSource> logger) : IMediaSessionSource, IDisposable
+internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, TimeProvider time, ILogger<GsmtcSessionSource> logger) : IMediaSessionSource, IDisposable
 {
-    private const int MaxArtworkBytes = 4 * 1024 * 1024;
+    internal const int MaxArtworkBytes = 4 * 1024 * 1024;
+
+    /// <summary>Timelines older than this are a zero FILETIME (1601) or garbage: position is unknown.</summary>
+    private static readonly DateTimeOffset MinValidTimestamp = new(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     private readonly Dictionary<string, MediaSnapshot> _snapshots = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Session> _sessions = new(StringComparer.Ordinal);
-    private readonly SemaphoreSlim _refreshGate = new(1, 1);
+    private readonly SemaphoreSlim _gate = new(1, 1);
     private SessionManager? _manager;
-    private IReadOnlyList<MediaSnapshot> _ordered = [];
+    private volatile IReadOnlyList<MediaSnapshot> _ordered = [];
+    private bool _disposed;
 
     /// <inheritdoc />
     public IReadOnlyList<MediaSnapshot> Sessions => _ordered;
@@ -34,19 +40,29 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
     /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        Detach();
+        await _gate.WaitAsync(cancellationToken);
         try
         {
-            _manager = await SessionManager.RequestAsync().AsTask(cancellationToken);
+            Detach();
+            try
+            {
+                _manager = await SessionManager.RequestAsync().AsTask(cancellationToken);
+            }
+            catch (Exception ex) when (ex is COMException or UnauthorizedAccessException)
+            {
+                logger.LogWarning(ex, "Media session manager is unavailable");
+                PublishLocked();
+                return;
+            }
+
+            _manager.SessionsChanged += OnSessionsChanged;
+            _manager.CurrentSessionChanged += OnSessionsChanged;
         }
-        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException)
+        finally
         {
-            logger.LogWarning(ex, "Media session manager is unavailable");
-            return;
+            _gate.Release();
         }
 
-        _manager.SessionsChanged += OnSessionsChanged;
-        _manager.CurrentSessionChanged += OnSessionsChanged;
         await RefreshSessionsAsync();
     }
 
@@ -63,19 +79,34 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
     public Task<bool> PreviousAsync(string appId) => Run(appId, s => s.TrySkipPreviousAsync().AsTask());
 
     /// <inheritdoc />
-    public Task<bool> SeekAsync(string appId, TimeSpan position) =>
-        Run(appId, s => s.TryChangePlaybackPositionAsync(Math.Max(0, position.Ticks)).AsTask());
+    public Task<bool> SeekAsync(string appId, TimeSpan position) => Run(appId, async s =>
+    {
+        // Timeline positions are relative to StartTime (non-zero for some live streams).
+        var start = s.GetTimelineProperties()?.StartTime ?? TimeSpan.Zero;
+        return await s.TryChangePlaybackPositionAsync(Math.Max(0, (start + position).Ticks));
+    });
 
     /// <inheritdoc />
     public void Dispose()
     {
+        _disposed = true;
         Detach();
-        _refreshGate.Dispose();
     }
 
     private async Task<bool> Run(string appId, Func<Session, Task<bool>> command)
     {
-        if (!_sessions.TryGetValue(appId, out var session))
+        Session? session;
+        await _gate.WaitAsync();
+        try
+        {
+            _sessions.TryGetValue(appId, out session);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+
+        if (session is null)
         {
             return false;
         }
@@ -95,20 +126,29 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
 
     private async Task RefreshSessionsAsync()
     {
-        if (_manager is null)
+        if (_disposed)
         {
             return;
         }
 
-        await _refreshGate.WaitAsync();
+        await _gate.WaitAsync();
         try
         {
-            var live = _manager.GetSessions().GroupBy(s => s.SourceAppUserModelId).Select(g => g.First()).ToList();
-            foreach (var gone in _sessions.Keys.Except(live.Select(s => s.SourceAppUserModelId)).ToList())
+            if (_manager is null)
             {
-                Unsubscribe(_sessions[gone]);
-                _sessions.Remove(gone);
-                _snapshots.Remove(gone);
+                return;
+            }
+
+            var live = _manager.GetSessions().GroupBy(s => s.SourceAppUserModelId).Select(g => g.First()).ToList();
+            foreach (var (id, old) in _sessions.ToList())
+            {
+                // Gone, or the app restarted and registered a new session object under the same id.
+                if (!live.Any(s => ReferenceEquals(s, old) || (s.SourceAppUserModelId == id && s.Equals(old))))
+                {
+                    Unsubscribe(old);
+                    _sessions.Remove(id);
+                    _snapshots.Remove(id);
+                }
             }
 
             foreach (var session in live)
@@ -118,20 +158,20 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
                     session.MediaPropertiesChanged += OnMediaPropertiesChanged;
                     session.PlaybackInfoChanged += OnPlaybackChanged;
                     session.TimelinePropertiesChanged += OnTimelineChanged;
-                    await UpdateSnapshotAsync(session, includeMedia: true);
+                    await UpdateSnapshotLockedAsync(session, includeMedia: true);
                 }
             }
+
+            PublishLocked();
         }
-        catch (COMException ex)
+        catch (Exception ex) when (ex is COMException or InvalidOperationException)
         {
             logger.LogWarning(ex, "Refreshing media sessions failed");
         }
         finally
         {
-            _refreshGate.Release();
+            _gate.Release();
         }
-
-        Publish();
     }
 
     private void OnMediaPropertiesChanged(Session sender, MediaPropertiesChangedEventArgs args) => _ = UpdateAndPublishAsync(sender, includeMedia: true);
@@ -142,18 +182,32 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
 
     private async Task UpdateAndPublishAsync(Session session, bool includeMedia)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        await _gate.WaitAsync();
         try
         {
-            await UpdateSnapshotAsync(session, includeMedia);
-            Publish();
+            // Ignore late events from a session we already dropped.
+            if (_sessions.TryGetValue(session.SourceAppUserModelId, out var known) && ReferenceEquals(known, session))
+            {
+                await UpdateSnapshotLockedAsync(session, includeMedia);
+                PublishLocked();
+            }
         }
         catch (Exception ex) when (ex is COMException or InvalidOperationException or IOException)
         {
             logger.LogDebug(ex, "Media update failed");
         }
+        finally
+        {
+            _gate.Release();
+        }
     }
 
-    private async Task UpdateSnapshotAsync(Session session, bool includeMedia)
+    private async Task UpdateSnapshotLockedAsync(Session session, bool includeMedia)
     {
         var appId = session.SourceAppUserModelId;
         _snapshots.TryGetValue(appId, out var previous);
@@ -168,7 +222,9 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
                 title = media.Title ?? string.Empty;
                 artist = media.Artist ?? string.Empty;
                 album = media.AlbumTitle ?? string.Empty;
-                artwork = await ReadArtworkAsync(media.Thumbnail);
+                var fresh = await ReadArtworkAsync(media.Thumbnail);
+                // Same picture → keep the same array, so caches keyed by reference stay valid.
+                artwork = fresh is not null && artwork is not null && fresh.AsSpan().SequenceEqual(artwork) ? artwork : fresh;
             }
         }
 
@@ -180,8 +236,18 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
             GsmtcPlaybackStatus.Paused => PlaybackState.Paused,
             _ => PlaybackState.Stopped,
         };
-        var duration = timeline is null ? TimeSpan.Zero : timeline.EndTime - timeline.StartTime;
-        var snapshot = new MediaSnapshot(
+
+        var hasTimeline = timeline is not null && timeline.LastUpdatedTime >= MinValidTimestamp && timeline.EndTime > timeline.StartTime;
+        var duration = hasTimeline ? timeline!.EndTime - timeline.StartTime : TimeSpan.Zero;
+        var position = hasTimeline ? timeline!.Position - timeline.StartTime : TimeSpan.Zero;
+        var updatedAt = hasTimeline ? timeline!.LastUpdatedTime : default;
+        if (hasTimeline && state == PlaybackState.Playing && previous is { IsPlaying: false } && previous.PositionUpdatedAt == updatedAt)
+        {
+            // Resumed, but the app has not sent a fresh timeline yet: count from now, not from before the pause.
+            updatedAt = time.GetUtcNow();
+        }
+
+        _snapshots[appId] = new MediaSnapshot(
             appId,
             previous?.AppName ?? ResolveAppName(appId),
             title,
@@ -189,24 +255,23 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, ILogger<Gsmtc
             album,
             artwork,
             state,
-            timeline?.Position ?? TimeSpan.Zero,
-            duration < TimeSpan.Zero ? TimeSpan.Zero : duration,
-            timeline?.LastUpdatedTime ?? DateTimeOffset.UtcNow,
+            position < TimeSpan.Zero ? TimeSpan.Zero : position,
+            duration,
+            updatedAt,
             playback?.PlaybackRate ?? 1.0,
-            playback?.Controls.IsPlaybackPositionEnabled ?? false,
+            hasTimeline && (playback?.Controls.IsPlaybackPositionEnabled ?? false),
             playback?.Controls.IsNextEnabled ?? false,
             playback?.Controls.IsPreviousEnabled ?? false);
-        _snapshots[appId] = snapshot;
     }
 
-    private void Publish()
+    private void PublishLocked()
     {
         var currentId = SafeCurrentId();
         _ordered = _snapshots.Values
             .OrderByDescending(s => s.AppId == currentId)
             .ThenByDescending(s => s.IsPlaying)
             .ThenBy(s => s.AppName, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+            .ToArray();
         dispatcher.Post(() => Changed?.Invoke(this, EventArgs.Empty));
     }
 

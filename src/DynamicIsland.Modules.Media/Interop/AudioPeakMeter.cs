@@ -14,12 +14,19 @@ internal sealed class AudioPeakMeter(ILogger<AudioPeakMeter> logger) : IAudioLev
     private MMDeviceEnumerator? _enumerator;
     private MMDevice? _device;
     private DateTime _nextRetry = DateTime.MinValue;
+    private DateTime _refreshAt = DateTime.MinValue;
 
     /// <inheritdoc />
     public float ReadPeak()
     {
         try
         {
+            if (_device is not null && DateTime.UtcNow >= _refreshAt)
+            {
+                // Re-read the default device now and then, so switching to headphones is followed.
+                Release();
+            }
+
             if (_device is null)
             {
                 if (DateTime.UtcNow < _nextRetry)
@@ -29,6 +36,7 @@ internal sealed class AudioPeakMeter(ILogger<AudioPeakMeter> logger) : IAudioLev
 
                 _enumerator ??= new MMDeviceEnumerator();
                 _device = _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                _refreshAt = DateTime.UtcNow.AddSeconds(5);
             }
 
             return Math.Clamp(_device.AudioMeterInformation.MasterPeakValue, 0f, 1f);

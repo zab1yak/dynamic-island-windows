@@ -22,8 +22,8 @@ public enum RestoreOutcome
 /// <summary>Starts a media app from its AppUserModelID.</summary>
 public interface IAppLauncher
 {
-    /// <summary>Tries to start the app; returns <c>false</c> when no safe way is known.</summary>
-    bool TryLaunch(string appId);
+    /// <summary>Tries to start the app (off the UI thread); returns <c>false</c> when no safe way is known.</summary>
+    Task<bool> TryLaunchAsync(string appId);
 }
 
 /// <summary>
@@ -62,7 +62,7 @@ public sealed class RestoreFlow(IMediaSessionSource source, IAppLauncher launche
                 return RestoreOutcome.Browser;
             }
 
-            if (!launcher.TryLaunch(saved.AppId))
+            if (!await launcher.TryLaunchAsync(saved.AppId))
             {
                 return RestoreOutcome.CannotLaunch;
             }

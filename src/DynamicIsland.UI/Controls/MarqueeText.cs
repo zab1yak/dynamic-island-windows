@@ -22,13 +22,21 @@ public sealed class MarqueeText : Canvas
 
     private readonly TextBlock _text = new() { TextTrimming = TextTrimming.None, TextWrapping = TextWrapping.NoWrap };
     private readonly TranslateTransform _offset = new();
+    private double _lastWidth;
 
     public MarqueeText()
     {
         ClipToBounds = true;
         _text.RenderTransform = _offset;
         Children.Add(_text);
-        SizeChanged += (_, _) => Restart();
+        SizeChanged += (_, e) =>
+        {
+            if (Math.Abs(e.NewSize.Width - _lastWidth) > 1)
+            {
+                _lastWidth = e.NewSize.Width;
+                Restart();
+            }
+        };
         IsVisibleChanged += (_, _) => Restart();
     }
 
@@ -73,6 +81,7 @@ public sealed class MarqueeText : Canvas
         var travel = TimeSpan.FromSeconds(overflow / PixelsPerSecond);
         var ease = new SineEase { EasingMode = EasingMode.EaseInOut };
         var frames = new DoubleAnimationUsingKeyFrames { RepeatBehavior = RepeatBehavior.Forever };
+        Timeline.SetDesiredFrameRate(frames, 30);
         frames.KeyFrames.Add(new DiscreteDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
         frames.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(Pause)));
         frames.KeyFrames.Add(new EasingDoubleKeyFrame(-overflow, KeyTime.FromTimeSpan(Pause + travel), ease));

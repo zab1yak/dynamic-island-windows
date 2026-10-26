@@ -33,6 +33,7 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
     private Timer? _recorderTimer;
     private bool _detectRecording;
     private IReadOnlyList<string> _recorders = [];
+    private volatile bool _disposed;
 
     public PrivacyMonitor(IUiDispatcher dispatcher, ILogger<PrivacyMonitor> logger)
     {
@@ -75,7 +76,7 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
             }
         }
 
-        Scan();
+        SafeScan();
     }
 
     /// <summary>Turns the screen-recording heuristic on or off.</summary>
@@ -86,23 +87,32 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         _recorderTimer = null;
         if (enabled)
         {
-            _recorderTimer = new Timer(_ => CheckRecorders(), null, TimeSpan.Zero, RecorderCheckInterval);
+            _recorderTimer = new Timer(_ => SafeCheckRecorders(), null, TimeSpan.Zero, RecorderCheckInterval);
         }
         else
         {
             _recorders = [];
-            Scan();
+            SafeScan();
         }
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
+        _disposed = true;
         _recorderTimer?.Dispose();
         _debounce?.Dispose();
         foreach (var watch in _watches)
         {
-            watch.Registration?.Unregister(null);
+            // Wait for an in-flight callback before the key and the event are closed.
+            using (var done = new ManualResetEvent(false))
+            {
+                if (watch.Registration?.Unregister(done) == true)
+                {
+                    done.WaitOne(TimeSpan.FromSeconds(1));
+                }
+            }
+
             watch.Signal.Dispose();
             watch.Key.Dispose();
         }
@@ -112,12 +122,42 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
 
     private void OnRegistryChanged(Watch watch)
     {
-        // A notification fires once; re-arm before scanning so no change is missed.
-        Arm(watch);
-        lock (_gate)
+        if (_disposed)
         {
-            _debounce?.Dispose();
-            _debounce = new Timer(_ => Scan(), null, Debounce, Timeout.InfiniteTimeSpan);
+            return;
+        }
+
+        try
+        {
+            // A notification fires once; re-arm before scanning so no change is missed.
+            Arm(watch);
+            lock (_gate)
+            {
+                _debounce?.Dispose();
+                _debounce = new Timer(_ => SafeScan(), null, Debounce, Timeout.InfiniteTimeSpan);
+            }
+        }
+        catch (Exception ex) when (ex is ObjectDisposedException or IOException or InvalidOperationException)
+        {
+            _logger.LogDebug(ex, "Registry watch re-arm failed");
+        }
+    }
+
+    /// <summary>Thread-pool callbacks must never throw: an unhandled exception there ends the process.</summary>
+    private void SafeScan()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        try
+        {
+            Scan();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Privacy scan failed");
         }
     }
 
@@ -129,6 +169,18 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         if (result != 0)
         {
             _logger.LogWarning("RegNotifyChangeKeyValue failed with {Error}", result);
+        }
+    }
+
+    private void SafeCheckRecorders()
+    {
+        try
+        {
+            CheckRecorders();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Recorder check failed");
         }
     }
 
@@ -155,7 +207,7 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         }
 
         _recorders = found;
-        Scan();
+        SafeScan();
     }
 
     private void Scan()

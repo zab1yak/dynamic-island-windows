@@ -381,6 +381,10 @@ internal sealed partial class IslandWindow : Window
         LiveLayer.Opacity = live;
         LiveScale.ScaleX = LiveScale.ScaleY = 0.96 + (0.04 * live);
         Outline.Opacity = expanded;
+        // Fully faded layers are hidden, so their animations (marquee, rolling digits) stop rendering.
+        ExpandedLayer.Visibility = expanded < 0.005 ? Visibility.Hidden : Visibility.Visible;
+        CompactLayer.Visibility = compact < 0.005 ? Visibility.Hidden : Visibility.Visible;
+        LiveLayer.Visibility = live < 0.005 ? Visibility.Hidden : Visibility.Visible;
         BodyShadow.Opacity = 0.45 * expanded;
         Body.Visibility = _height.Value < 0.5 ? Visibility.Hidden : Visibility.Visible;
     }

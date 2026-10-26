@@ -47,6 +47,8 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
     public static readonly TimeSpan PeriodicInterval = TimeSpan.FromSeconds(5);
 
     private const int KeepArtworkFiles = 8;
+    private const long MaxArtworkBytes = 4 * 1024 * 1024;
+    private bool _saving;
 
     private readonly SemaphoreSlim _gate = new(1, 1);
     private SavedTrack? _last;
@@ -61,6 +63,11 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
     public async Task<bool> OnSnapshotAsync(MediaSnapshot? snapshot, bool force = false)
     {
         if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.Title))
+        {
+            return false;
+        }
+
+        if (_saving && !force)
         {
             return false;
         }
@@ -90,10 +97,10 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
         byte[]? artwork = null;
         if (IsSafeArtworkName(track.ArtworkFile))
         {
-            var path = storage.ResolvePath(Path.Combine(ArtFolder, track.ArtworkFile!));
-            if (File.Exists(path))
+            var file = new FileInfo(storage.ResolvePath(Path.Combine(ArtFolder, track.ArtworkFile!)));
+            if (file.Exists && file.Length <= MaxArtworkBytes && (file.Attributes & FileAttributes.ReparsePoint) == 0)
             {
-                artwork = await File.ReadAllBytesAsync(path, cancellationToken);
+                artwork = await File.ReadAllBytesAsync(file.FullName, cancellationToken);
             }
         }
 
@@ -114,6 +121,7 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
     private async Task SaveAsync(MediaSnapshot snapshot, DateTimeOffset now, bool writeArtwork)
     {
         await _gate.WaitAsync();
+        _saving = true;
         try
         {
             var artworkFile = _last?.ArtworkFile;
@@ -142,6 +150,7 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
         }
         finally
         {
+            _saving = false;
             _gate.Release();
         }
     }
