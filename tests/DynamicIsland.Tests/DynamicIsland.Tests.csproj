@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <UseWPF>true</UseWPF>
+    <!-- Test method names describe behaviour with underscores. -->
+    <NoWarn>$(NoWarn);CA1707;CA2007</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DynamicIsland.Core\DynamicIsland.Core.csproj" />
+    <ProjectReference Include="..\..\src\DynamicIsland.Platform.Windows\DynamicIsland.Platform.Windows.csproj" />
+    <ProjectReference Include="..\..\src\DynamicIsland.UI\DynamicIsland.UI.csproj" />
+    <ProjectReference Include="..\..\src\DynamicIsland.App\DynamicIsland.App.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+</Project>

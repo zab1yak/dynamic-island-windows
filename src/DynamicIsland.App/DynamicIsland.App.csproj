@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>DynamicIsland</AssemblyName>
+    <RootNamespace>DynamicIsland.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <StartupObject>DynamicIsland.App.Program</StartupObject>
+    <ApplicationIcon>Assets\island.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Program.Main builds the host before WPF starts, so App.xaml must not generate Main. -->
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
+    <Resource Include="Assets\island.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="H.NotifyIcon.Wpf" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Sinks.File" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicIsland.Core\DynamicIsland.Core.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Platform.Windows\DynamicIsland.Platform.Windows.csproj" />
+    <ProjectReference Include="..\DynamicIsland.UI\DynamicIsland.UI.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Media\DynamicIsland.Modules.Media.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Pomodoro\DynamicIsland.Modules.Pomodoro.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Water\DynamicIsland.Modules.Water.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Shelf\DynamicIsland.Modules.Shelf.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Todo\DynamicIsland.Modules.Todo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicIsland.Tests" />
+  </ItemGroup>
+
+</Project>

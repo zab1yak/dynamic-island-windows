@@ -1,0 +1,10 @@
+{
+  "App.Name": { "en": "Dynamic Island", "ru": "Dynamic Island" },
+  "Tray.Tooltip": { "en": "Dynamic Island", "ru": "Dynamic Island" },
+  "Tray.Settings": { "en": "Settings…", "ru": "Настройки…" },
+  "Tray.Restart": { "en": "Restart", "ru": "Перезапустить" },
+  "Tray.Exit": { "en": "Exit", "ru": "Выход" },
+  "Error.Title": { "en": "Something went wrong", "ru": "Что-то пошло не так" },
+  "Error.Recovered": { "en": "The error was logged; the island keeps working.", "ru": "Ошибка записана в лог, остров продолжает работать." },
+  "Error.Fatal": { "en": "Dynamic Island hit repeated errors and will close. Logs: {0}", "ru": "Dynamic Island несколько раз подряд столкнулся с ошибкой и будет закрыт. Логи: {0}" }
+}

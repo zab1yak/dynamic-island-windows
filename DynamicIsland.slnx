@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DynamicIsland.App/DynamicIsland.App.csproj" />
+    <Project Path="src/DynamicIsland.Core/DynamicIsland.Core.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Media/DynamicIsland.Modules.Media.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Pomodoro/DynamicIsland.Modules.Pomodoro.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Shelf/DynamicIsland.Modules.Shelf.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Todo/DynamicIsland.Modules.Todo.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Water/DynamicIsland.Modules.Water.csproj" />
+    <Project Path="src/DynamicIsland.Platform.Windows/DynamicIsland.Platform.Windows.csproj" />
+    <Project Path="src/DynamicIsland.UI/DynamicIsland.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DynamicIsland.Tests/DynamicIsland.Tests.csproj" />
+  </Folder>
+</Solution>

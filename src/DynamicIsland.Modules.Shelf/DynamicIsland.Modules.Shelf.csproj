@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicIsland.Core\DynamicIsland.Core.csproj" />
+    <ProjectReference Include="..\DynamicIsland.UI\DynamicIsland.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicIsland.Tests" />
+  </ItemGroup>
+
+</Project>

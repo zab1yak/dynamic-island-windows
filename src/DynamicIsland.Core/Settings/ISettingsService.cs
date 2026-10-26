@@ -1,0 +1,17 @@
+namespace DynamicIsland.Core.Settings;
+
+/// <summary>Loads, migrates and saves <see cref="AppSettings"/>.</summary>
+public interface ISettingsService
+{
+    /// <summary>The live settings instance. Valid after <see cref="LoadAsync"/>.</summary>
+    AppSettings Current { get; }
+
+    /// <summary>Raised on the calling thread after <see cref="SaveAsync"/> succeeds.</summary>
+    event EventHandler? Changed;
+
+    /// <summary>Loads settings from disk, applying migrations and clamping invalid values.</summary>
+    Task LoadAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Persists <see cref="Current"/> and raises <see cref="Changed"/>.</summary>
+    Task SaveAsync(CancellationToken cancellationToken = default);
+}
