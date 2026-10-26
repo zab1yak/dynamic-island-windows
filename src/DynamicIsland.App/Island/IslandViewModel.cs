@@ -21,11 +21,19 @@ internal sealed partial class IslandViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private IslandMode _mode = IslandMode.Compact;
 
-    public IslandViewModel(TimeProvider time, StatusViewModel status, LiveActivityHost live)
+    public IslandViewModel(TimeProvider time, StatusViewModel status, LiveActivityHost live, ModuleHost modules)
     {
         _time = time;
         Status = status;
         Live = live;
+        Modules = modules;
+        modules.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ModuleHost.Pages))
+            {
+                OnPropertyChanged(nameof(HasSeveralPages));
+            }
+        };
         // One tick per minute boundary, not a polling timer: the island sleeps between minutes.
         _clock = new DispatcherTimer(DispatcherPriority.Background);
         _clock.Tick += (_, _) => RefreshClock();
@@ -35,6 +43,12 @@ internal sealed partial class IslandViewModel : ObservableObject, IDisposable
 
     /// <summary>Battery and privacy indicators.</summary>
     public StatusViewModel Status { get; }
+
+    /// <summary>Island pages.</summary>
+    public ModuleHost Modules { get; }
+
+    /// <summary>Whether arrows and dots make sense.</summary>
+    public bool HasSeveralPages => Modules.Pages.Count > 1;
 
     /// <summary>Live activity shown in the pill.</summary>
     public LiveActivityHost Live { get; }

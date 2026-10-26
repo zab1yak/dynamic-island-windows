@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:island="clr-namespace:DynamicIsland.App.Island"
         xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+        xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance island:IslandViewModel}"
         Title="Dynamic Island"
@@ -102,6 +103,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="16" />
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="26,0,26,0">
                     <Grid.ColumnDefinitions>
@@ -109,7 +111,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="PageTitle" Grid.Column="0" Style="{DynamicResource Island.HeaderPrimary}" VerticalAlignment="Center" />
+                    <TextBlock x:Name="PageTitle" Grid.Column="0" Text="{Binding Modules.CurrentTitle}" Style="{DynamicResource Island.HeaderPrimary}" VerticalAlignment="Center" />
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <c:BatteryIndicator Status="{Binding Status.BatteryStatus}" Height="16" Margin="0,0,5,0" />
                         <TextBlock Text="{Binding Status.BatteryText}" Style="{DynamicResource Island.HeaderSecondary}" Margin="0,0,10,0" />
@@ -122,7 +124,24 @@
                                    MaxWidth="150" Margin="6,0,0,0" ToolTip="{Binding Status.PrivacyText}" />
                     </StackPanel>
                 </Grid>
-                <ContentPresenter x:Name="PageHost" Grid.Row="1" Margin="24,0,24,18" />
+                <ContentPresenter x:Name="PageHost" Grid.Row="1" Margin="48,0,48,0" Content="{Binding Modules.CurrentPage}"
+                                  RenderTransformOrigin="0.5,0.5">
+                    <ContentPresenter.RenderTransform>
+                        <TranslateTransform x:Name="PageOffset" />
+                    </ContentPresenter.RenderTransform>
+                </ContentPresenter>
+                <Button Grid.Row="1" Style="{DynamicResource IconButton}" HorizontalAlignment="Left" Margin="10,0,0,0"
+                        Command="{Binding Modules.PreviousPageCommand}" AutomationProperties.Name="{loc:Tr Island.PreviousPage}"
+                        Visibility="{Binding HasSeveralPages, Converter={StaticResource Visible}}">
+                    <c:Icon Glyph="ChevronLeft" Foreground="{DynamicResource Brush.TextSecondary}" />
+                </Button>
+                <Button Grid.Row="1" Style="{DynamicResource IconButton}" HorizontalAlignment="Right" Margin="0,0,10,0"
+                        Command="{Binding Modules.NextPageCommand}" AutomationProperties.Name="{loc:Tr Island.NextPage}"
+                        Visibility="{Binding HasSeveralPages, Converter={StaticResource Visible}}">
+                    <c:Icon Glyph="ChevronRight" Foreground="{DynamicResource Brush.TextSecondary}" />
+                </Button>
+                <c:PageDots Grid.Row="2" Count="{Binding Modules.Pages.Count}" SelectedIndex="{Binding Modules.CurrentIndex}"
+                            HorizontalAlignment="Center" VerticalAlignment="Top" />
             </Grid>
         </Grid>
     </Grid>

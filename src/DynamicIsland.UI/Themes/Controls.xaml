@@ -2,7 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:DynamicIsland.UI.Controls"
                     xmlns:a="clr-namespace:DynamicIsland.UI.Animation"
-                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:cv="clr-namespace:DynamicIsland.UI.Converters">
+
+    <cv:BytesToImageConverter x:Key="BytesToImage" />
+    <cv:ArgbToBrushConverter x:Key="ArgbToBrush" />
+    <cv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+    <cv:NullToVisibilityConverter x:Key="NullToVisibility" />
 
     <!-- Radii (continuous corners everywhere). -->
     <sys:Double x:Key="Radius.Small">8</sys:Double>

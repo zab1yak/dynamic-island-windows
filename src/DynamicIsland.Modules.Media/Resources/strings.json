@@ -1,0 +1,11 @@
+{
+  "Media.Title": { "en": "Music", "ru": "Музыка" },
+  "Media.NothingPlaying": { "en": "Nothing is playing", "ru": "Ничего не играет" },
+  "Media.NothingPlayingHint": { "en": "Start music in any app — Spotify, Yandex Music, a browser", "ru": "Включите музыку в любом приложении — Spotify, Яндекс Музыке, браузере" },
+  "Media.CommandFailed": { "en": "The app did not respond to the command", "ru": "Приложение не ответило на команду" },
+  "Media.Play": { "en": "Play", "ru": "Воспроизвести" },
+  "Media.Pause": { "en": "Pause", "ru": "Пауза" },
+  "Media.Next": { "en": "Next track", "ru": "Следующий трек" },
+  "Media.Previous": { "en": "Previous track", "ru": "Предыдущий трек" },
+  "Media.SwitchSource": { "en": "Switch source", "ru": "Сменить источник" }
+}

@@ -1,0 +1,6 @@
+<Project>
+  <!-- The WPF SDK removes System.IO from implicit usings (Path clashes with Shapes.Path); every project here uses it. -->
+  <ItemGroup>
+    <Using Include="System.IO" />
+  </ItemGroup>
+</Project>

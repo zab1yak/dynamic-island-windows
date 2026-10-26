@@ -40,6 +40,8 @@ internal static class Program
             instance.Listen(loggerFactory.CreateLogger(nameof(SingleInstance)));
 
             Log.Information("Starting Dynamic Island {Version}", typeof(Program).Assembly.GetName().Version);
+            // Modules declare pack:// URIs while the host is built, before WPF registers the scheme itself.
+            _ = System.IO.Packaging.PackUriHelper.UriSchemePack;
             using var host = AppHostBuilder.Build(commandLine, instance);
             var app = new App(host, commandLine, instance);
             app.InitializeComponent();

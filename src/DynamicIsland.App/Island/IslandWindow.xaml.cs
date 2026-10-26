@@ -46,6 +46,7 @@ internal sealed partial class IslandWindow : Window
     private double _horizontalScroll;
     private DateTime _lastPageFlip;
     private bool _textInput;
+    private int _lastPageIndex;
     private bool _exiting;
     private bool _closed;
     private string? _rejectedHotkey;
@@ -85,6 +86,15 @@ internal sealed partial class IslandWindow : Window
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
 
         Loaded += (_, _) => Reposition();
+        _lastPageIndex = viewModel.Modules.CurrentIndex;
+        viewModel.Modules.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ModuleHost.CurrentIndex))
+            {
+                SlidePage(viewModel.Modules.CurrentIndex);
+            }
+        };
+        PageScrollRequested += (_, direction) => viewModel.Modules.Step(direction);
         Render();
     }
 
@@ -163,7 +173,12 @@ internal sealed partial class IslandWindow : Window
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (e.Key == Key.Escape)
+        if (e.Key is Key.Left or Key.Right && !_textInput)
+        {
+            _viewModel.Modules.Step(e.Key == Key.Right ? 1 : -1);
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Escape)
         {
             EndTextInput();
             _stateMachine.Dismiss();
@@ -368,6 +383,18 @@ internal sealed partial class IslandWindow : Window
         Outline.Opacity = expanded;
         BodyShadow.Opacity = 0.45 * expanded;
         Body.Visibility = _height.Value < 0.5 ? Visibility.Hidden : Visibility.Visible;
+    }
+
+    /// <summary>Horizontal spring slide toward the new page.</summary>
+    private void SlidePage(int index)
+    {
+        var direction = index >= _lastPageIndex ? 1 : -1;
+        _lastPageIndex = index;
+        var ease = new UI.Animation.SpringEase { DampingRatio = 0.78 };
+        PageOffset.BeginAnimation(System.Windows.Media.TranslateTransform.XProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(40 * direction, 0, TimeSpan.FromMilliseconds(420)) { EasingFunction = ease });
+        PageHost.BeginAnimation(OpacityProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)));
     }
 
     private void OnRootClicked(object sender, MouseButtonEventArgs e)

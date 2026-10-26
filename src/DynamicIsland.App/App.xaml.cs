@@ -45,6 +45,7 @@ public partial class App : Application
         try
         {
             _island?.CloseForExit();
+            Task.Run(() => _host.Services.GetRequiredService<ModuleHost>().ShutdownAsync()).GetAwaiter().GetResult();
             _host.Services.GetRequiredService<TrayIconService>().Dispose();
             // Off the UI thread: a hosted service waiting for the dispatcher must not deadlock us.
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
@@ -71,6 +72,7 @@ public partial class App : Application
             var tray = services.GetRequiredService<TrayIconService>();
             tray.Show();
 
+            await services.GetRequiredService<ModuleHost>().InitializeAsync(CancellationToken.None);
             var island = _island = services.GetRequiredService<IslandWindow>();
             island.HotkeyUnavailable += (_, hotkey) =>
                 tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));

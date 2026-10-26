@@ -2,6 +2,7 @@ using DynamicIsland.App.Island;
 using DynamicIsland.App.Services;
 using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Status;
+using DynamicIsland.Modules.Media;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
 using DynamicIsland.UI.Threading;
@@ -45,7 +46,11 @@ internal static class AppHostBuilder
         services.AddSingleton<IPrivacyMonitor>(sp => sp.GetRequiredService<PrivacyMonitor>());
         services.AddSingleton<StatusViewModel>();
         services.AddSingleton<LiveActivityHost>();
+        services.AddSingleton<ModuleHost>();
         services.AddSingleton<IslandViewModel>();
+
+        // Island modules: one line each; the window never changes when a module is added.
+        services.AddMediaModule();
         services.AddSingleton<IslandWindow>();
 
         return builder.Build();

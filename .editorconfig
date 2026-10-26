@@ -404,3 +404,5 @@ dotnet_diagnostic.CA1848.severity = none
 dotnet_diagnostic.CA1873.severity = none
 # WPF code runs on the dispatcher; ConfigureAwait(false) is applied in Core services only.
 dotnet_diagnostic.CA2007.severity = none
+# FirstOrDefault() on lists reads better than index checks; the cost is negligible here.
+dotnet_diagnostic.CA1826.severity = none

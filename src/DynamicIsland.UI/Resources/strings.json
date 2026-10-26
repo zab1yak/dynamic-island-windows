@@ -54,5 +54,13 @@
   "Privacy.Recording": {
     "en": "Recording",
     "ru": "Запись экрана"
+  },
+  "Island.PreviousPage": {
+    "en": "Previous page",
+    "ru": "Предыдущая страница"
+  },
+  "Island.NextPage": {
+    "en": "Next page",
+    "ru": "Следующая страница"
   }
 }

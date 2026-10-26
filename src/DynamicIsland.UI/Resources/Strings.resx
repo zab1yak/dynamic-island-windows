@@ -10,6 +10,8 @@
   <data name="Error.Title" xml:space="preserve"><value>Something went wrong</value></data>
   <data name="Hotkey.Taken" xml:space="preserve"><value>{0} is already used by another app. The island still opens on hover.</value></data>
   <data name="Hotkey.TakenTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
+  <data name="Island.NextPage" xml:space="preserve"><value>Next page</value></data>
+  <data name="Island.PreviousPage" xml:space="preserve"><value>Previous page</value></data>
   <data name="Privacy.Camera" xml:space="preserve"><value>Camera</value></data>
   <data name="Privacy.Microphone" xml:space="preserve"><value>Microphone</value></data>
   <data name="Privacy.Recording" xml:space="preserve"><value>Recording</value></data>

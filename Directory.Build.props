@@ -20,4 +20,5 @@
     <RepositoryUrl>https://github.com/zab1yak/dynamic-island-windows</RepositoryUrl>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+
 </Project>

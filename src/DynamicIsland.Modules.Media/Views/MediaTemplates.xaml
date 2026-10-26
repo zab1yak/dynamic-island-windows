@@ -1,0 +1,124 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:DynamicIsland.Modules.Media.ViewModels"
+                    xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+                    xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
+
+    <!-- Expanded page: artwork, title/artist, scrubber, transport. -->
+    <DataTemplate DataType="{x:Type vm:MediaViewModel}">
+        <Grid>
+            <!-- Nothing playing. -->
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Visibility="{Binding HasMedia, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                <c:Icon Glyph="Music" Width="28" Height="28" Foreground="{DynamicResource Brush.TextTertiary}" />
+                <TextBlock Text="{loc:Tr Media.NothingPlaying}" Style="{DynamicResource Text.Title}" HorizontalAlignment="Center" Margin="0,8,0,2" />
+                <TextBlock Text="{loc:Tr Media.NothingPlayingHint}" Style="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <Grid Visibility="{Binding HasMedia, Converter={StaticResource BoolToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Artwork with the accent glow. -->
+                <Grid Width="84" Height="84" VerticalAlignment="Center">
+                    <c:SquircleBorder CornerRadius="18" Background="{Binding Accent, Converter={StaticResource ArgbToBrush}, ConverterParameter=0.35}" />
+                    <c:SquircleBorder CornerRadius="18">
+                        <Image Source="{Binding Artwork, Converter={StaticResource BytesToImage}}" Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                    </c:SquircleBorder>
+                    <c:Icon Glyph="Music" Width="28" Height="28" Foreground="{DynamicResource Brush.TextSecondary}"
+                            Visibility="{Binding Artwork, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}" />
+                </Grid>
+
+                <StackPanel Grid.Column="1" Margin="16,0,16,0" VerticalAlignment="Center">
+                    <c:MarqueeText Text="{Binding Title}" TextStyle="{DynamicResource Text.Title}" />
+                    <Grid Margin="0,2,0,0">
+                        <c:MarqueeText Text="{Binding Artist}" TextStyle="{DynamicResource Text.Secondary}"
+                                       Visibility="{Binding Notice, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}" />
+                        <TextBlock Text="{Binding Notice}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.Orange}"
+                                   Visibility="{Binding Notice, Converter={StaticResource NullToVisibility}}" />
+                    </Grid>
+                    <c:Scrubber Margin="0,10,0,0" Value="{Binding Progress, Mode=OneWay}" IsInteractive="{Binding CanSeek}"
+                                SeekCommand="{Binding SeekCommand}" IsDragging="{Binding IsScrubbing, Mode=OneWayToSource}"
+                                FillBrush="{DynamicResource Brush.TextPrimary}" TrackBrush="{DynamicResource Brush.Surface3}" />
+                    <Grid Margin="0,2,0,0">
+                        <TextBlock Text="{Binding PositionText}" Style="{DynamicResource Text.Secondary}" FontSize="11" />
+                        <TextBlock Text="{Binding DurationText}" Style="{DynamicResource Text.Secondary}" FontSize="11" HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{DynamicResource IconButton}" Command="{Binding PreviousCommand}" IsEnabled="{Binding CanPrevious}"
+                            AutomationProperties.Name="{loc:Tr Media.Previous}" ToolTip="{loc:Tr Media.Previous}">
+                        <c:Icon Glyph="Previous" Filled="True" Width="18" Height="18" />
+                    </Button>
+                    <Button Style="{DynamicResource IconButton}" Width="44" Height="44" Margin="4,0" Command="{Binding PlayPauseCommand}"
+                            AutomationProperties.Name="{loc:Tr Media.Play}">
+                        <Grid>
+                            <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="24" Height="24" RenderTransformOrigin="0.5,0.5">
+                                <c:Icon.RenderTransform><ScaleTransform /></c:Icon.RenderTransform>
+                            </c:Icon>
+                            <c:Icon x:Name="PauseGlyph" Glyph="Pause" Filled="True" Width="24" Height="24" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                <c:Icon.RenderTransform><ScaleTransform ScaleX="0.6" ScaleY="0.6" /></c:Icon.RenderTransform>
+                            </c:Icon>
+                        </Grid>
+                    </Button>
+                    <Button Style="{DynamicResource IconButton}" Command="{Binding NextCommand}" IsEnabled="{Binding CanNext}"
+                            AutomationProperties.Name="{loc:Tr Media.Next}" ToolTip="{loc:Tr Media.Next}">
+                        <c:Icon Glyph="Next" Filled="True" Width="18" Height="18" />
+                    </Button>
+                    <Button Style="{DynamicResource IconButton}" Margin="6,0,0,0" Command="{Binding NextSessionCommand}"
+                            Visibility="{Binding HasMultipleSessions, Converter={StaticResource BoolToVisibility}}"
+                            AutomationProperties.Name="{loc:Tr Media.SwitchSource}" ToolTip="{Binding AppName}">
+                        <c:Icon Glyph="Headphones" Width="16" Height="16" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        <DataTemplate.Triggers>
+            <!-- Play ↔ pause: crossfade with a springy scale. -->
+            <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                <DataTrigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="PlayGlyph" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.12" />
+                            <DoubleAnimation Storyboard.TargetName="PlayGlyph" Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.6" Duration="0:0:0.15" />
+                            <DoubleAnimation Storyboard.TargetName="PlayGlyph" Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.6" Duration="0:0:0.15" />
+                            <DoubleAnimation Storyboard.TargetName="PauseGlyph" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.16" />
+                            <DoubleAnimation Storyboard.TargetName="PauseGlyph" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.38" EasingFunction="{StaticResource Ease.Spring}" />
+                            <DoubleAnimation Storyboard.TargetName="PauseGlyph" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.38" EasingFunction="{StaticResource Ease.Spring}" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="PauseGlyph" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.12" />
+                            <DoubleAnimation Storyboard.TargetName="PauseGlyph" Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.6" Duration="0:0:0.15" />
+                            <DoubleAnimation Storyboard.TargetName="PauseGlyph" Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.6" Duration="0:0:0.15" />
+                            <DoubleAnimation Storyboard.TargetName="PlayGlyph" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.16" />
+                            <DoubleAnimation Storyboard.TargetName="PlayGlyph" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.38" EasingFunction="{StaticResource Ease.Spring}" />
+                            <DoubleAnimation Storyboard.TargetName="PlayGlyph" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.38" EasingFunction="{StaticResource Ease.Spring}" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </DataTrigger.ExitActions>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- Live pill: tiny artwork on the left, real-level bars on the right. -->
+    <DataTemplate DataType="{x:Type vm:MediaLiveViewModel}">
+        <Grid Height="34">
+            <c:SquircleBorder Width="22" Height="22" CornerRadius="6" HorizontalAlignment="Left"
+                              Background="{Binding Media.Accent, Converter={StaticResource ArgbToBrush}, ConverterParameter=0.5}">
+                <Image Source="{Binding Media.Artwork, Converter={StaticResource BytesToImage}}" Stretch="UniformToFill" />
+            </c:SquircleBorder>
+            <c:MarqueeText Text="{Binding Media.Title}" TextStyle="{DynamicResource Text.Secondary}" Margin="30,0,40,0" VerticalAlignment="Center" />
+            <c:VisualizerBars Levels="{Binding Media.Levels}" Width="20" Height="14" HorizontalAlignment="Right" VerticalAlignment="Center"
+                              BarWidth="3" BarBrush="{Binding Media.Accent, Converter={StaticResource ArgbToBrush}}" />
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
