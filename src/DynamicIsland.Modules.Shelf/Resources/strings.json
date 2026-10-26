@@ -1,0 +1,58 @@
+{
+  "Shelf.Title": {
+    "en": "Shelf",
+    "ru": "Полка"
+  },
+  "Shelf.DropHere": {
+    "en": "Drop files here",
+    "ru": "Перетащите файлы сюда"
+  },
+  "Shelf.DropHint": {
+    "en": "Drag out anytime · click to open",
+    "ru": "Вытащите в любой момент · клик — открыть"
+  },
+  "Shelf.Folder": {
+    "en": "Folder",
+    "ru": "Папка"
+  },
+  "Shelf.Open": {
+    "en": "Open",
+    "ru": "Открыть"
+  },
+  "Shelf.Reveal": {
+    "en": "Show in Explorer",
+    "ru": "Показать в проводнике"
+  },
+  "Shelf.CopyPath": {
+    "en": "Copy path",
+    "ru": "Копировать путь"
+  },
+  "Shelf.Remove": {
+    "en": "Remove",
+    "ru": "Удалить"
+  },
+  "Shelf.ClearAll": {
+    "en": "Clear all",
+    "ru": "Очистить всё"
+  },
+  "Shelf.Paste": {
+    "en": "Paste from clipboard (Ctrl+V)",
+    "ru": "Вставить из буфера (Ctrl+V)"
+  },
+  "Shelf.TooLarge": {
+    "en": "The shelf is limited to {0} MB",
+    "ru": "Полка ограничена {0} МБ"
+  },
+  "Shelf.SomeFailed": {
+    "en": "Some items could not be added",
+    "ru": "Не всё удалось добавить"
+  },
+  "Shelf.OpenFailed": {
+    "en": "The file could not be opened",
+    "ru": "Не удалось открыть файл"
+  },
+  "Shelf.PasteShort": {
+    "en": "Paste",
+    "ru": "Вставить"
+  }
+}

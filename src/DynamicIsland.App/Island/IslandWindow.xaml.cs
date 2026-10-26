@@ -3,6 +3,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using DynamicIsland.Core.Animation;
 using DynamicIsland.Core.Island;
+using DynamicIsland.Core.Modules;
+using DynamicIsland.UI.Input;
 using DynamicIsland.Core.Settings;
 using DynamicIsland.Platform.Windows.Display;
 using DynamicIsland.Platform.Windows.Windowing;
@@ -46,6 +48,8 @@ internal sealed partial class IslandWindow : Window
     private double _horizontalScroll;
     private DateTime _lastPageFlip;
     private bool _textInput;
+    private readonly System.Windows.Threading.DispatcherTimer _dragWatch;
+    private bool _catcherOn;
     private int _lastPageIndex;
     private bool _exiting;
     private bool _closed;
@@ -78,6 +82,16 @@ internal sealed partial class IslandWindow : Window
         Root.MouseEnter += (_, _) => _stateMachine.PointerEntered();
         Root.MouseLeave += (_, _) => _stateMachine.PointerExited();
         Root.MouseLeftButtonUp += OnRootClicked;
+        Root.AllowDrop = true;
+        Root.DragEnter += OnDragEnter;
+        Root.DragOver += OnDragOver;
+        Root.DragLeave += OnDragLeave;
+        Root.Drop += OnDrop;
+        _dragWatch = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(250),
+        };
+        _dragWatch.Tick += (_, _) => WatchForDrag();
         _stateMachine.ModeChanged += OnModeChanged;
         _settings.Changed += OnSettingsChanged;
         // After WM_DPICHANGED WPF applies its suggested rect; place the island once that is done.
@@ -140,6 +154,31 @@ internal sealed partial class IslandWindow : Window
         WindowInterop.SetActivatable(_hwnd, activatable: false);
         _stateMachine.TextEditEnded();
     }
+
+    /// <summary>Shelf (or another drop module) is available: watch for files dragged toward the island.</summary>
+    public bool DropEnabled
+    {
+        get => _dragWatch.IsEnabled;
+        set
+        {
+            _stateMachine.DropEnabled = value;
+            if (value)
+            {
+                _dragWatch.Start();
+            }
+            else
+            {
+                _dragWatch.Stop();
+                SetCatcher(false);
+            }
+        }
+    }
+
+    /// <summary>Raised with the dropped content.</summary>
+    public event EventHandler<DropPayload>? Dropped;
+
+    /// <summary>Raised when a drag with supported content reaches the island.</summary>
+    public event EventHandler? DropTargetShown;
 
     protected override void OnSourceInitialized(EventArgs e)
     {
@@ -213,6 +252,7 @@ internal sealed partial class IslandWindow : Window
         SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
         _clock.Stop();
+        _dragWatch.Stop();
         _hotkey?.Dispose();
         _fullscreen?.Dispose();
         _viewModel.Dispose();
@@ -381,6 +421,7 @@ internal sealed partial class IslandWindow : Window
         LiveLayer.Opacity = live;
         LiveScale.ScaleX = LiveScale.ScaleY = 0.96 + (0.04 * live);
         Outline.Opacity = expanded;
+        Outline.Stroke = (System.Windows.Media.Brush)FindResource(_stateMachine.Mode == IslandMode.DropTarget ? "Brush.Blue" : "Island.Stroke");
         // Fully faded layers are hidden, so their animations (marquee, rolling digits) stop rendering.
         ExpandedLayer.Visibility = expanded < 0.005 ? Visibility.Hidden : Visibility.Visible;
         CompactLayer.Visibility = compact < 0.005 ? Visibility.Hidden : Visibility.Visible;
@@ -399,6 +440,83 @@ internal sealed partial class IslandWindow : Window
             new System.Windows.Media.Animation.DoubleAnimation(40 * direction, 0, TimeSpan.FromMilliseconds(420)) { EasingFunction = ease });
         PageHost.BeginAnimation(OpacityProperty,
             new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)));
+    }
+
+    /// <summary>
+    /// Transparent pixels never receive OLE drags. While the left button is held near the island
+    /// (a drag may be under way) the window gets an almost invisible background so DragEnter fires.
+    /// Normal clicks are unaffected: the button is already captured by the window under the cursor.
+    /// </summary>
+    private void WatchForDrag()
+    {
+        if (_monitor is null || _hwnd == 0)
+        {
+            return;
+        }
+
+        var (x, y, down) = WindowInterop.GetCursor();
+        var zoneHeight = 140 * _monitor.Scale;
+        var zoneHalfWidth = IslandMetrics.WindowWidth / 2 * _monitor.Scale;
+        var centerX = _monitor.Bounds.Left + (_monitor.Bounds.Width / 2.0);
+        var near = down && y - _monitor.Bounds.Top < zoneHeight && Math.Abs(x - centerX) < zoneHalfWidth;
+        SetCatcher(near || _stateMachine.Mode == IslandMode.DropTarget);
+    }
+
+    private void SetCatcher(bool on)
+    {
+        if (_catcherOn == on)
+        {
+            return;
+        }
+
+        _catcherOn = on;
+        Root.Background = on ? (System.Windows.Media.Brush)FindResource("Island.DropCatcher") : null;
+    }
+
+    private void OnDragEnter(object sender, DragEventArgs e)
+    {
+        if (!DropEnabled || !DropPayloadReader.HasSupportedData(e.Data))
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
+        e.Effects = DragDropEffects.Copy;
+        e.Handled = true;
+        if (_stateMachine.Mode != IslandMode.DropTarget)
+        {
+            _stateMachine.DragNear();
+            DropTargetShown?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void OnDragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = DropEnabled && DropPayloadReader.HasSupportedData(e.Data) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void OnDragLeave(object sender, DragEventArgs e)
+    {
+        // DragLeave also fires when moving between child elements; only leave when the cursor left the window.
+        var p = e.GetPosition(Root);
+        if (p.X <= 0 || p.Y <= 0 || p.X >= Root.ActualWidth || p.Y >= Root.ActualHeight)
+        {
+            _stateMachine.DragLeft();
+        }
+    }
+
+    private void OnDrop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var payload = DropPayloadReader.Read(e.Data);
+        _stateMachine.Dropped();
+        SetCatcher(false);
+        if (!payload.IsEmpty)
+        {
+            Dropped?.Invoke(this, payload);
+        }
     }
 
     private void OnRootClicked(object sender, MouseButtonEventArgs e)

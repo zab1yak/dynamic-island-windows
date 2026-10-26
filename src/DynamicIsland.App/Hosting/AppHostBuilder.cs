@@ -6,6 +6,8 @@ using DynamicIsland.Core.Notifications;
 using DynamicIsland.Modules.Media;
 using DynamicIsland.Modules.Pomodoro;
 using DynamicIsland.Modules.Water;
+using DynamicIsland.Modules.Shelf;
+using DynamicIsland.Core.Modules;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
 using DynamicIsland.UI.Threading;
@@ -51,12 +53,15 @@ internal static class AppHostBuilder
         services.AddSingleton<StatusViewModel>();
         services.AddSingleton<LiveActivityHost>();
         services.AddSingleton<ModuleHost>();
+        services.AddSingleton<IslandHostService>();
+        services.AddSingleton<IIslandHost>(sp => sp.GetRequiredService<IslandHostService>());
         services.AddSingleton<IslandViewModel>();
 
         // Island modules: one line each; the window never changes when a module is added.
         services.AddMediaModule();
         services.AddPomodoroModule();
         services.AddWaterModule();
+        services.AddShelfModule();
         services.AddSingleton<IslandWindow>();
 
         return builder.Build();

@@ -22,6 +22,8 @@
 
     <SolidColorBrush x:Key="Island.Background" Color="{StaticResource Color.Island}" />
     <SolidColorBrush x:Key="Island.Stroke" Color="{StaticResource Color.Stroke}" />
+    <!-- Alpha 1/255: invisible, but hit-testable, so drags over the transparent window area are seen. -->
+    <SolidColorBrush x:Key="Island.DropCatcher" Color="#01000000" />
     <SolidColorBrush x:Key="Brush.Surface1" Color="{StaticResource Color.Surface1}" />
     <SolidColorBrush x:Key="Brush.Surface2" Color="{StaticResource Color.Surface2}" />
     <SolidColorBrush x:Key="Brush.Surface3" Color="{StaticResource Color.Surface3}" />

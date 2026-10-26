@@ -3,6 +3,7 @@ using DynamicIsland.App.Hosting;
 using DynamicIsland.App.Island;
 using DynamicIsland.App.Services;
 using DynamicIsland.Core.Island;
+using DynamicIsland.Core.Modules;
 using DynamicIsland.Core.Settings;
 using DynamicIsland.Platform.Windows;
 using DynamicIsland.Platform.Windows.Status;
@@ -94,6 +95,24 @@ public partial class App : Application
             island.HotkeyUnavailable += (_, hotkey) =>
                 tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));
             island.Show();
+            var modules = services.GetRequiredService<ModuleHost>();
+            void UpdateDrop() => island.DropEnabled = modules.Pages.Any(m => m.AcceptsDrop);
+            UpdateDrop();
+            modules.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(ModuleHost.Pages))
+                {
+                    UpdateDrop();
+                }
+            };
+            island.DropTargetShown += (_, _) => modules.ShowModule(modules.Pages.FirstOrDefault(m => m.AcceptsDrop)?.Id ?? string.Empty);
+            island.Dropped += async (_, payload) =>
+            {
+                if (modules.Pages.OfType<IDropHandler>().FirstOrDefault() is { } handler)
+                {
+                    await handler.HandleDropAsync(payload, CancellationToken.None);
+                }
+            };
 
             var status = services.GetRequiredService<StatusViewModel>();
             status.Start();
