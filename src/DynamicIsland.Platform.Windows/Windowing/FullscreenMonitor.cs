@@ -14,13 +14,23 @@ public sealed class FullscreenMonitor : IDisposable
 {
     private const int QUNS_RUNNING_D3D_FULL_SCREEN = 3;
     private const int QUNS_PRESENTATION_MODE = 4;
-    private static readonly string[] ShellClasses = ["Progman", "WorkerW", "Shell_TrayWnd", "Shell_SecondaryTrayWnd"];
+    // Desktop, taskbars, Alt+Tab / Task View and the Start/Search hosts cover the monitor without being "fullscreen apps".
+    private static readonly string[] ShellClasses =
+    [
+        "Progman", "WorkerW", "Shell_TrayWnd", "Shell_SecondaryTrayWnd",
+        "MultitaskingViewFrame", "XamlExplorerHostIslandWindow", "ForegroundStaging", "Windows.UI.Core.CoreWindow",
+    ];
+
+    private static readonly TimeSpan SettleDelay = TimeSpan.FromMilliseconds(250);
 
     private static FullscreenMonitor? s_current;
 
     private readonly nint _hwnd;
     private readonly Func<MonitorInfo?> _monitor;
     private readonly uint _callbackMessage;
+    private readonly uint _taskbarCreatedMessage;
+    private Timer? _settleTimer;
+    private SynchronizationContext? _uiContext;
     private nint _hook;
     private bool _appBarRegistered;
 
@@ -31,6 +41,7 @@ public sealed class FullscreenMonitor : IDisposable
         _hwnd = hwnd;
         _monitor = monitor;
         _callbackMessage = NativeMethods.RegisterWindowMessage("DynamicIsland.AppBarNotify");
+        _taskbarCreatedMessage = NativeMethods.RegisterWindowMessage("TaskbarCreated");
     }
 
     /// <summary>Raised on the UI thread when the fullscreen state changes.</summary>
@@ -47,9 +58,14 @@ public sealed class FullscreenMonitor : IDisposable
             throw new InvalidOperationException("Only one FullscreenMonitor can be active.");
         }
 
+        if (_hook != 0)
+        {
+            return;
+        }
+
         s_current = this;
-        var data = new APPBARDATA { cbSize = Marshal.SizeOf<APPBARDATA>(), hWnd = _hwnd, uCallbackMessage = _callbackMessage };
-        _appBarRegistered = NativeMethods.SHAppBarMessage(NativeMethods.ABM_NEW, ref data) != 0;
+        _uiContext = SynchronizationContext.Current;
+        RegisterAppBar();
         _hook = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, NativeMethods.EVENT_SYSTEM_FOREGROUND, 0,
             &OnWinEvent, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT | NativeMethods.WINEVENT_SKIPOWNPROCESS);
         Evaluate();
@@ -58,6 +74,15 @@ public sealed class FullscreenMonitor : IDisposable
     /// <summary>Feeds a window message; returns <c>true</c> when it was the app-bar notification.</summary>
     public bool HandleMessage(int msg, nint wParam)
     {
+        if ((uint)msg == _taskbarCreatedMessage)
+        {
+            // Explorer restarted: our app-bar registration is gone.
+            _appBarRegistered = false;
+            RegisterAppBar();
+            Evaluate();
+            return false;
+        }
+
         if ((uint)msg != _callbackMessage)
         {
             return false;
@@ -66,9 +91,33 @@ public sealed class FullscreenMonitor : IDisposable
         if ((uint)wParam == NativeMethods.ABN_FULLSCREENAPP)
         {
             Evaluate();
+            // The window may still be resizing into fullscreen (F11): check again once it settles.
+            EvaluateLater();
         }
 
         return true;
+    }
+
+    private void EvaluateLater()
+    {
+        if (_uiContext is null)
+        {
+            return;
+        }
+
+        _settleTimer?.Dispose();
+        _settleTimer = new Timer(_ => _uiContext.Post(_ => Evaluate(), null), null, SettleDelay, Timeout.InfiniteTimeSpan);
+    }
+
+    private void RegisterAppBar()
+    {
+        if (_appBarRegistered)
+        {
+            return;
+        }
+
+        var data = new APPBARDATA { cbSize = Marshal.SizeOf<APPBARDATA>(), hWnd = _hwnd, uCallbackMessage = _callbackMessage };
+        _appBarRegistered = NativeMethods.SHAppBarMessage(NativeMethods.ABM_NEW, ref data) != 0;
     }
 
     /// <summary>Re-checks the state (also call after display changes).</summary>
@@ -87,6 +136,8 @@ public sealed class FullscreenMonitor : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        _settleTimer?.Dispose();
+        _settleTimer = null;
         if (_hook != 0)
         {
             NativeMethods.UnhookWinEvent(_hook);
@@ -108,12 +159,6 @@ public sealed class FullscreenMonitor : IDisposable
 
     private bool Detect(nint foreground, MonitorInfo? monitor)
     {
-        if (NativeMethods.SHQueryUserNotificationState(out var state) == 0
-            && state is QUNS_RUNNING_D3D_FULL_SCREEN or QUNS_PRESENTATION_MODE)
-        {
-            return true;
-        }
-
         if (foreground == 0 || foreground == _hwnd || monitor is null
             || foreground == NativeMethods.GetShellWindow() || foreground == NativeMethods.GetDesktopWindow())
         {
@@ -123,6 +168,14 @@ public sealed class FullscreenMonitor : IDisposable
         if (ShellClasses.Contains(NativeMethods.ClassNameOf(foreground), StringComparer.Ordinal))
         {
             return false;
+        }
+
+        // The notification state is global: trust it only when the foreground window is on our monitor.
+        var onOurMonitor = NativeMethods.MonitorFromWindow(foreground, NativeMethods.MONITOR_DEFAULTTONEAREST) == monitor.Handle;
+        if (onOurMonitor && NativeMethods.SHQueryUserNotificationState(out var state) == 0
+            && state is QUNS_RUNNING_D3D_FULL_SCREEN or QUNS_PRESENTATION_MODE)
+        {
+            return true;
         }
 
         // A maximized window covers the whole monitor when the taskbar auto-hides, but it is not

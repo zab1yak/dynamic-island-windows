@@ -23,7 +23,6 @@ internal sealed partial class IslandWindow : Window
 {
     private const int HotkeyId = 0x1D1;
     private const int WM_MOUSEHWHEEL = 0x020E;
-    private const int WM_DISPLAYCHANGE = 0x007E;
     private const double HorizontalScrollThreshold = 120;
 
     private readonly IslandStateMachine _stateMachine;
@@ -46,6 +45,9 @@ internal sealed partial class IslandWindow : Window
     private double _horizontalScroll;
     private DateTime _lastPageFlip;
     private bool _textInput;
+    private bool _exiting;
+    private bool _closed;
+    private string? _rejectedHotkey;
 
     public IslandWindow(IslandStateMachine stateMachine, ISettingsService settings, IslandViewModel viewModel, ILogger<IslandWindow> logger)
     {
@@ -74,9 +76,10 @@ internal sealed partial class IslandWindow : Window
         Root.MouseEnter += (_, _) => _stateMachine.PointerEntered();
         Root.MouseLeave += (_, _) => _stateMachine.PointerExited();
         Root.MouseLeftButtonUp += OnRootClicked;
-        _stateMachine.ModeChanged += (_, mode) => ApplyMode(mode);
-        _settings.Changed += (_, _) => ApplySettings();
-        DpiChanged += (_, _) => Reposition();
+        _stateMachine.ModeChanged += OnModeChanged;
+        _settings.Changed += OnSettingsChanged;
+        // After WM_DPICHANGED WPF applies its suggested rect; place the island once that is done.
+        DpiChanged += (_, _) => Dispatcher.BeginInvoke(Reposition, System.Windows.Threading.DispatcherPriority.Loaded);
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
 
@@ -167,8 +170,30 @@ internal sealed partial class IslandWindow : Window
         }
     }
 
+    /// <summary>Closes the window for real (application exit). Any other close request only hides it.</summary>
+    public void CloseForExit()
+    {
+        _exiting = true;
+        Close();
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (!_exiting)
+        {
+            // Alt+F4 while typing in the island must not destroy the singleton window.
+            e.Cancel = true;
+            EndTextInput();
+            _stateMachine.Dismiss();
+        }
+    }
+
     protected override void OnClosed(EventArgs e)
     {
+        _closed = true;
+        _stateMachine.ModeChanged -= OnModeChanged;
+        _settings.Changed -= OnSettingsChanged;
         SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
         _clock.Stop();
@@ -176,6 +201,22 @@ internal sealed partial class IslandWindow : Window
         _fullscreen?.Dispose();
         _viewModel.Dispose();
         base.OnClosed(e);
+    }
+
+    private void OnModeChanged(object? sender, IslandMode mode)
+    {
+        if (!_closed)
+        {
+            ApplyMode(mode);
+        }
+    }
+
+    private void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        if (!_closed)
+        {
+            ApplySettings();
+        }
     }
 
     private void ApplySettings()
@@ -192,9 +233,10 @@ internal sealed partial class IslandWindow : Window
         {
             _stateMachine.SetFullscreen(false);
         }
-        else
+        else if (_fullscreen is not null)
         {
-            _fullscreen?.Evaluate();
+            _fullscreen.Evaluate();
+            _stateMachine.SetFullscreen(_fullscreen.IsFullscreen);
         }
     }
 
@@ -206,14 +248,28 @@ internal sealed partial class IslandWindow : Window
             return;
         }
 
-        if (_hotkey.Gesture == gesture)
+        if (_hotkey.Gesture == gesture || _rejectedHotkey == text)
         {
             return;
         }
 
-        if (!_hotkey.Register(gesture.Value))
+        var previous = _hotkey.Gesture;
+        if (_hotkey.Register(gesture.Value))
         {
-            _logger.LogWarning("Hotkey {Hotkey} is taken by another application", text);
+            _rejectedHotkey = null;
+            return;
+        }
+
+        _logger.LogWarning("Hotkey {Hotkey} is taken by another application", text);
+        if (previous is { } old)
+        {
+            // Keep the old shortcut working rather than leaving the user with none.
+            _hotkey.Register(old);
+        }
+
+        if (_rejectedHotkey != text)
+        {
+            _rejectedHotkey = text;
             HotkeyUnavailable?.Invoke(this, text);
         }
     }
@@ -233,13 +289,13 @@ internal sealed partial class IslandWindow : Window
             return;
         }
 
+        // Computed from constants, never from Width/Height (which WPF derives back from pixels):
+        // round-tripping through doubles would grow the window by a pixel on every reposition.
         var scale = _monitor.Scale;
-        var width = (int)Math.Ceiling(Width * scale);
-        var height = (int)Math.Ceiling(Height * scale);
+        var islandScale = _settings.Current.IslandScale;
+        var width = (int)Math.Round(IslandMetrics.WindowWidth * islandScale * scale);
+        var height = (int)Math.Round(IslandMetrics.WindowHeight * islandScale * scale);
         var x = _monitor.Bounds.Left + ((_monitor.Bounds.Width - width) / 2);
-        // Keep WPF's own idea of the position in sync, otherwise it restores its default location on Show.
-        Left = x / scale;
-        Top = _monitor.Bounds.Top / scale;
         WindowInterop.Place(_hwnd, x, _monitor.Bounds.Top, width, height);
         _logger.LogDebug("Island placed on {Monitor} at {X},{Y} {Width}x{Height} (scale {Scale})", _monitor.DeviceName, x, _monitor.Bounds.Top, width, height, scale);
     }
@@ -291,9 +347,12 @@ internal sealed partial class IslandWindow : Window
         var fill = OutlineGeometry.ToGeometry(IslandShapeMath.Build(parameters), closed: true);
         Body.Data = fill;
         ContentHost.Clip = fill;
-        Outline.Data = OutlineGeometry.ToGeometry(IslandShapeMath.Build(parameters, includeTopEdge: false), closed: false);
-
         var expanded = Math.Clamp(_expandedOpacity.Value, 0, 1);
+        // The hairline and the blurred shadow only exist while expanded: no cost in compact mode.
+        Outline.Data = expanded > 0.01
+            ? OutlineGeometry.ToGeometry(IslandShapeMath.Build(parameters, includeTopEdge: false), closed: false)
+            : null;
+        Body.Effect = expanded > 0.01 ? BodyShadow : null;
         var compact = Math.Clamp(_compactOpacity.Value, 0, 1);
         ExpandedLayer.Opacity = expanded;
         ExpandedScale.ScaleX = ExpandedScale.ScaleY = 0.96 + (0.04 * expanded);
@@ -325,9 +384,6 @@ internal sealed partial class IslandWindow : Window
             case WM_MOUSEHWHEEL:
                 OnHorizontalWheel((short)((wParam.ToInt64() >> 16) & 0xFFFF));
                 handled = true;
-                break;
-            case WM_DISPLAYCHANGE:
-                Dispatcher.BeginInvoke(Reposition);
                 break;
         }
 

@@ -61,7 +61,19 @@ public sealed class AnimationClock
         // The first frame after Start has no previous timestamp: assume one 60 Hz frame.
         var dt = _lastRenderingTime == TimeSpan.Zero ? 1.0 / 60.0 : (now - _lastRenderingTime).TotalSeconds;
         _lastRenderingTime = now;
-        if (!_tick(Math.Clamp(dt, 0, MaxFrameSeconds)))
+        bool moving;
+        try
+        {
+            moving = _tick(Math.Clamp(dt, 0, MaxFrameSeconds));
+        }
+        catch
+        {
+            // Never keep a failing animation subscribed: it would throw on every frame.
+            Stop();
+            throw;
+        }
+
+        if (!moving)
         {
             Stop();
         }

@@ -19,6 +19,7 @@ public partial class App : Application
     private readonly CommandLine _commandLine;
     private readonly SingleInstance _instance;
     private readonly ILogger<App> _logger;
+    private IslandWindow? _island;
 
     internal App(IHost host, CommandLine commandLine, SingleInstance instance)
     {
@@ -42,7 +43,7 @@ public partial class App : Application
     {
         try
         {
-            _host.Services.GetRequiredService<IslandWindow>().Close();
+            _island?.CloseForExit();
             _host.Services.GetRequiredService<TrayIconService>().Dispose();
             // Off the UI thread: a hosted service waiting for the dispatcher must not deadlock us.
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
@@ -69,7 +70,7 @@ public partial class App : Application
             var tray = services.GetRequiredService<TrayIconService>();
             tray.Show();
 
-            var island = services.GetRequiredService<IslandWindow>();
+            var island = _island = services.GetRequiredService<IslandWindow>();
             island.HotkeyUnavailable += (_, hotkey) =>
                 tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));
             island.Show();

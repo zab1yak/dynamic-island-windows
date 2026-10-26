@@ -78,8 +78,15 @@ public static class MonitorService
     [UnmanagedCallersOnly]
     private static unsafe int Collect(nint monitor, nint hdc, RECT* rect, nint data)
     {
-        var list = (List<nint>)GCHandle.FromIntPtr(data).Target!;
-        list.Add(monitor);
-        return 1;
+        try
+        {
+            ((List<nint>)GCHandle.FromIntPtr(data).Target!).Add(monitor);
+            return 1;
+        }
+        catch (Exception)
+        {
+            // Exceptions must not cross the native boundary; stop enumerating instead.
+            return 0;
+        }
     }
 }
