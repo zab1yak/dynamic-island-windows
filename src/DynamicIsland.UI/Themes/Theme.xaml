@@ -3,5 +3,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/DynamicIsland.UI;component/Themes/Colors.xaml" />
         <ResourceDictionary Source="pack://application:,,,/DynamicIsland.UI;component/Themes/Typography.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DynamicIsland.UI;component/Icons/Lucide.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DynamicIsland.UI;component/Themes/Controls.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -17,6 +17,12 @@
     <Resource Include="Assets\island.ico" />
   </ItemGroup>
 
+  <!-- The component gallery exists only in Debug builds. -->
+  <ItemGroup Condition="'$(Configuration)' != 'Debug'">
+    <Page Remove="Debug\ShowcaseWindow.xaml" />
+    <Compile Remove="Debug\ShowcaseWindow.xaml.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="H.NotifyIcon.Wpf" />

@@ -11,7 +11,7 @@ namespace DynamicIsland.UI.Localization;
 /// </summary>
 public sealed class Loc : INotifyPropertyChanged
 {
-    private readonly List<ResourceManager> _managers = [Resources.Strings.ResourceManager];
+    private readonly List<ResourceManager> _managers = [new ResourceManager("DynamicIsland.UI.Resources.Strings", typeof(Loc).Assembly)];
     private CultureInfo _culture = CultureInfo.CurrentUICulture;
 
     private Loc()

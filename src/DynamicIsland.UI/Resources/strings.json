@@ -38,5 +38,9 @@
   "Hotkey.Taken": {
     "en": "{0} is already used by another app. The island still opens on hover.",
     "ru": "{0} уже использует другое приложение. Остров по-прежнему раскрывается при наведении."
+  },
+  "Tray.Showcase": {
+    "en": "Component gallery (Debug)",
+    "ru": "Витрина компонентов (Debug)"
   }
 }

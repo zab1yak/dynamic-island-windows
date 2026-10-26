@@ -13,5 +13,6 @@
   <data name="Tray.Exit" xml:space="preserve"><value>Exit</value></data>
   <data name="Tray.Restart" xml:space="preserve"><value>Restart</value></data>
   <data name="Tray.Settings" xml:space="preserve"><value>Settings…</value></data>
+  <data name="Tray.Showcase" xml:space="preserve"><value>Component gallery (Debug)</value></data>
   <data name="Tray.Tooltip" xml:space="preserve"><value>Dynamic Island</value></data>
 </root>

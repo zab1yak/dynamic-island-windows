@@ -9,13 +9,17 @@ namespace DynamicIsland.App.Hosting;
 /// <param name="RestartFromPid">Started by "Restart": the id of the process to wait for, or <c>null</c>.</param>
 internal sealed record CommandLine(bool Background, bool OpenSettings, bool Show, int? RestartFromPid)
 {
+    /// <summary>Debug builds: open the component gallery.</summary>
+    public bool Showcase { get; init; }
+
+    public const string ShowcaseSwitch = "--showcase";
     public const string BackgroundSwitch = "--background";
     public const string SettingsSwitch = "--settings";
     public const string ShowSwitch = "--show";
     public const string RestartSwitch = "--restart=";
 
     /// <summary>Parses known switches case-insensitively; unknown arguments are ignored.</summary>
-    public static CommandLine Parse(IEnumerable<string> args)
+    public static CommandLine Parse(IReadOnlyCollection<string> args)
     {
         var background = false;
         var settings = false;
@@ -42,6 +46,7 @@ internal sealed record CommandLine(bool Background, bool OpenSettings, bool Show
             }
         }
 
-        return new CommandLine(background, settings, show, restart);
+        var showcase = args.Any(a => a.Equals(ShowcaseSwitch, StringComparison.OrdinalIgnoreCase));
+        return new CommandLine(background, settings, show, restart) { Showcase = showcase };
     }
 }

@@ -88,6 +88,12 @@ public partial class App : Application
     private void HandleArguments(CommandLine commandLine)
     {
         _logger.LogDebug("Arguments: {CommandLine}", commandLine);
+#if DEBUG
+        if (commandLine.Showcase)
+        {
+            new Debug.ShowcaseWindow().Show();
+        }
+#endif
         if (commandLine.Show)
         {
             var stateMachine = _host.Services.GetRequiredService<IslandStateMachine>();

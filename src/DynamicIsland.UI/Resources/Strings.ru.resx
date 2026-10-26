@@ -13,5 +13,6 @@
   <data name="Tray.Exit" xml:space="preserve"><value>Выход</value></data>
   <data name="Tray.Restart" xml:space="preserve"><value>Перезапустить</value></data>
   <data name="Tray.Settings" xml:space="preserve"><value>Настройки…</value></data>
+  <data name="Tray.Showcase" xml:space="preserve"><value>Витрина компонентов (Debug)</value></data>
   <data name="Tray.Tooltip" xml:space="preserve"><value>Dynamic Island</value></data>
 </root>

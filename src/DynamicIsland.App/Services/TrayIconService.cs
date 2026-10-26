@@ -30,6 +30,9 @@ internal sealed class TrayIconService(AppLifetime lifetime) : IDisposable
             _leftClickOpensSettings = true;
         }
 
+#if DEBUG
+        menu.Items.Add(CreateItem("Tray.Showcase", () => new Debug.ShowcaseWindow().Show()));
+#endif
         menu.Items.Add(CreateItem("Tray.Restart", lifetime.Restart));
         menu.Items.Add(CreateItem("Tray.Exit", lifetime.Exit));
 

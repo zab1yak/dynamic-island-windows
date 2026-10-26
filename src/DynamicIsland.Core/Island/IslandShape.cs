@@ -93,4 +93,45 @@ public static class IslandShapeMath
 
         return new IslandOutline(start, segments);
     }
+
+    /// <summary>
+    /// A rectangle with continuous (squircle-like) corners, used for buttons, cards and fields so
+    /// nothing in the UI has a plain circular radius or a sharp corner.
+    /// </summary>
+    public static IslandOutline RoundedRect(double x, double y, double width, double height, double radius)
+    {
+        width = Math.Max(width, 0);
+        height = Math.Max(height, 0);
+        var shortSide = Math.Min(width, height);
+        double e;
+        double c;
+        if (radius * CornerExtent >= shortSide / 2)
+        {
+            // Too round for a continuous corner: draw a true capsule / circle with circular arcs.
+            e = shortSide / 2;
+            c = e * CircleKappa;
+        }
+        else
+        {
+            var r = Math.Max(radius, 0);
+            e = r * CornerExtent;
+            c = e * CornerControl;
+        }
+
+        var right = x + width;
+        var bottom = y + height;
+
+        var segments = new List<ShapeSegment>(8)
+        {
+            new LineSegment(new Point2(right - e, y)),
+            new CubicSegment(new Point2(right - e + c, y), new Point2(right, y + e - c), new Point2(right, y + e)),
+            new LineSegment(new Point2(right, bottom - e)),
+            new CubicSegment(new Point2(right, bottom - e + c), new Point2(right - e + c, bottom), new Point2(right - e, bottom)),
+            new LineSegment(new Point2(x + e, bottom)),
+            new CubicSegment(new Point2(x + e - c, bottom), new Point2(x, bottom - e + c), new Point2(x, bottom - e)),
+            new LineSegment(new Point2(x, y + e)),
+            new CubicSegment(new Point2(x, y + e - c), new Point2(x + e - c, y), new Point2(x + e, y)),
+        };
+        return new IslandOutline(new Point2(x + e, y), segments);
+    }
 }

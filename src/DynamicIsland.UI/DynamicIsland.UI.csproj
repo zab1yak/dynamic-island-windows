@@ -13,18 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\Strings.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
-      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>DynamicIsland.UI.Resources</StronglyTypedNamespace>
-      <StronglyTypedClassName>Strings</StronglyTypedClassName>
-      <PublicClass>true</PublicClass>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <InternalsVisibleTo Include="DynamicIsland.Tests" />
   </ItemGroup>
 

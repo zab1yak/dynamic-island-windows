@@ -157,3 +157,39 @@ public sealed class IslandShapeMathTests
         Assert.Equal(0.293 * 30, mid - left, 0.5);
     }
 }
+
+public sealed class RoundedRectTests
+{
+    [Fact]
+    public void Huge_radius_on_a_square_makes_a_circle()
+    {
+        var outline = IslandShapeMath.RoundedRect(0, 0, 48, 48, 999);
+        // No straight edges remain: every line segment has zero length.
+        var lines = outline.Segments.OfType<LineSegment>().ToList();
+        var previous = outline.Start;
+        foreach (var segment in outline.Segments)
+        {
+            if (segment is LineSegment line)
+            {
+                Assert.Equal(previous, line.End);
+            }
+
+            previous = segment.End;
+        }
+
+        Assert.Equal(4, lines.Count);
+        Assert.Equal(new Point2(24, 0), outline.Start);
+    }
+
+    [Fact]
+    public void Small_radius_keeps_straight_edges_and_bounds()
+    {
+        var outline = IslandShapeMath.RoundedRect(10, 20, 100, 40, 8);
+        Assert.All(outline.Segments, s =>
+        {
+            Assert.InRange(s.End.X, 10, 110);
+            Assert.InRange(s.End.Y, 20, 60);
+        });
+        Assert.Equal(outline.Start, outline.Segments[^1].End);
+    }
+}
