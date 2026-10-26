@@ -10,6 +10,9 @@
   <data name="Error.Title" xml:space="preserve"><value>Что-то пошло не так</value></data>
   <data name="Hotkey.Taken" xml:space="preserve"><value>{0} уже использует другое приложение. Остров по-прежнему раскрывается при наведении.</value></data>
   <data name="Hotkey.TakenTitle" xml:space="preserve"><value>Горячая клавиша занята</value></data>
+  <data name="Privacy.Camera" xml:space="preserve"><value>Камера</value></data>
+  <data name="Privacy.Microphone" xml:space="preserve"><value>Микрофон</value></data>
+  <data name="Privacy.Recording" xml:space="preserve"><value>Запись экрана</value></data>
   <data name="Tray.Exit" xml:space="preserve"><value>Выход</value></data>
   <data name="Tray.Restart" xml:space="preserve"><value>Перезапустить</value></data>
   <data name="Tray.Settings" xml:space="preserve"><value>Настройки…</value></data>

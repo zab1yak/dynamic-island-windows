@@ -36,6 +36,7 @@ internal sealed partial class IslandWindow : Window
     private readonly Spring _radius;
     private readonly Spring _shoulder;
     private readonly Spring _compactOpacity = Spring.Smooth(1);
+    private readonly Spring _liveOpacity = Spring.Smooth(0);
     private readonly Spring _expandedOpacity = Spring.Smooth(0);
 
     private nint _hwnd;
@@ -312,9 +313,11 @@ internal sealed partial class IslandWindow : Window
 
         var expanded = IslandMetrics.IsExpanded(mode);
         _expandedOpacity.Target = expanded ? 1 : 0;
-        _compactOpacity.Target = expanded || mode == IslandMode.Hidden ? 0 : 1;
+        _compactOpacity.Target = mode == IslandMode.Compact ? 1 : 0;
+        _liveOpacity.Target = mode == IslandMode.LiveActivity ? 1 : 0;
         ExpandedLayer.IsHitTestVisible = expanded;
-        CompactLayer.IsHitTestVisible = !expanded;
+        CompactLayer.IsHitTestVisible = mode == IslandMode.Compact;
+        LiveLayer.IsHitTestVisible = mode == IslandMode.LiveActivity;
         if (mode == IslandMode.Hidden)
         {
             EndTextInput();
@@ -331,12 +334,13 @@ internal sealed partial class IslandWindow : Window
         moving |= _radius.Step(dt);
         moving |= _shoulder.Step(dt);
         // Content of the old state fades fast, the new one appears a bit slower.
-        _compactOpacity.Stiffness = _compactOpacity.Target > 0 ? 260 : 900;
-        _expandedOpacity.Stiffness = _expandedOpacity.Target > 0 ? 260 : 900;
-        _compactOpacity.Damping = 2 * Math.Sqrt(_compactOpacity.Stiffness);
-        _expandedOpacity.Damping = 2 * Math.Sqrt(_expandedOpacity.Stiffness);
-        moving |= _compactOpacity.Step(dt);
-        moving |= _expandedOpacity.Step(dt);
+        foreach (var fade in new[] { _compactOpacity, _liveOpacity, _expandedOpacity })
+        {
+            fade.Stiffness = fade.Target > 0 ? 260 : 900;
+            fade.Damping = 2 * Math.Sqrt(fade.Stiffness);
+            moving |= fade.Step(dt);
+        }
+
         Render();
         return moving;
     }
@@ -358,6 +362,9 @@ internal sealed partial class IslandWindow : Window
         ExpandedScale.ScaleX = ExpandedScale.ScaleY = 0.96 + (0.04 * expanded);
         CompactLayer.Opacity = compact;
         CompactScale.ScaleX = CompactScale.ScaleY = 0.96 + (0.04 * compact);
+        var live = Math.Clamp(_liveOpacity.Value, 0, 1);
+        LiveLayer.Opacity = live;
+        LiveScale.ScaleX = LiveScale.ScaleY = 0.96 + (0.04 * live);
         Outline.Opacity = expanded;
         BodyShadow.Opacity = 0.45 * expanded;
         Body.Visibility = _height.Value < 0.5 ? Visibility.Hidden : Visibility.Visible;

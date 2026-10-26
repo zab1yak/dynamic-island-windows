@@ -5,6 +5,7 @@ using DynamicIsland.App.Services;
 using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Settings;
 using DynamicIsland.Platform.Windows;
+using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.UI.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -74,6 +75,13 @@ public partial class App : Application
             island.HotkeyUnavailable += (_, hotkey) =>
                 tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));
             island.Show();
+
+            var status = services.GetRequiredService<StatusViewModel>();
+            status.Start();
+            var privacy = services.GetRequiredService<PrivacyMonitor>();
+            privacy.SetRecordingDetection(settings.Current.DetectScreenRecording);
+            settings.Changed += (_, _) => privacy.SetRecordingDetection(settings.Current.DetectScreenRecording);
+            services.GetRequiredService<LiveActivityHost>().Start();
 
             _instance.SetHandler(args => Dispatcher.BeginInvoke(() => HandleArguments(CommandLine.Parse(args))));
             HandleArguments(_commandLine);

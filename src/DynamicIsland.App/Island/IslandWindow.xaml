@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:island="clr-namespace:DynamicIsland.App.Island"
+        xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance island:IslandViewModel}"
         Title="Dynamic Island"
@@ -38,14 +39,58 @@
               IsHitTestVisible="False" />
 
         <Grid x:Name="ContentHost">
-            <!-- Compact pill: time in the middle, status left and right. -->
+            <Grid.Resources>
+                <BooleanToVisibilityConverter x:Key="Visible" />
+                <!-- iOS-style privacy dots: camera red, microphone orange, screen recording red ring. -->
+                <DataTemplate x:Key="PrivacyDots">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Red}" Margin="3,0,0,0"
+                                 Visibility="{Binding CameraInUse, Converter={StaticResource Visible}}" />
+                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Orange}" Margin="3,0,0,0"
+                                 Visibility="{Binding MicrophoneInUse, Converter={StaticResource Visible}}" />
+                        <Grid Width="11" Height="11" Margin="3,0,0,0" Visibility="{Binding Recording, Converter={StaticResource Visible}}">
+                            <Ellipse Stroke="{DynamicResource Brush.Red}" StrokeThickness="1.5" />
+                            <Ellipse Width="5" Height="5" Fill="{DynamicResource Brush.Red}" />
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </Grid.Resources>
+
+            <!-- Compact pill: battery left, time in the middle, privacy dots right. -->
             <Grid x:Name="CompactLayer" Width="200" Height="34" HorizontalAlignment="Center" VerticalAlignment="Top"
                   RenderTransformOrigin="0.5,0">
                 <Grid.RenderTransform>
                     <ScaleTransform x:Name="CompactScale" />
                 </Grid.RenderTransform>
-                <TextBlock Text="{Binding Time24}" Style="{DynamicResource Island.CompactTime}"
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <c:BatteryIndicator Grid.Column="0" Status="{Binding Status.BatteryStatus}" Height="16"
+                                    HorizontalAlignment="Left" Margin="16,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Time24}" Style="{DynamicResource Island.CompactTime}"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <ContentPresenter Grid.Column="2" Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}"
+                                  HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center" />
+            </Grid>
+
+            <!-- Live activity pill: the winning activity, then a hint of the runner-up and privacy dots. -->
+            <Grid x:Name="LiveLayer" Width="300" Height="34" HorizontalAlignment="Center" VerticalAlignment="Top"
+                  RenderTransformOrigin="0.5,0" Opacity="0" IsHitTestVisible="False">
+                <Grid.RenderTransform>
+                    <ScaleTransform x:Name="LiveScale" />
+                </Grid.RenderTransform>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ContentPresenter Grid.Column="0" Content="{Binding Live.Primary}" Margin="12,0,8,0" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
+                    <c:Icon Glyph="{Binding Live.SecondaryIcon}" Width="13" Height="13" Foreground="{DynamicResource Brush.TextSecondary}"
+                            Margin="0,0,4,0" />
+                    <ContentPresenter Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}" />
+                </StackPanel>
             </Grid>
 
             <!-- Expanded card. -->
@@ -58,10 +103,25 @@
                     <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding DateText}" Style="{DynamicResource Island.HeaderSecondary}" />
-                    <TextBlock Text="{Binding Time24}" Style="{DynamicResource Island.HeaderPrimary}" Margin="8,0,0,0" />
-                </StackPanel>
+                <Grid Grid.Row="0" Margin="26,0,26,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="PageTitle" Grid.Column="0" Style="{DynamicResource Island.HeaderPrimary}" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <c:BatteryIndicator Status="{Binding Status.BatteryStatus}" Height="16" Margin="0,0,5,0" />
+                        <TextBlock Text="{Binding Status.BatteryText}" Style="{DynamicResource Island.HeaderSecondary}" Margin="0,0,10,0" />
+                        <TextBlock Text="{Binding DateText}" Style="{DynamicResource Island.HeaderSecondary}" />
+                        <TextBlock Text="{Binding Time24}" Style="{DynamicResource Island.HeaderPrimary}" Margin="8,0,0,0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <ContentPresenter Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}" />
+                        <TextBlock Text="{Binding Status.PrivacyText}" Style="{DynamicResource Text.Secondary}" FontSize="11"
+                                   MaxWidth="150" Margin="6,0,0,0" ToolTip="{Binding Status.PrivacyText}" />
+                    </StackPanel>
+                </Grid>
                 <ContentPresenter x:Name="PageHost" Grid.Row="1" Margin="24,0,24,18" />
             </Grid>
         </Grid>

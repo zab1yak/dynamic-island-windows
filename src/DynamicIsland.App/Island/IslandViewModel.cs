@@ -21,15 +21,23 @@ internal sealed partial class IslandViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private IslandMode _mode = IslandMode.Compact;
 
-    public IslandViewModel(TimeProvider time)
+    public IslandViewModel(TimeProvider time, StatusViewModel status, LiveActivityHost live)
     {
         _time = time;
+        Status = status;
+        Live = live;
         // One tick per minute boundary, not a polling timer: the island sleeps between minutes.
         _clock = new DispatcherTimer(DispatcherPriority.Background);
         _clock.Tick += (_, _) => RefreshClock();
         Loc.Instance.CultureChanged += OnCultureChanged;
         RefreshClock();
     }
+
+    /// <summary>Battery and privacy indicators.</summary>
+    public StatusViewModel Status { get; }
+
+    /// <summary>Live activity shown in the pill.</summary>
+    public LiveActivityHost Live { get; }
 
     /// <summary>Re-reads the clock (after sleep or a time-zone change).</summary>
     public void RefreshClock()

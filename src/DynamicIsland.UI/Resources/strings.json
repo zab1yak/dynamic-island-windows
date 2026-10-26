@@ -42,5 +42,17 @@
   "Tray.Showcase": {
     "en": "Component gallery (Debug)",
     "ru": "Витрина компонентов (Debug)"
+  },
+  "Privacy.Camera": {
+    "en": "Camera",
+    "ru": "Камера"
+  },
+  "Privacy.Microphone": {
+    "en": "Microphone",
+    "ru": "Микрофон"
+  },
+  "Privacy.Recording": {
+    "en": "Recording",
+    "ru": "Запись экрана"
   }
 }

@@ -42,6 +42,9 @@ public sealed class AppSettings
     /// <summary>Ids of modules the user switched off.</summary>
     public List<string> DisabledModules { get; set; } = [];
 
+    /// <summary>Show a red dot while a known screen recorder runs (heuristic, off by default).</summary>
+    public bool DetectScreenRecording { get; set; }
+
     /// <summary>Check GitHub Releases for updates on start.</summary>
     public bool CheckForUpdates { get; set; } = true;
 }

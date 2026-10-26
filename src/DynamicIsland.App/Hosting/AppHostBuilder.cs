@@ -1,6 +1,8 @@
 using DynamicIsland.App.Island;
 using DynamicIsland.App.Services;
 using DynamicIsland.Core.Island;
+using DynamicIsland.Core.Status;
+using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
 using DynamicIsland.UI.Threading;
 using DynamicIsland.Core;
@@ -38,6 +40,11 @@ internal static class AppHostBuilder
         services.AddSingleton<GlobalExceptionHandler>();
         services.AddSingleton<IUiDispatcher>(_ => new WpfUiDispatcher(System.Windows.Application.Current.Dispatcher));
         services.AddSingleton<IslandStateMachine>();
+        services.AddSingleton<IBatteryService, BatteryService>();
+        services.AddSingleton<PrivacyMonitor>();
+        services.AddSingleton<IPrivacyMonitor>(sp => sp.GetRequiredService<PrivacyMonitor>());
+        services.AddSingleton<StatusViewModel>();
+        services.AddSingleton<LiveActivityHost>();
         services.AddSingleton<IslandViewModel>();
         services.AddSingleton<IslandWindow>();
 
