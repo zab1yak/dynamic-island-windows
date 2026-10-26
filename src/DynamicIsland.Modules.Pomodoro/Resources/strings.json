@@ -1,0 +1,50 @@
+{
+  "Pomodoro.Title": {
+    "en": "Pomodoro",
+    "ru": "Помодоро"
+  },
+  "Pomodoro.FocusTime": {
+    "en": "Focus Time",
+    "ru": "Фокус"
+  },
+  "Pomodoro.ShortBreak": {
+    "en": "Short Break",
+    "ru": "Перерыв"
+  },
+  "Pomodoro.LongBreak": {
+    "en": "Long Break",
+    "ru": "Длинный перерыв"
+  },
+  "Pomodoro.StartPause": {
+    "en": "Start or pause",
+    "ru": "Старт или пауза"
+  },
+  "Pomodoro.Reset": {
+    "en": "Reset",
+    "ru": "Сбросить"
+  },
+  "Pomodoro.Today": {
+    "en": "Today:",
+    "ru": "Сегодня:"
+  },
+  "Pomodoro.FocusDone": {
+    "en": "Focus session complete",
+    "ru": "Сессия фокуса завершена"
+  },
+  "Pomodoro.BreakDone": {
+    "en": "Break is over",
+    "ru": "Перерыв окончен"
+  },
+  "Pomodoro.NextFocus": {
+    "en": "Time to focus again.",
+    "ru": "Пора снова сосредоточиться."
+  },
+  "Pomodoro.NextShortBreak": {
+    "en": "Take a short break.",
+    "ru": "Сделайте короткий перерыв."
+  },
+  "Pomodoro.NextLongBreak": {
+    "en": "You earned a long break.",
+    "ru": "Вы заслужили длинный перерыв."
+  }
+}

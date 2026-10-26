@@ -2,7 +2,9 @@ using DynamicIsland.App.Island;
 using DynamicIsland.App.Services;
 using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Status;
+using DynamicIsland.Core.Notifications;
 using DynamicIsland.Modules.Media;
+using DynamicIsland.Modules.Pomodoro;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
 using DynamicIsland.UI.Threading;
@@ -38,6 +40,7 @@ internal static class AppHostBuilder
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<AppLifetime>();
         services.AddSingleton<TrayIconService>();
+        services.AddSingleton<INotificationService, TrayNotificationService>();
         services.AddSingleton<GlobalExceptionHandler>();
         services.AddSingleton<IUiDispatcher>(_ => new WpfUiDispatcher(System.Windows.Application.Current.Dispatcher));
         services.AddSingleton<IslandStateMachine>();
@@ -51,6 +54,7 @@ internal static class AppHostBuilder
 
         // Island modules: one line each; the window never changes when a module is added.
         services.AddMediaModule();
+        services.AddPomodoroModule();
         services.AddSingleton<IslandWindow>();
 
         return builder.Build();

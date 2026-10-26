@@ -52,10 +52,10 @@ internal sealed class TrayIconService(AppLifetime lifetime) : IDisposable
         _icon.ForceCreate(enablesEfficiencyMode: false);
     }
 
-    /// <summary>Shows a quiet balloon notification (used for recovered errors).</summary>
-    public void Notify(string title, string message)
+    /// <summary>Shows a Windows notification from the tray icon.</summary>
+    public void Notify(string title, string message, bool sound = false)
     {
-        _icon?.ShowNotification(title, message, NotificationIcon.None, sound: false);
+        _icon?.ShowNotification(title, message, NotificationIcon.None, sound: sound);
     }
 
     /// <inheritdoc />
