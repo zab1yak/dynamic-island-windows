@@ -18,13 +18,20 @@ internal sealed class GlobalExceptionHandler(TrayIconService tray, TimeProvider 
 
     private readonly Queue<DateTimeOffset> _recent = new();
     private DateTimeOffset _lastNotification = DateTimeOffset.MinValue;
+    private bool _shuttingDown;
 
     /// <summary>Hooks the dispatcher, AppDomain and TaskScheduler handlers.</summary>
     public void Attach(Application app)
     {
         app.DispatcherUnhandledException += OnDispatcherException;
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
             logger.LogCritical(e.ExceptionObject as Exception, "Unhandled exception (terminating: {Terminating})", e.IsTerminating);
+            if (e.IsTerminating)
+            {
+                Serilog.Log.CloseAndFlush();
+            }
+        };
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
             logger.LogError(e.Exception, "Unobserved task exception");
@@ -36,10 +43,16 @@ internal sealed class GlobalExceptionHandler(TrayIconService tray, TimeProvider 
     {
         logger.LogError(e.Exception, "Unhandled UI exception");
         e.Handled = true;
+        if (_shuttingDown)
+        {
+            // The fatal dialog pumps messages; errors raised meanwhile are only logged.
+            return;
+        }
 
         var now = time.GetUtcNow();
         if (RegisterAndCheckBurst(_recent, now))
         {
+            _shuttingDown = true;
             logger.LogCritical("Too many errors in a row; shutting down");
             MessageBox.Show(Loc.Instance.Format("Error.Fatal", AppPaths.Logs), Loc.Instance["App.Name"],
                 MessageBoxButton.OK, MessageBoxImage.Error);

@@ -10,17 +10,26 @@ namespace DynamicIsland.Platform.Windows;
 /// listens on a named pipe; later instances forward their command-line arguments and exit.
 /// The pipe is created with <see cref="PipeOptions.CurrentUserOnly"/>, so other users cannot connect.
 /// </summary>
+/// <remarks>
+/// A mutex can only be released by the thread that acquired it, so create and dispose this object
+/// on the same thread (the <c>Main</c> thread).
+/// </remarks>
 public sealed class SingleInstance : IDisposable
 {
     private const int MaxMessageBytes = 8 * 1024;
+    private static readonly TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(2);
     private static readonly string Suffix = WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName;
     private static readonly string MutexName = $"Local\\DynamicIsland-7C1E0A52-{Suffix}";
     private static readonly string PipeName = $"DynamicIsland-{Suffix}";
 
     private readonly Mutex _mutex;
     private readonly CancellationTokenSource _cts = new();
-    private bool _ownsMutex;
+    private readonly Lock _gate = new();
+    private readonly List<string[]> _pending = [];
+    private Action<string[]>? _handler;
+    private Task? _server;
     private ILogger? _logger;
+    private bool _ownsMutex;
 
     private SingleInstance(Mutex mutex, bool ownsMutex)
     {
@@ -31,13 +40,7 @@ public sealed class SingleInstance : IDisposable
     /// <summary>Whether this process is the primary instance.</summary>
     public bool IsPrimary => _ownsMutex;
 
-    /// <summary>Raised on a thread-pool thread with the arguments a secondary instance forwarded.</summary>
-    public event EventHandler<string[]>? ArgumentsReceived;
-
-    /// <summary>
-    /// Tries to become the primary instance. With a positive <paramref name="wait"/> (used on restart)
-    /// it waits for the previous process to release the mutex.
-    /// </summary>
+    /// <summary>Tries to become the primary instance, waiting up to <paramref name="wait"/> for the mutex.</summary>
     public static SingleInstance Acquire(TimeSpan wait)
     {
         var mutex = new Mutex(initiallyOwned: false, MutexName);
@@ -55,8 +58,11 @@ public sealed class SingleInstance : IDisposable
         return new SingleInstance(mutex, owns);
     }
 
-    /// <summary>Starts listening for forwarded arguments. Only valid on the primary instance.</summary>
-    public void StartServer(ILogger logger)
+    /// <summary>
+    /// Starts listening for forwarded arguments right away. Messages that arrive before
+    /// <see cref="SetHandler"/> is called are queued, so nothing is lost during start-up.
+    /// </summary>
+    public void Listen(ILogger logger)
     {
         if (!_ownsMutex)
         {
@@ -64,7 +70,24 @@ public sealed class SingleInstance : IDisposable
         }
 
         _logger = logger;
-        _ = Task.Run(() => ServeAsync(_cts.Token));
+        _server = Task.Run(() => ServeAsync(_cts.Token));
+    }
+
+    /// <summary>Sets the handler (invoked on a thread-pool thread) and flushes queued messages to it.</summary>
+    public void SetHandler(Action<string[]> handler)
+    {
+        string[][] queued;
+        lock (_gate)
+        {
+            _handler = handler;
+            queued = [.. _pending];
+            _pending.Clear();
+        }
+
+        foreach (var args in queued)
+        {
+            handler(args);
+        }
     }
 
     /// <summary>Sends <paramref name="args"/> to the primary instance. Returns <c>false</c> on failure.</summary>
@@ -90,21 +113,33 @@ public sealed class SingleInstance : IDisposable
         }
     }
 
-    /// <summary>Releases the mutex early (before restarting) so the new process can take it.</summary>
-    public void Release()
-    {
-        _cts.Cancel();
-        if (_ownsMutex)
-        {
-            _mutex.ReleaseMutex();
-            _ownsMutex = false;
-        }
-    }
-
     /// <inheritdoc />
     public void Dispose()
     {
-        Release();
+        _cts.Cancel();
+        try
+        {
+            _server?.Wait(TimeSpan.FromSeconds(1));
+        }
+        catch (AggregateException)
+        {
+            // The server loop logs its own failures.
+        }
+
+        if (_ownsMutex)
+        {
+            try
+            {
+                _mutex.ReleaseMutex();
+            }
+            catch (ApplicationException ex)
+            {
+                _logger?.LogWarning(ex, "Mutex released on a non-owner thread; the OS frees it at process exit");
+            }
+
+            _ownsMutex = false;
+        }
+
         _cts.Dispose();
         _mutex.Dispose();
     }
@@ -120,28 +155,19 @@ public sealed class SingleInstance : IDisposable
                     PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 await server.WaitForConnectionAsync(ct).ConfigureAwait(false);
 
-                using var buffer = new MemoryStream();
-                var chunk = new byte[1024];
-                int read;
-                while ((read = await server.ReadAsync(chunk, ct).ConfigureAwait(false)) > 0)
-                {
-                    buffer.Write(chunk, 0, read);
-                    if (buffer.Length > MaxMessageBytes)
-                    {
-                        throw new InvalidDataException("Forwarded arguments are too large.");
-                    }
-                }
-
-                var args = JsonSerializer.Deserialize<string[]>(buffer.ToArray()) ?? [];
-                ArgumentsReceived?.Invoke(this, args);
+                // A client that connects and stays silent must not block later launches.
+                using var perConnection = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                perConnection.CancelAfter(ConnectionTimeout);
+                var args = await ReadMessageAsync(server, perConnection.Token).ConfigureAwait(false);
+                Dispatch(args);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {
                 return;
             }
-            catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException)
+            catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or OperationCanceledException)
             {
-                _logger?.LogWarning(ex, "Ignored a malformed single-instance message");
+                _logger?.LogWarning(ex, "Ignored a malformed or stalled single-instance message");
             }
             catch (Exception ex)
             {
@@ -149,5 +175,38 @@ public sealed class SingleInstance : IDisposable
                 await Task.Delay(TimeSpan.FromSeconds(1), ct).ConfigureAwait(false);
             }
         }
+    }
+
+    private static async Task<string[]> ReadMessageAsync(Stream stream, CancellationToken ct)
+    {
+        using var buffer = new MemoryStream();
+        var chunk = new byte[1024];
+        int read;
+        while ((read = await stream.ReadAsync(chunk, ct).ConfigureAwait(false)) > 0)
+        {
+            buffer.Write(chunk, 0, read);
+            if (buffer.Length > MaxMessageBytes)
+            {
+                throw new InvalidDataException("Forwarded arguments are too large.");
+            }
+        }
+
+        return JsonSerializer.Deserialize<string[]>(buffer.ToArray()) ?? [];
+    }
+
+    private void Dispatch(string[] args)
+    {
+        Action<string[]>? handler;
+        lock (_gate)
+        {
+            handler = _handler;
+            if (handler is null)
+            {
+                _pending.Add(args);
+                return;
+            }
+        }
+
+        handler(args);
     }
 }

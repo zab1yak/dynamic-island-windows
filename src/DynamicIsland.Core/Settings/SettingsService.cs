@@ -8,8 +8,10 @@ namespace DynamicIsland.Core.Settings;
 /// <summary>
 /// <see cref="ISettingsService"/> stored in <c>settings.json</c>. Migrations run on the raw JSON
 /// tree, so a field can be renamed or reshaped without keeping legacy properties on the model.
+/// A file that cannot be read or migrated is backed up before defaults are used, so the user's
+/// data is never silently overwritten.
 /// </summary>
-public sealed class SettingsService : ISettingsService
+public sealed class SettingsService : ISettingsService, IDisposable
 {
     /// <summary>File name relative to the data folder.</summary>
     public const string FileName = "settings.json";
@@ -17,6 +19,7 @@ public sealed class SettingsService : ISettingsService
     private readonly IStorageService _storage;
     private readonly ILogger<SettingsService> _logger;
     private readonly IReadOnlyDictionary<int, Action<JsonObject>> _migrations;
+    private readonly SemaphoreSlim _saveGate = new(1, 1);
 
     /// <summary>Creates the service with the built-in migrations.</summary>
     public SettingsService(IStorageService storage, ILogger<SettingsService> logger)
@@ -49,45 +52,72 @@ public sealed class SettingsService : ISettingsService
             return;
         }
 
-        var version = json["schemaVersion"]?.GetValue<int>() ?? 0;
-        var migrated = false;
-        while (version < AppSettings.CurrentSchemaVersion)
+        var version = json["schemaVersion"] is JsonValue v && v.TryGetValue<int>(out var parsed) ? parsed : 0;
+        if (version > AppSettings.CurrentSchemaVersion)
         {
-            if (_migrations.TryGetValue(version, out var migrate))
-            {
-                migrate(json);
-            }
-
-            version++;
-            json["schemaVersion"] = version;
-            migrated = true;
+            // Written by a newer build (the user downgraded): keep a copy before we save our shape over it.
+            BackUp($"v{version}.bak");
         }
 
+        AppSettings? loaded;
+        var migrated = false;
         try
         {
-            Current = json.Deserialize<AppSettings>(JsonDefaults.Options) ?? new AppSettings();
+            while (version < AppSettings.CurrentSchemaVersion)
+            {
+                if (_migrations.TryGetValue(version, out var migrate))
+                {
+                    migrate(json);
+                }
+
+                version++;
+                json["schemaVersion"] = version;
+                migrated = true;
+            }
+
+            loaded = json.Deserialize<AppSettings>(JsonDefaults.Options);
         }
-        catch (JsonException ex)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or FormatException)
         {
-            _logger.LogError(ex, "Settings could not be read; defaults are used");
-            Current = new AppSettings();
+            _logger.LogError(ex, "Settings could not be read; a backup was kept and defaults are used");
+            BackUp("unreadable.bak");
+            loaded = null;
+            migrated = false;
         }
 
+        Current = loaded ?? new AppSettings();
         Normalize(Current);
         if (migrated)
         {
             _logger.LogInformation("Settings migrated to schema {Version}", AppSettings.CurrentSchemaVersion);
-            await _storage.SaveAsync(FileName, Current, cancellationToken).ConfigureAwait(false);
+            await _storage.SaveAsync(FileName, Snapshot(Current), cancellationToken).ConfigureAwait(false);
         }
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The settings are snapshotted on the caller's thread and the continuation returns to the
+    /// caller's context, so <see cref="Changed"/> is raised on the UI thread when called from it.
+    /// </remarks>
     public async Task SaveAsync(CancellationToken cancellationToken = default)
     {
         Normalize(Current);
-        await _storage.SaveAsync(FileName, Current, cancellationToken).ConfigureAwait(false);
+        var snapshot = Snapshot(Current);
+        await _saveGate.WaitAsync(cancellationToken);
+        try
+        {
+            await _storage.SaveAsync(FileName, snapshot, cancellationToken);
+        }
+        finally
+        {
+            _saveGate.Release();
+        }
+
         Changed?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <inheritdoc />
+    public void Dispose() => _saveGate.Dispose();
 
     /// <summary>Clamps values the UI or a hand-edited file could have set out of range.</summary>
     internal static void Normalize(AppSettings s)
@@ -106,6 +136,22 @@ public sealed class SettingsService : ISettingsService
         if (s.Language is not null and not "ru" and not "en")
         {
             s.Language = null;
+        }
+    }
+
+    private static JsonObject Snapshot(AppSettings settings) =>
+        JsonSerializer.SerializeToNode(settings, JsonDefaults.Options)!.AsObject();
+
+    private void BackUp(string suffix)
+    {
+        try
+        {
+            var path = _storage.ResolvePath(FileName);
+            File.Copy(path, $"{path}.{suffix}", overwrite: true);
+        }
+        catch (IOException ex)
+        {
+            _logger.LogWarning(ex, "Could not back up settings");
         }
     }
 }

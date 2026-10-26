@@ -87,4 +87,46 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Contains("\"schemaVersion\": 1", onDisk, StringComparison.Ordinal);
         Assert.DoesNotContain("autostart", onDisk, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task Non_numeric_schema_version_is_treated_as_unversioned()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await File.WriteAllTextAsync(Path.Combine(_temp.Path, SettingsService.FileName),
+            """{ "schemaVersion": "one", "launchAtStartup": false }""", ct);
+
+        var service = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
+        await service.LoadAsync(ct);
+
+        Assert.False(service.Current.LaunchAtStartup);
+    }
+
+    [Theory]
+    [InlineData("""{ "schemaVersion": 1, "islandScale": "huge" }""")]
+    [InlineData("""{ "schemaVersion": 1, "moduleOrder": 5 }""")]
+    public async Task Unreadable_settings_fall_back_to_defaults_and_keep_a_backup(string content)
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var path = Path.Combine(_temp.Path, SettingsService.FileName);
+        await File.WriteAllTextAsync(path, content, ct);
+
+        var service = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
+        await service.LoadAsync(ct);
+
+        Assert.True(service.Current.LaunchAtStartup);
+        Assert.Equal(content, await File.ReadAllTextAsync(path + ".unreadable.bak", ct));
+    }
+
+    [Fact]
+    public async Task Newer_schema_is_backed_up_before_it_can_be_overwritten()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var path = Path.Combine(_temp.Path, SettingsService.FileName);
+        await File.WriteAllTextAsync(path, """{ "schemaVersion": 99, "futureField": 1 }""", ct);
+
+        var service = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
+        await service.LoadAsync(ct);
+
+        Assert.True(File.Exists(path + ".v99.bak"));
+    }
 }

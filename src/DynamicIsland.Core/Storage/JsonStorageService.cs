@@ -64,9 +64,17 @@ public sealed class JsonStorageService : IStorageService
             }
             catch (JsonException ex)
             {
-                var corrupt = path + ".corrupt";
-                _logger.LogError(ex, "Corrupt JSON in {Path}; moved to {CorruptPath}", path, corrupt);
-                File.Move(path, corrupt, overwrite: true);
+                var corrupt = $"{path}.{DateTime.UtcNow:yyyyMMddHHmmss}.corrupt";
+                _logger.LogError(ex, "Corrupt JSON in {Path}; moving it to {CorruptPath}", path, corrupt);
+                try
+                {
+                    File.Move(path, corrupt, overwrite: true);
+                }
+                catch (IOException moveError)
+                {
+                    _logger.LogWarning(moveError, "Could not move the corrupt file aside");
+                }
+
                 return null;
             }
         }
@@ -86,27 +94,43 @@ public sealed class JsonStorageService : IStorageService
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            var temp = path + ".tmp";
-            await using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough | FileOptions.Asynchronous))
+            // Unique name: a restarting second process must never share our temp file.
+            var temp = $"{path}.{Guid.NewGuid():N}.tmp";
+            try
             {
-                await JsonSerializer.SerializeAsync(stream, value, JsonDefaults.Options, cancellationToken).ConfigureAwait(false);
-                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-                stream.Flush(flushToDisk: true);
+                await WriteAndReplaceAsync(path, temp, value, cancellationToken).ConfigureAwait(false);
             }
-
-            if (File.Exists(path))
+            finally
             {
-                // File.Replace is atomic on NTFS and keeps the target's ACLs.
-                File.Replace(temp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
-            }
-            else
-            {
-                File.Move(temp, path);
+                if (File.Exists(temp))
+                {
+                    File.Delete(temp);
+                }
             }
         }
         finally
         {
             gate.Release();
+        }
+    }
+
+    private static async Task WriteAndReplaceAsync<T>(string path, string temp, T value, CancellationToken cancellationToken)
+    {
+        await using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough | FileOptions.Asynchronous))
+        {
+            await JsonSerializer.SerializeAsync(stream, value, JsonDefaults.Options, cancellationToken).ConfigureAwait(false);
+            await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            stream.Flush(flushToDisk: true);
+        }
+
+        if (File.Exists(path))
+        {
+            // File.Replace is atomic on NTFS and keeps the target's ACLs.
+            File.Replace(temp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
+        }
+        else
+        {
+            File.Move(temp, path);
         }
     }
 }

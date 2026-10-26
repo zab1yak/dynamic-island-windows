@@ -39,7 +39,7 @@ public sealed class JsonStorageServiceTests : IDisposable
         Assert.NotNull(loaded);
         Assert.Equal("Вода", loaded.Name);
         Assert.Equal(4, loaded.Count);
-        Assert.False(File.Exists(Path.Combine(_temp.Path, "a", "doc.json.tmp")));
+        Assert.Empty(Directory.GetFiles(Path.Combine(_temp.Path, "a"), "*.tmp"));
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public sealed class JsonStorageServiceTests : IDisposable
         await File.WriteAllTextAsync(path, "{ not json", ct);
 
         Assert.Null(await _storage.LoadAsync<Doc>("bad.json", ct));
-        Assert.True(File.Exists(path + ".corrupt"));
+        Assert.Single(Directory.GetFiles(_temp.Path, "bad.json.*.corrupt"));
         Assert.False(File.Exists(path));
     }
 

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using DynamicIsland.App.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,8 +18,8 @@ internal sealed class AppLifetime(ILogger<AppLifetime> logger)
     }
 
     /// <summary>
-    /// Starts a fresh process and exits. The new process waits (up to 10 s) for this one to release
-    /// the single-instance mutex, which happens when <c>Main</c> disposes it.
+    /// Starts a fresh process and exits. The new process waits for this process id to exit before
+    /// it takes the single-instance mutex.
     /// </summary>
     public void Restart()
     {
@@ -31,11 +32,20 @@ internal sealed class AppLifetime(ILogger<AppLifetime> logger)
 
         try
         {
-            Process.Start(new ProcessStartInfo(exe)
+            using var started = Process.Start(new ProcessStartInfo(exe)
             {
                 UseShellExecute = false,
-                ArgumentList = { CommandLine.RestartSwitch, CommandLine.BackgroundSwitch },
+                ArgumentList =
+                {
+                    CommandLine.RestartSwitch + Environment.ProcessId.ToString(CultureInfo.InvariantCulture),
+                    CommandLine.BackgroundSwitch,
+                },
             });
+            if (started is null)
+            {
+                logger.LogError("Restart failed: the new process did not start");
+                return;
+            }
         }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
         {

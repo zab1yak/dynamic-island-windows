@@ -6,7 +6,7 @@ public interface ISettingsService
     /// <summary>The live settings instance. Valid after <see cref="LoadAsync"/>.</summary>
     AppSettings Current { get; }
 
-    /// <summary>Raised on the calling thread after <see cref="SaveAsync"/> succeeds.</summary>
+    /// <summary>Raised in the caller's synchronization context after <see cref="SaveAsync"/> succeeds.</summary>
     event EventHandler? Changed;
 
     /// <summary>Loads settings from disk, applying migrations and clamping invalid values.</summary>
