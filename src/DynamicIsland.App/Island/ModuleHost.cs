@@ -81,6 +81,22 @@ internal sealed partial class ModuleHost : ObservableObject
         Rebuild();
     }
 
+    /// <summary>Asks every module to save now (Windows session ending); modules keep running.</summary>
+    public async Task FlushAsync()
+    {
+        foreach (var module in _all.Where(m => !_faulted.Contains(m.Id)))
+        {
+            try
+            {
+                await module.FlushAsync().WaitAsync(TimeSpan.FromSeconds(2));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Module {Module} failed to flush", module.Id);
+            }
+        }
+    }
+
     /// <summary>Lets every module save its state.</summary>
     public async Task ShutdownAsync()
     {

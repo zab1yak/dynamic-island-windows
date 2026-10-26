@@ -11,6 +11,11 @@
   <data name="Media.Pause" xml:space="preserve"><value>Pause</value></data>
   <data name="Media.Play" xml:space="preserve"><value>Play</value></data>
   <data name="Media.Previous" xml:space="preserve"><value>Previous track</value></data>
+  <data name="Media.Restore.Browser" xml:space="preserve"><value>Open the tab in your browser to continue</value></data>
+  <data name="Media.Restore.CannotLaunch" xml:space="preserve"><value>Open the app yourself to continue</value></data>
+  <data name="Media.Restore.NoPosition" xml:space="preserve"><value>Playing, but the app did not restore the position</value></data>
+  <data name="Media.Restore.Starting" xml:space="preserve"><value>Opening the app…</value></data>
+  <data name="Media.Restore.TimedOut" xml:space="preserve"><value>The app started but did not offer playback in time</value></data>
   <data name="Media.SwitchSource" xml:space="preserve"><value>Switch source</value></data>
   <data name="Media.Title" xml:space="preserve"><value>Music</value></data>
 </root>

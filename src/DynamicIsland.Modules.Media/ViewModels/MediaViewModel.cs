@@ -331,6 +331,11 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         var now = _time.GetUtcNow();
         PositionText = PositionInterpolator.Format(PositionInterpolator.At(_current, now));
         Progress = PositionInterpolator.Progress(_current, now);
+        if (_current.IsPlaying && RestoredAppId is null)
+        {
+            // Lets the last-track store save the position every few seconds while playing.
+            SnapshotChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private void UpdateTimers()

@@ -59,6 +59,23 @@ public partial class App : Application
         base.OnExit(e);
     }
 
+    /// <inheritdoc />
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    {
+        // WM_QUERYENDSESSION: save the last track and other state before Windows logs off.
+        _logger.LogInformation("Windows session ending ({Reason})", e.ReasonSessionEnding);
+        try
+        {
+            Task.Run(() => _host.Services.GetRequiredService<ModuleHost>().FlushAsync()).Wait(TimeSpan.FromSeconds(3));
+        }
+        catch (AggregateException ex)
+        {
+            _logger.LogError(ex, "Flushing state at session end failed");
+        }
+
+        base.OnSessionEnding(e);
+    }
+
     private async Task StartAsync()
     {
         try

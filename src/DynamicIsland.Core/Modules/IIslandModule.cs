@@ -34,6 +34,12 @@ public interface IIslandModule
     /// <summary>Loads persisted state and starts listeners. Called once on the UI thread.</summary>
     Task InitializeAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Persists state immediately without stopping (Windows is about to end the session; the user
+    /// may still cancel). Must finish within ~2 seconds.
+    /// </summary>
+    Task FlushAsync() => Task.CompletedTask;
+
     /// <summary>Persists state and stops listeners. Must finish within ~2 seconds.</summary>
     Task ShutdownAsync();
 }

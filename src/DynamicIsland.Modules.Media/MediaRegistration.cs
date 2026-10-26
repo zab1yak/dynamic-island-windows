@@ -23,6 +23,9 @@ public static class MediaRegistration
             sp.GetRequiredService<IUiDispatcher>(),
             sp.GetRequiredService<IslandStateMachine>(),
             ArtworkPalette.AccentAsync));
+        services.AddSingleton<IAppLauncher, AppLauncher>();
+        services.AddSingleton<LastTrackStore>();
+        services.AddSingleton<RestoreFlow>();
         services.AddSingleton<MediaModule>();
         services.AddSingleton<IIslandModule>(sp => sp.GetRequiredService<MediaModule>());
         services.AddSingleton(new ModuleResources(new Uri("pack://application:,,,/DynamicIsland.Modules.Media;component/Views/MediaTemplates.xaml")));

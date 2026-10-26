@@ -1,11 +1,58 @@
 {
-  "Media.Title": { "en": "Music", "ru": "Музыка" },
-  "Media.NothingPlaying": { "en": "Nothing is playing", "ru": "Ничего не играет" },
-  "Media.NothingPlayingHint": { "en": "Start music in any app — Spotify, Yandex Music, a browser", "ru": "Включите музыку в любом приложении — Spotify, Яндекс Музыке, браузере" },
-  "Media.CommandFailed": { "en": "The app did not respond to the command", "ru": "Приложение не ответило на команду" },
-  "Media.Play": { "en": "Play", "ru": "Воспроизвести" },
-  "Media.Pause": { "en": "Pause", "ru": "Пауза" },
-  "Media.Next": { "en": "Next track", "ru": "Следующий трек" },
-  "Media.Previous": { "en": "Previous track", "ru": "Предыдущий трек" },
-  "Media.SwitchSource": { "en": "Switch source", "ru": "Сменить источник" }
+  "Media.Title": {
+    "en": "Music",
+    "ru": "Музыка"
+  },
+  "Media.NothingPlaying": {
+    "en": "Nothing is playing",
+    "ru": "Ничего не играет"
+  },
+  "Media.NothingPlayingHint": {
+    "en": "Start music in any app — Spotify, Yandex Music, a browser",
+    "ru": "Включите музыку в любом приложении — Spotify, Яндекс Музыке, браузере"
+  },
+  "Media.CommandFailed": {
+    "en": "The app did not respond to the command",
+    "ru": "Приложение не ответило на команду"
+  },
+  "Media.Play": {
+    "en": "Play",
+    "ru": "Воспроизвести"
+  },
+  "Media.Pause": {
+    "en": "Pause",
+    "ru": "Пауза"
+  },
+  "Media.Next": {
+    "en": "Next track",
+    "ru": "Следующий трек"
+  },
+  "Media.Previous": {
+    "en": "Previous track",
+    "ru": "Предыдущий трек"
+  },
+  "Media.SwitchSource": {
+    "en": "Switch source",
+    "ru": "Сменить источник"
+  },
+  "Media.Restore.Starting": {
+    "en": "Opening the app…",
+    "ru": "Открываю приложение…"
+  },
+  "Media.Restore.NoPosition": {
+    "en": "Playing, but the app did not restore the position",
+    "ru": "Играет, но приложение не вернуло позицию"
+  },
+  "Media.Restore.Browser": {
+    "en": "Open the tab in your browser to continue",
+    "ru": "Откройте вкладку в браузере, чтобы продолжить"
+  },
+  "Media.Restore.TimedOut": {
+    "en": "The app started but did not offer playback in time",
+    "ru": "Приложение открылось, но не начало воспроизведение вовремя"
+  },
+  "Media.Restore.CannotLaunch": {
+    "en": "Open the app yourself to continue",
+    "ru": "Откройте приложение сами, чтобы продолжить"
+  }
 }
