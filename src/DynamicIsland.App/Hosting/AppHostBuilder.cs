@@ -7,6 +7,7 @@ using DynamicIsland.Modules.Media;
 using DynamicIsland.Modules.Pomodoro;
 using DynamicIsland.Modules.Water;
 using DynamicIsland.Modules.Shelf;
+using DynamicIsland.Modules.Todo;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
@@ -62,6 +63,7 @@ internal static class AppHostBuilder
         services.AddPomodoroModule();
         services.AddWaterModule();
         services.AddShelfModule();
+        services.AddTodoModule();
         services.AddSingleton<IslandWindow>();
 
         return builder.Build();

@@ -1,0 +1,133 @@
+<UserControl x:Class="DynamicIsland.Modules.Todo.Views.TodoPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:t="clr-namespace:DynamicIsland.Modules.Todo"
+             xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+             xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: summary and actions. -->
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="{Binding Summary}" Style="{DynamicResource Text.Title}" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Button Style="{DynamicResource PillButton}" Command="{Binding BeginAddCommand}" Height="28" Padding="10,0"
+                        AutomationProperties.Name="{loc:Tr Todo.Add}">
+                    <StackPanel Orientation="Horizontal">
+                        <c:Icon Glyph="Plus" Width="13" Height="13" Margin="0,0,4,0" />
+                        <TextBlock Text="{loc:Tr Todo.Add}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{DynamicResource IconButton}" Command="{Binding ToggleEditModeCommand}" Margin="6,0,0,0"
+                        AutomationProperties.Name="{loc:Tr Todo.Edit}" ToolTip="{loc:Tr Todo.Edit}">
+                    <c:Icon Glyph="Pencil" Width="14" Height="14" Foreground="{DynamicResource Brush.TextSecondary}" />
+                </Button>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Right: input + list or empty state. -->
+        <Grid Grid.Column="1" Margin="12,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBox x:Name="NewTask" Style="{DynamicResource TextField}" Tag="{loc:Tr Todo.Placeholder}"
+                     Text="{Binding NewTitle, UpdateSourceTrigger=PropertyChanged}" MaxLength="200" Margin="0,0,0,6"
+                     Visibility="{Binding IsAdding, Converter={StaticResource BoolToVisibility}}" />
+
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
+                <c:Icon Glyph="ClipboardList" Width="22" Height="22" Foreground="{DynamicResource Brush.TextTertiary}" />
+                <TextBlock Text="{loc:Tr Todo.Empty}" Style="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+            </StackPanel>
+
+            <ListBox x:Name="List" Grid.Row="1" ItemsSource="{Binding Items}" Background="Transparent" BorderThickness="0"
+                     Focusable="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AllowDrop="True"
+                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Grid>
+                                        <c:SquircleBorder x:Name="Bg" CornerRadius="8" />
+                                        <ContentPresenter Margin="4,2" />
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Brush.Hover}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type t:TodoItemViewModel}">
+                        <Grid Height="26">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <!-- Check circle: fills green with a springy check. -->
+                            <Button Style="{DynamicResource IconButton}" Width="24" Height="24"
+                                    Command="{Binding DataContext.ToggleCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    CommandParameter="{Binding}" AutomationProperties.Name="{loc:Tr Todo.Toggle}">
+                                <Grid Width="16" Height="16">
+                                    <Ellipse x:Name="Ring" Stroke="{DynamicResource Brush.TextTertiary}" StrokeThickness="1.5" />
+                                    <Ellipse x:Name="Fill" Fill="{DynamicResource Brush.Green}" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                        <Ellipse.RenderTransform><ScaleTransform ScaleX="0.4" ScaleY="0.4" /></Ellipse.RenderTransform>
+                                    </Ellipse>
+                                    <c:Icon x:Name="Check" Glyph="Check" Width="11" Height="11" Foreground="{DynamicResource Island.Background}"
+                                            StrokeThickness="3" Opacity="0" />
+                                </Grid>
+                            </Button>
+                            <TextBlock x:Name="Title" Grid.Column="1" Text="{Binding Title}" Style="{DynamicResource Text.Base}" Margin="6,0"
+                                       VerticalAlignment="Center" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                            <TextBox Grid.Column="1" Style="{DynamicResource TextField}" Height="24" Padding="6,2" Margin="4,0" MaxLength="200"
+                                     Text="{Binding Draft, UpdateSourceTrigger=PropertyChanged}" Tag="{Binding Title}"
+                                     Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+                            <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                        Visibility="{Binding DataContext.IsEditMode, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BoolToVisibility}}">
+                                <Button Style="{DynamicResource IconButton}" Width="24" Height="24"
+                                        Command="{Binding DataContext.BeginRenameCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}"
+                                        AutomationProperties.Name="{loc:Tr Todo.Rename}">
+                                    <c:Icon Glyph="Pencil" Width="12" Height="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                                </Button>
+                                <Button Style="{DynamicResource IconButton}" Width="24" Height="24"
+                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}"
+                                        AutomationProperties.Name="{loc:Tr Todo.Delete}">
+                                    <c:Icon Glyph="Trash" Width="12" Height="12" Foreground="{DynamicResource Brush.Red}" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Done}" Value="True">
+                                <Setter TargetName="Title" Property="Foreground" Value="{DynamicResource Brush.TextTertiary}" />
+                                <Setter TargetName="Title" Property="TextDecorations" Value="Strikethrough" />
+                                <Setter TargetName="Ring" Property="Stroke" Value="{DynamicResource Brush.Green}" />
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Fill" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15" />
+                                            <DoubleAnimation Storyboard.TargetName="Fill" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.4" EasingFunction="{StaticResource Ease.Spring}" />
+                                            <DoubleAnimation Storyboard.TargetName="Fill" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.4" EasingFunction="{StaticResource Ease.Spring}" />
+                                            <DoubleAnimation Storyboard.TargetName="Check" Storyboard.TargetProperty="Opacity" To="1" BeginTime="0:0:0.08" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Grid>
+</UserControl>
