@@ -355,7 +355,20 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         var barsVisible = mode == IslandMode.LiveActivity || IslandMetrics.IsExpanded(mode);
 
         SetTimer(ref _progressTimer, playing && IslandMetrics.IsExpanded(mode), ProgressInterval, UpdateProgress);
-        SetTimer(ref _visualizerTimer, playing && barsVisible, VisualizerInterval, TickVisualizer);
+        if (playing && barsVisible && _visualizerTimer is null)
+        {
+            // The audio meter (COM) is read on the timer thread; only the bar update runs on the UI thread.
+            _visualizerTimer = _time.CreateTimer(_ =>
+            {
+                var peak = _audio.ReadPeak();
+                _dispatcher.Post(() => ApplyPeak(peak));
+            }, null, VisualizerInterval, VisualizerInterval);
+        }
+        else if (!(playing && barsVisible) && _visualizerTimer is not null)
+        {
+            _visualizerTimer.Dispose();
+            _visualizerTimer = null;
+        }
         if (!playing)
         {
             _visualizer.Rest();
@@ -376,14 +389,14 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         }
     }
 
-    private void TickVisualizer()
+    private void ApplyPeak(float peak)
     {
         if (_visualizerTimer is null)
         {
             return;
         }
 
-        _visualizer.Push(_audio.ReadPeak());
+        _visualizer.Push(peak);
         var next = _visualizer.Levels;
         var changed = false;
         for (var i = 0; i < next.Count && !changed; i++)

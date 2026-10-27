@@ -21,6 +21,16 @@ public sealed class AnimationClock
         _tick = tick;
     }
 
+    /// <summary>Statistics of the last finished animation (frames, duration, longest frame).</summary>
+    public (int Frames, TimeSpan Duration, TimeSpan LongestFrame) LastRun { get; private set; }
+
+    /// <summary>Raised when an animation finishes, with its statistics.</summary>
+    public event EventHandler? Finished;
+
+    private int _frames;
+    private TimeSpan _started;
+    private TimeSpan _longest;
+
     /// <summary>Whether the clock is currently receiving frames.</summary>
     public bool IsRunning => _subscribed;
 
@@ -34,6 +44,9 @@ public sealed class AnimationClock
 
         _subscribed = true;
         _lastRenderingTime = TimeSpan.Zero;
+        _frames = 0;
+        _started = TimeSpan.Zero;
+        _longest = TimeSpan.Zero;
         CompositionTarget.Rendering += OnRendering;
     }
 
@@ -60,6 +73,17 @@ public sealed class AnimationClock
 
         // The first frame after Start has no previous timestamp: assume one 60 Hz frame.
         var dt = _lastRenderingTime == TimeSpan.Zero ? 1.0 / 60.0 : (now - _lastRenderingTime).TotalSeconds;
+        if (_lastRenderingTime != TimeSpan.Zero && now - _lastRenderingTime > _longest)
+        {
+            _longest = now - _lastRenderingTime;
+        }
+
+        if (_started == TimeSpan.Zero)
+        {
+            _started = now;
+        }
+
+        _frames++;
         _lastRenderingTime = now;
         bool moving;
         try
@@ -75,7 +99,9 @@ public sealed class AnimationClock
 
         if (!moving)
         {
+            LastRun = (_frames, now - _started, _longest);
             Stop();
+            Finished?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using DynamicIsland.Core.Animation;
@@ -39,6 +40,10 @@ internal sealed partial class IslandWindow : Window
     private readonly Spring _shoulder;
     private readonly Spring _compactOpacity = Spring.Smooth(1);
     private readonly Spring _liveOpacity = Spring.Smooth(0);
+    private readonly Spring[] _fades;
+    private System.Windows.Media.Brush? _strokeBrush;
+    private System.Windows.Media.Brush? _dropBrush;
+    private bool _settled = true;
     private readonly Spring _expandedOpacity = Spring.Smooth(0);
 
     private nint _hwnd;
@@ -71,6 +76,16 @@ internal sealed partial class IslandWindow : Window
         _radius = Spring.Bouncy(compact.BottomRadius);
         _shoulder = Spring.Bouncy(compact.Shoulder);
         _clock = new AnimationClock(Tick);
+        _fades = [_compactOpacity, _liveOpacity, _expandedOpacity];
+        _clock.Finished += (_, _) =>
+        {
+            var (frames, duration, longest) = _clock.LastRun;
+            if (duration > TimeSpan.Zero)
+            {
+                _logger.LogDebug("Animation: {Frames} frames in {Duration:N0} ms ({Fps:N1} fps), longest frame {Longest:N1} ms",
+                    frames, duration.TotalMilliseconds, frames / duration.TotalSeconds, longest.TotalMilliseconds);
+            }
+        };
 
         // Root keeps the unscaled layout size; RootScale applies the user's island size setting.
         Root.Width = IslandMetrics.WindowWidth;
@@ -373,6 +388,24 @@ internal sealed partial class IslandWindow : Window
         HoverZone.Height = Math.Max(0, size.Height + Margin);
     }
 
+    /// <summary>
+    /// Instantiates every page template once in the background after start-up, so the first
+    /// expansion does not pay for XAML parsing and JIT in the middle of the animation.
+    /// </summary>
+    public void WarmUpPages(IEnumerable<object> pages)
+    {
+        foreach (var page in pages)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                var presenter = new ContentPresenter { Content = page };
+                presenter.Measure(new Size(IslandMetrics.Expanded.Width, IslandMetrics.Expanded.Height));
+                presenter.Arrange(new Rect(0, 0, IslandMetrics.Expanded.Width, IslandMetrics.Expanded.Height));
+                presenter.UpdateLayout();
+            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+    }
+
     private void ApplyMode(IslandMode mode)
     {
         _logger.LogDebug("Island mode {Mode}", mode);
@@ -396,6 +429,7 @@ internal sealed partial class IslandWindow : Window
             EndTextInput();
         }
 
+        _settled = false;
         _clock.Start();
     }
 
@@ -407,13 +441,14 @@ internal sealed partial class IslandWindow : Window
         moving |= _radius.Step(dt);
         moving |= _shoulder.Step(dt);
         // Content of the old state fades fast, the new one appears a bit slower.
-        foreach (var fade in new[] { _compactOpacity, _liveOpacity, _expandedOpacity })
+        foreach (var fade in _fades)
         {
             fade.Stiffness = fade.Target > 0 ? 260 : 900;
             fade.Damping = 2 * Math.Sqrt(fade.Stiffness);
             moving |= fade.Step(dt);
         }
 
+        _settled = !moving;
         Render();
         return moving;
     }
@@ -429,7 +464,8 @@ internal sealed partial class IslandWindow : Window
         Outline.Data = expanded > 0.01
             ? OutlineGeometry.ToGeometry(IslandShapeMath.Build(parameters, includeTopEdge: false), closed: false)
             : null;
-        Body.Effect = expanded > 0.01 ? BodyShadow : null;
+        // The blurred shadow is re-rendered for every new geometry; draw it only once the island rests.
+        Body.Effect = _settled && expanded > 0.99 ? BodyShadow : null;
         var compact = Math.Clamp(_compactOpacity.Value, 0, 1);
         ExpandedLayer.Opacity = expanded;
         ExpandedScale.ScaleX = ExpandedScale.ScaleY = 0.96 + (0.04 * expanded);
@@ -439,7 +475,9 @@ internal sealed partial class IslandWindow : Window
         LiveLayer.Opacity = live;
         LiveScale.ScaleX = LiveScale.ScaleY = 0.96 + (0.04 * live);
         Outline.Opacity = expanded;
-        Outline.Stroke = (System.Windows.Media.Brush)FindResource(_stateMachine.Mode == IslandMode.DropTarget ? "Brush.Blue" : "Island.Stroke");
+        _strokeBrush ??= (System.Windows.Media.Brush)FindResource("Island.Stroke");
+        _dropBrush ??= (System.Windows.Media.Brush)FindResource("Brush.Blue");
+        Outline.Stroke = _stateMachine.Mode == IslandMode.DropTarget ? _dropBrush : _strokeBrush;
         // Fully faded layers are hidden, so their animations (marquee, rolling digits) stop rendering.
         ExpandedLayer.Visibility = expanded < 0.005 ? Visibility.Hidden : Visibility.Visible;
         CompactLayer.Visibility = compact < 0.005 ? Visibility.Hidden : Visibility.Visible;

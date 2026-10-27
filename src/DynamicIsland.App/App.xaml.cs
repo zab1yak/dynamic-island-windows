@@ -118,6 +118,7 @@ public partial class App : Application
             island.HotkeyUnavailable += (_, hotkey) =>
                 tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));
             island.Show();
+            island.WarmUpPages(services.GetRequiredService<ModuleHost>().AllModules.Select(m => m.ExpandedViewModel));
             var modules = services.GetRequiredService<ModuleHost>();
             void UpdateDrop() => island.DropEnabled = modules.Pages.Any(m => m.AcceptsDrop);
             UpdateDrop();
