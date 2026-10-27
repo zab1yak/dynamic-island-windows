@@ -4,68 +4,46 @@
                     xmlns:v="clr-namespace:DynamicIsland.Modules.Tools.Views"
                     xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
                     xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
+    <!-- Shortcuts, the island's FPS and CPU load (green → yellow → red). -->
     <DataTemplate DataType="{x:Type t:ToolsViewModel}">
-        <Grid>
+        <Grid VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="210" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-
             <StackPanel VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <Button Style="{DynamicResource IconButton}" Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="{loc:Tr Tools.Settings}" ToolTip="{loc:Tr Tools.Settings}">
-                        <c:Icon Glyph="Settings" />
-                    </Button>
-                    <Button Style="{DynamicResource IconButton}" Margin="6,0,0,0" Command="{Binding OpenDataFolderCommand}" AutomationProperties.Name="{loc:Tr Tools.Folder}" ToolTip="{loc:Tr Tools.Folder}">
-                        <c:Icon Glyph="FolderOpen" />
-                    </Button>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{loc:Tr Tools.Fps}" Style="{DynamicResource Text.Secondary}" FontSize="10" />
-                        <TextBlock Text="{Binding FpsText}" Style="{DynamicResource Text.Base}" FontSize="12" />
+                <Button Style="{DynamicResource PillButton}" Height="30" Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="{loc:Tr Tools.Settings}">
+                    <StackPanel Orientation="Horizontal">
+                        <c:Icon Glyph="Settings" Width="14" Height="14" Margin="0,0,6,0" />
+                        <TextBlock Text="{loc:Tr Tools.Settings}" VerticalAlignment="Center" />
                     </StackPanel>
-                </StackPanel>
-                <DockPanel Margin="0,12,0,0">
-                    <c:Icon Glyph="Cpu" Width="14" Height="14" DockPanel.Dock="Left" Margin="0,0,6,0" Foreground="{DynamicResource Brush.TextSecondary}" />
-                    <TextBlock Text="{Binding CpuText}" DockPanel.Dock="Right" Style="{DynamicResource Text.Base}" FontSize="12" Margin="6,0,0,0" />
-                    <v:LoadBar Percent="{Binding CpuPercent}" BrushKey="{Binding CpuBrushKey}" Height="6" VerticalAlignment="Center" />
-                </DockPanel>
+                </Button>
+                <Button Style="{DynamicResource PillButton}" Height="30" Margin="0,8,0,0" Command="{Binding OpenDataFolderCommand}"
+                        AutomationProperties.Name="{loc:Tr Tools.Folder}" ToolTip="{loc:Tr Tools.Folder}">
+                    <StackPanel Orientation="Horizontal">
+                        <c:Icon Glyph="FolderOpen" Width="14" Height="14" Margin="0,0,6,0" />
+                        <TextBlock Text="{loc:Tr Tools.FolderShort}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
-            <Grid Grid.Column="1" Margin="12,0,0,0">
+            <Grid Grid.Column="1" Margin="24,0,8,0" VerticalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Style="{DynamicResource IconButton}" Width="24" Height="24" Command="{Binding ClearNotificationsCommand}"
-                            AutomationProperties.Name="{loc:Tr Tools.Clear}" ToolTip="{loc:Tr Tools.Clear}" HorizontalAlignment="Right">
-                        <c:Icon Glyph="Trash" Width="11" Height="11" Foreground="{DynamicResource Brush.TextSecondary}" />
-                    </Button>
-                    <Button DockPanel.Dock="Right" Style="{DynamicResource IconButton}" Width="24" Height="24" Command="{Binding LoadNotificationsCommand}"
-                            IsEnabled="{Binding CanRequestNotifications}" AutomationProperties.Name="{loc:Tr Tools.Refresh}" ToolTip="{loc:Tr Tools.Refresh}" HorizontalAlignment="Right">
-                        <c:Icon Glyph="RefreshCw" Width="11" Height="11" Foreground="{DynamicResource Brush.TextSecondary}" />
-                    </Button>
-                    <TextBlock Text="{loc:Tr Tools.Notifications}" Style="{DynamicResource Text.Secondary}" VerticalAlignment="Center" />
-                </DockPanel>
-                <TextBlock Grid.Row="1" Text="{Binding NotificationStatus}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" FontSize="11"
-                           Visibility="{Binding NotificationStatus, Converter={StaticResource NullToVisibility}}" />
-                <ItemsControl Grid.Row="1" ItemsSource="{Binding Notifications}">
-                    <ItemsControl.Template>
-                        <ControlTemplate TargetType="ItemsControl">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter /></ScrollViewer>
-                        </ControlTemplate>
-                    </ItemsControl.Template>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="0,2">
-                                <TextBlock Style="{DynamicResource Text.Secondary}" FontSize="10">
-                                    <Run Text="{Binding App, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Title, Mode=OneWay}" Foreground="{DynamicResource Brush.TextPrimary}" />
-                                </TextBlock>
-                                <TextBlock Text="{Binding Body}" Style="{DynamicResource Text.Secondary}" FontSize="10" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <c:Icon Glyph="Gauge" Width="16" Height="16" Foreground="{DynamicResource Brush.TextSecondary}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{loc:Tr Tools.Fps}" Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding FpsText}" Style="{DynamicResource Text.Title}" FontSize="14" VerticalAlignment="Center" />
+
+                <c:Icon Grid.Row="1" Glyph="Cpu" Width="16" Height="16" Foreground="{DynamicResource Brush.TextSecondary}" Margin="0,16,0,0" VerticalAlignment="Center" />
+                <v:LoadBar Grid.Row="1" Grid.Column="1" Percent="{Binding CpuPercent}" BrushKey="{Binding CpuBrushKey}" Height="8" Margin="8,16,12,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding CpuText}" Style="{DynamicResource Text.Title}" FontSize="14" Margin="0,16,0,0" VerticalAlignment="Center" />
             </Grid>
         </Grid>
     </DataTemplate>

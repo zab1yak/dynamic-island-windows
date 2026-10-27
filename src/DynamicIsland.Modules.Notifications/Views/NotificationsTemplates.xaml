@@ -1,0 +1,102 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:n="clr-namespace:DynamicIsland.Modules.Notifications"
+                    xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+                    xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
+
+    <!-- «Уведомления»: set-up card until Windows grants access, then the list with refresh and clear. -->
+    <DataTemplate DataType="{x:Type n:NotificationsViewModel}">
+        <Grid>
+            <!-- Set-up: what it is and one button. -->
+            <Grid Visibility="{Binding ShowSetup, Converter={StaticResource BoolToVisibility}}" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid Width="44" Height="44" VerticalAlignment="Center">
+                    <c:SquircleBorder CornerRadius="12" Background="{DynamicResource Brush.Surface2}" />
+                    <c:Icon Glyph="BellRing" Width="22" Height="22" Foreground="{DynamicResource Brush.TextPrimary}" />
+                </Grid>
+                <StackPanel Grid.Column="1" Margin="14,0,14,0" VerticalAlignment="Center">
+                    <TextBlock Text="{loc:Tr Notifications.SetupTitle}" Style="{DynamicResource Text.Title}" FontSize="13" />
+                    <TextBlock Text="{loc:Tr Notifications.SetupBody}" Style="{DynamicResource Text.Secondary}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0" />
+                    <TextBlock Text="{Binding Message}" Style="{DynamicResource Text.Secondary}" FontSize="11" Foreground="{DynamicResource Brush.Orange}"
+                               Margin="0,3,0,0" Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}" />
+                </StackPanel>
+                <Button Grid.Column="2" Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="30"
+                        Command="{Binding EnableCommand}" Content="{loc:Tr Notifications.Enable}" AutomationProperties.Name="{loc:Tr Notifications.Enable}" />
+            </Grid>
+
+            <!-- Registered: restart to get identity. -->
+            <StackPanel Visibility="{Binding ShowRestart, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Notifications.RestartBody}" Style="{DynamicResource Text.Title}" FontSize="13" HorizontalAlignment="Center" />
+                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
+                        Command="{Binding RestartCommand}" Content="{loc:Tr Notifications.Restart}" AutomationProperties.Name="{loc:Tr Notifications.Restart}" />
+            </StackPanel>
+
+            <!-- Identity present: ask Windows. -->
+            <StackPanel Visibility="{Binding ShowPermission, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Notifications.PermissionBody}" Style="{DynamicResource Text.Title}" FontSize="13" HorizontalAlignment="Center" />
+                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
+                        Command="{Binding AllowCommand}" Content="{loc:Tr Notifications.Allow}" AutomationProperties.Name="{loc:Tr Notifications.Allow}" />
+            </StackPanel>
+
+            <!-- Turned off in Windows settings. -->
+            <StackPanel Visibility="{Binding ShowDenied, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Notifications.Denied}" Style="{DynamicResource Text.Title}" FontSize="13" HorizontalAlignment="Center" />
+                <Button Style="{DynamicResource PillButton}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
+                        Command="{Binding OpenWindowsSettingsCommand}" Content="{loc:Tr Notifications.OpenSettings}"
+                        AutomationProperties.Name="{loc:Tr Notifications.OpenSettings}" />
+            </StackPanel>
+
+            <!-- The list. -->
+            <Grid Visibility="{Binding ShowList, Converter={StaticResource BoolToVisibility}}">
+                <c:SquircleBorder CornerRadius="14" Background="{DynamicResource Brush.Surface1}" Margin="0,0,0,10" />
+                <Grid Margin="12,6,6,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{loc:Tr Notifications.Empty}" Style="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                    <ItemsControl ItemsSource="{Binding Items}" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                        <ItemsControl.Template>
+                            <ControlTemplate TargetType="ItemsControl">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter /></ScrollViewer>
+                            </ControlTemplate>
+                        </ItemsControl.Template>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type n:NotificationRow}">
+                                <Grid Margin="0,3,6,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Style="{DynamicResource Text.Base}" FontSize="12" TextTrimming="CharacterEllipsis">
+                                            <Run Text="{Binding App, Mode=OneWay}" Foreground="{DynamicResource Brush.TextSecondary}" /><Run Text="  " /><Run
+                                                 Text="{Binding Title, Mode=OneWay}" FontWeight="SemiBold" />
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Body}" Style="{DynamicResource Text.Secondary}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding Time}" Style="{DynamicResource Text.Secondary}" FontSize="10" Margin="8,1,0,0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                        <Button Style="{DynamicResource IconButton}" Width="26" Height="26" Command="{Binding RefreshCommand}"
+                                AutomationProperties.Name="{loc:Tr Notifications.Refresh}" ToolTip="{loc:Tr Notifications.Refresh}">
+                            <c:Icon Glyph="RefreshCw" Width="12" Height="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </Button>
+                        <Button Style="{DynamicResource IconButton}" Width="26" Height="26" Command="{Binding ClearCommand}"
+                                AutomationProperties.Name="{loc:Tr Notifications.Clear}" ToolTip="{loc:Tr Notifications.Clear}">
+                            <c:Icon Glyph="Trash" Width="12" Height="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>

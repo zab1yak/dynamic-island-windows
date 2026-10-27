@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Notifications.Allow" xml:space="preserve"><value>Разрешить доступ</value></data>
+  <data name="Notifications.Cancelled" xml:space="preserve"><value>Права администратора не выданы.</value></data>
+  <data name="Notifications.Clear" xml:space="preserve"><value>Очистить список</value></data>
+  <data name="Notifications.Denied" xml:space="preserve"><value>Доступ выключен в параметрах Windows.</value></data>
+  <data name="Notifications.Empty" xml:space="preserve"><value>Уведомлений нет</value></data>
+  <data name="Notifications.Enable" xml:space="preserve"><value>Включить</value></data>
+  <data name="Notifications.Failed" xml:space="preserve"><value>Windows не принял пакет. Подробности — в журнале.</value></data>
+  <data name="Notifications.Missing" xml:space="preserve"><value>Пакет идентичности не найден. Переустановите приложение.</value></data>
+  <data name="Notifications.OpenSettings" xml:space="preserve"><value>Открыть параметры</value></data>
+  <data name="Notifications.PermissionBody" xml:space="preserve"><value>Windows спросит, можно ли острову читать ваши уведомления.</value></data>
+  <data name="Notifications.Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Notifications.Restart" xml:space="preserve"><value>Перезапустить</value></data>
+  <data name="Notifications.RestartBody" xml:space="preserve"><value>Почти готово: перезапустите остров, чтобы закончить.</value></data>
+  <data name="Notifications.SetupBody" xml:space="preserve"><value>Windows даёт историю уведомлений только приложениям с идентичностью пакета. «Включить» зарегистрирует маленький пакет; Windows может один раз спросить права администратора.</value></data>
+  <data name="Notifications.SetupTitle" xml:space="preserve"><value>Уведомления Telegram и других приложений</value></data>
+  <data name="Notifications.Title" xml:space="preserve"><value>Уведомления</value></data>
+  <data name="Notifications.Working" xml:space="preserve"><value>Настройка…</value></data>
+</root>

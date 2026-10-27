@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using Windows.UI.Notifications;
 using Windows.UI.Notifications.Management;
 
-namespace DynamicIsland.Modules.Tools.Services;
+namespace DynamicIsland.Modules.Notifications.Services;
 
 /// <summary>Whether Windows lets the island read notifications.</summary>
 public enum NotificationAccess
@@ -17,8 +17,8 @@ public enum NotificationAccess
     Denied,
 
     /// <summary>
-    /// Windows does not offer the API to this app: <c>UserNotificationListener</c> requires package
-    /// identity (MSIX), which a Velopack desktop install does not have.
+    /// Windows does not offer the API to this process: <c>UserNotificationListener</c> requires package
+    /// identity, which the app gets only after the identity package is set up (D-038).
     /// </summary>
     Unavailable,
 }
@@ -37,6 +37,35 @@ public sealed partial class NotificationHistory
 
     /// <summary>Current access state.</summary>
     public NotificationAccess Access { get; private set; }
+
+    /// <summary>Current access without any prompt (call only with package identity).</summary>
+    public NotificationAccess CheckAccess()
+    {
+        if (!HasPackageIdentity())
+        {
+            return Access = NotificationAccess.Unavailable;
+        }
+
+        try
+        {
+            Access = UserNotificationListener.Current.GetAccessStatus() switch
+            {
+                UserNotificationListenerAccessStatus.Allowed => NotificationAccess.Allowed,
+                UserNotificationListenerAccessStatus.Denied => NotificationAccess.Denied,
+                _ => NotificationAccess.Unknown,
+            };
+        }
+        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException or TypeLoadException)
+        {
+            Access = NotificationAccess.Unavailable;
+        }
+
+        return Access;
+    }
+
+    /// <summary>Notifications newer than <paramref name="clearedAt"/>, newest first (what «Очистить» hid stays hidden).</summary>
+    public static IReadOnlyList<NotificationEntry> Visible(IEnumerable<NotificationEntry> entries, DateTimeOffset? clearedAt) =>
+        entries.Where(e => clearedAt is null || e.Time > clearedAt.Value).OrderByDescending(e => e.Time).Take(Limit).ToList();
 
     /// <summary>Asks Windows for access (shows the system consent prompt the first time).</summary>
     public async Task<NotificationAccess> RequestAccessAsync()

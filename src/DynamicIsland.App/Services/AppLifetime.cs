@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace DynamicIsland.App.Services;
 
 /// <summary>Exit and restart of the application.</summary>
-internal sealed class AppLifetime(ILogger<AppLifetime> logger)
+internal sealed class AppLifetime(ILogger<AppLifetime> logger) : DynamicIsland.Core.Platform.IAppControl
 {
     /// <summary>Shuts the application down gracefully (modules save their state).</summary>
     public void Exit()
@@ -16,6 +16,9 @@ internal sealed class AppLifetime(ILogger<AppLifetime> logger)
         logger.LogInformation("Exit requested");
         Application.Current.Shutdown();
     }
+
+    /// <inheritdoc />
+    public void Quit() => Exit();
 
     /// <summary>
     /// Starts a fresh process and exits. The new process waits for this process id to exit before

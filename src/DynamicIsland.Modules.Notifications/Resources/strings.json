@@ -1,0 +1,19 @@
+{
+  "Notifications.Title": { "en": "Notifications", "ru": "Уведомления" },
+  "Notifications.SetupTitle": { "en": "Notifications from Telegram and other apps", "ru": "Уведомления Telegram и других приложений" },
+  "Notifications.SetupBody": { "en": "Windows shares notification history only with apps that have package identity. «Turn on» registers a small identity package; Windows may ask for administrator rights once.", "ru": "Windows даёт историю уведомлений только приложениям с идентичностью пакета. «Включить» зарегистрирует маленький пакет; Windows может один раз спросить права администратора." },
+  "Notifications.Enable": { "en": "Turn on", "ru": "Включить" },
+  "Notifications.Working": { "en": "Setting up…", "ru": "Настройка…" },
+  "Notifications.RestartBody": { "en": "Almost done: restart the island to finish.", "ru": "Почти готово: перезапустите остров, чтобы закончить." },
+  "Notifications.Restart": { "en": "Restart", "ru": "Перезапустить" },
+  "Notifications.Cancelled": { "en": "Administrator rights were not granted.", "ru": "Права администратора не выданы." },
+  "Notifications.Failed": { "en": "Windows did not accept the package. Details are in the log.", "ru": "Windows не принял пакет. Подробности — в журнале." },
+  "Notifications.Missing": { "en": "The identity package is missing. Reinstall the app.", "ru": "Пакет идентичности не найден. Переустановите приложение." },
+  "Notifications.PermissionBody": { "en": "Windows will ask whether the island may read your notifications.", "ru": "Windows спросит, можно ли острову читать ваши уведомления." },
+  "Notifications.Allow": { "en": "Allow access", "ru": "Разрешить доступ" },
+  "Notifications.Denied": { "en": "Access is turned off in Windows settings.", "ru": "Доступ выключен в параметрах Windows." },
+  "Notifications.OpenSettings": { "en": "Open settings", "ru": "Открыть параметры" },
+  "Notifications.Empty": { "en": "No notifications", "ru": "Уведомлений нет" },
+  "Notifications.Clear": { "en": "Clear the list", "ru": "Очистить список" },
+  "Notifications.Refresh": { "en": "Refresh", "ru": "Обновить" }
+}

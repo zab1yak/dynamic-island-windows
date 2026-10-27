@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,13 +11,12 @@ using DynamicIsland.Core.Threading;
 using DynamicIsland.Modules.Tools.Services;
 using DynamicIsland.UI.Localization;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace DynamicIsland.Modules.Tools;
 
 /// <summary>
-/// Technical page: settings and data folder shortcuts, the island's own FPS, total CPU load with a
-/// green/yellow/red bar, and the Windows notification history when Windows allows reading it.
+/// Technical page: settings and data folder shortcuts, the island's own FPS and total CPU load with a
+/// green/yellow/red bar. (Notification history has its own page, «Уведомления».)
 /// The CPU sampler (1 Hz) runs only while the island is expanded.
 /// </summary>
 public sealed partial class ToolsViewModel : ObservableObject, IDisposable
@@ -28,9 +26,7 @@ public sealed partial class ToolsViewModel : ObservableObject, IDisposable
     private readonly IslandRenderStats _render;
     private readonly IUiDispatcher _dispatcher;
     private readonly TimeProvider _time;
-    private readonly ILogger<ToolsViewModel> _logger;
     private readonly CpuLoad _cpu = new();
-    private readonly NotificationHistory _notifications = new();
     private ITimer? _sampler;
 
     [ObservableProperty]
@@ -45,15 +41,8 @@ public sealed partial class ToolsViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _fpsText = "—";
 
-    [ObservableProperty]
-    private string _notificationStatus = string.Empty;
-
-    [ObservableProperty]
-    private bool _canRequestNotifications = true;
-
-    public ToolsViewModel(IIslandHost host, IslandStateMachine island, IslandRenderStats render, IUiDispatcher dispatcher, TimeProvider time, ILogger<ToolsViewModel> logger)
+    public ToolsViewModel(IIslandHost host, IslandStateMachine island, IslandRenderStats render, IUiDispatcher dispatcher, TimeProvider time)
     {
-        _logger = logger;
         _host = host;
         _island = island;
         _render = render;
@@ -63,9 +52,6 @@ public sealed partial class ToolsViewModel : ObservableObject, IDisposable
         render.Changed += (_, _) => UpdateFps();
         UpdateFps();
     }
-
-    /// <summary>Latest notifications.</summary>
-    public ObservableCollection<NotificationEntry> Notifications { get; } = [];
 
     public void Dispose() => _sampler?.Dispose();
 
@@ -86,29 +72,6 @@ public sealed partial class ToolsViewModel : ObservableObject, IDisposable
             // Nothing to show: the folder path is in Settings → About.
         }
     }
-
-    [RelayCommand]
-    private async Task LoadNotificationsAsync()
-    {
-        var access = _notifications.Access == NotificationAccess.Allowed ? NotificationAccess.Allowed : await _notifications.RequestAccessAsync();
-        NotificationStatus = access switch
-        {
-            NotificationAccess.Allowed or NotificationAccess.Unknown => string.Empty,
-            NotificationAccess.Denied => Loc.Instance["Tools.NotificationsDenied"],
-            _ => Loc.Instance["Tools.NotificationsUnavailable"],
-        };
-        CanRequestNotifications = access != NotificationAccess.Unavailable;
-        _logger.LogInformation("Notification history access: {Access}", access);
-        Notifications.Clear();
-        foreach (var entry in await _notifications.ReadAsync())
-        {
-            Notifications.Add(entry);
-        }
-    }
-
-    /// <summary>Clears the list on this page (the Windows notification center is not touched).</summary>
-    [RelayCommand]
-    private void ClearNotifications() => Notifications.Clear();
 
     private void UpdateSampler()
     {
@@ -161,7 +124,7 @@ public sealed class ToolsModule(ToolsViewModel viewModel) : IIslandModule
 
     public string IconKey => "Wrench";
 
-    public int Order => 6;
+    public int Order => 7;
 
     public object ExpandedViewModel => viewModel;
 

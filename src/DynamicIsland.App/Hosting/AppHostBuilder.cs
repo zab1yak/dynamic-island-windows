@@ -10,6 +10,7 @@ using DynamicIsland.Modules.Shelf;
 using DynamicIsland.Modules.Todo;
 using DynamicIsland.Modules.Recorder;
 using DynamicIsland.Modules.Tools;
+using DynamicIsland.Modules.Notifications;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
@@ -45,6 +46,8 @@ internal static class AppHostBuilder
             new JsonStorageService(AppPaths.DataRoot, sp.GetRequiredService<ILogger<JsonStorageService>>()));
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<AppLifetime>();
+        services.AddSingleton<DynamicIsland.Core.Platform.IAppControl>(sp => sp.GetRequiredService<AppLifetime>());
+        services.AddSingleton<DynamicIsland.Core.Platform.IPackageIdentity, DynamicIsland.Platform.Windows.Packaging.PackageIdentityService>();
         services.AddSingleton<TrayIconService>();
         services.AddSingleton<INotificationService, TrayNotificationService>();
         services.AddSingleton<UpdateService>();
@@ -76,6 +79,7 @@ internal static class AppHostBuilder
         services.AddShelfModule();
         services.AddTodoModule();
         services.AddRecorderModule();
+        services.AddNotificationsModule();
         services.AddToolsModule();
         services.AddSingleton<IslandWindow>();
 

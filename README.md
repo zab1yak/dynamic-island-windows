@@ -74,9 +74,9 @@ Windows 10 version 2004 (build 19041) or newer, x64 or ARM64. Best on a laptop s
   captured". The red dot follows the sharing bars of browsers (Meet and other sites), Zoom and Teams, and
   Game Bar recording. **A Discord stream is not detected** (it shows no separate window). The optional
   "known recorders" mode (OBS, ShareX, …) shows the dot while such a program merely runs.
-- **Notification history** (Tools page) needs a packaged (MSIX) app: Windows gives
-  `UserNotificationListener` only to apps with package identity, and this installer is not one. The page
-  says so instead of showing a fake list.
+- **Notification history** (the «Notifications» page) needs package identity, which Windows grants only to
+  packaged apps. The island ships a tiny identity-only package for that; it is set up only when you press
+  «Turn on» (see [Turning on notifications](#turning-on-notifications)).
 - **Voice recorder MP3** uses the Windows Media Foundation encoder. Windows "N" editions without the Media
   Feature Pack have none — recordings are then saved as WAV.
 - **Camera / microphone indicators** read the per-app usage records Windows keeps for its privacy settings
@@ -93,6 +93,23 @@ Windows 10 version 2004 (build 19041) or newer, x64 or ARM64. Best on a laptop s
   the island shows a notice and keeps working on hover — pick another combination in Settings.
 - **Fonts:** if you have Apple's SF Pro installed, it is used; otherwise Segoe UI Variable. SF Pro is not
   bundled (its licence forbids redistribution). SF Symbols are not used for the same reason.
+
+### Turning on notifications
+
+The «Notifications» page shows notifications from Telegram and other apps. Windows allows that only for
+apps with *package identity*, so the island registers a small identity-only package (no program files, it
+points at the installed app). Nothing happens until you press **Turn on**:
+
+1. Open the island, go to the «Notifications» page and press **Turn on**.
+2. Windows may ask for administrator rights once (User Account Control). That adds the island's public
+   certificate `DynamicIslandIdentity.cer` to *Trusted People* on this computer. The certificate's private
+   key was deleted right after signing, so nothing else can ever be signed with it.
+3. Press **Restart** on the page.
+4. Press **Allow access** and confirm the Windows prompt. The list appears; **Clear** hides what is shown now.
+
+To undo: uninstalling the island removes the package. The machine certificate can be removed in
+`certlm.msc` → *Trusted People* → «DynamicIsland Identity». Access can be turned off any time in
+Windows Settings → Privacy & security → Notifications.
 
 ### Resuming the last track
 

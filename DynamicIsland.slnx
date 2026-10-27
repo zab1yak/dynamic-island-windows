@@ -8,6 +8,7 @@
     <Project Path="src/DynamicIsland.Modules.Shelf/DynamicIsland.Modules.Shelf.csproj" />
     <Project Path="src/DynamicIsland.Modules.Todo/DynamicIsland.Modules.Todo.csproj" />
     <Project Path="src/DynamicIsland.Modules.Tools/DynamicIsland.Modules.Tools.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Notifications/DynamicIsland.Modules.Notifications.csproj" />
     <Project Path="src/DynamicIsland.Modules.Water/DynamicIsland.Modules.Water.csproj" />
     <Project Path="src/DynamicIsland.Platform.Windows/DynamicIsland.Platform.Windows.csproj" />
     <Project Path="src/DynamicIsland.UI/DynamicIsland.UI.csproj" />

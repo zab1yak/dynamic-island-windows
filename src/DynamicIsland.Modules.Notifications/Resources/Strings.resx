@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Notifications.Allow" xml:space="preserve"><value>Allow access</value></data>
+  <data name="Notifications.Cancelled" xml:space="preserve"><value>Administrator rights were not granted.</value></data>
+  <data name="Notifications.Clear" xml:space="preserve"><value>Clear the list</value></data>
+  <data name="Notifications.Denied" xml:space="preserve"><value>Access is turned off in Windows settings.</value></data>
+  <data name="Notifications.Empty" xml:space="preserve"><value>No notifications</value></data>
+  <data name="Notifications.Enable" xml:space="preserve"><value>Turn on</value></data>
+  <data name="Notifications.Failed" xml:space="preserve"><value>Windows did not accept the package. Details are in the log.</value></data>
+  <data name="Notifications.Missing" xml:space="preserve"><value>The identity package is missing. Reinstall the app.</value></data>
+  <data name="Notifications.OpenSettings" xml:space="preserve"><value>Open settings</value></data>
+  <data name="Notifications.PermissionBody" xml:space="preserve"><value>Windows will ask whether the island may read your notifications.</value></data>
+  <data name="Notifications.Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Notifications.Restart" xml:space="preserve"><value>Restart</value></data>
+  <data name="Notifications.RestartBody" xml:space="preserve"><value>Almost done: restart the island to finish.</value></data>
+  <data name="Notifications.SetupBody" xml:space="preserve"><value>Windows shares notification history only with apps that have package identity. «Turn on» registers a small identity package; Windows may ask for administrator rights once.</value></data>
+  <data name="Notifications.SetupTitle" xml:space="preserve"><value>Notifications from Telegram and other apps</value></data>
+  <data name="Notifications.Title" xml:space="preserve"><value>Notifications</value></data>
+  <data name="Notifications.Working" xml:space="preserve"><value>Setting up…</value></data>
+</root>

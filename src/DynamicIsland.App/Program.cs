@@ -15,7 +15,11 @@ internal static class Program
     {
         // Velopack install/update/uninstall hooks run here and exit before anything else starts.
         VelopackApp.Build()
-            .OnBeforeUninstallFastCallback(_ => RemoveAutostart())
+            .OnBeforeUninstallFastCallback(_ =>
+            {
+                RemoveAutostart();
+                RemoveIdentityPackage();
+            })
             .Run();
 
         var commandLine = CommandLine.Parse(args);
@@ -70,6 +74,14 @@ internal static class Program
     {
         using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
         key?.DeleteValue(DynamicIsland.Platform.Windows.Startup.AutostartService.ValueName, throwOnMissingValue: false);
+    }
+
+    /// <summary>The identity package points at the install folder; it must not outlive the app.</summary>
+    private static void RemoveIdentityPackage()
+    {
+        var identity = new DynamicIsland.Platform.Windows.Packaging.PackageIdentityService(
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<DynamicIsland.Platform.Windows.Packaging.PackageIdentityService>.Instance);
+        identity.RemoveAsync().Wait(TimeSpan.FromSeconds(10));
     }
 
     private static void WaitForPreviousProcess(int pid)

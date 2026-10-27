@@ -47,10 +47,17 @@
     <ProjectReference Include="..\DynamicIsland.Modules.Todo\DynamicIsland.Modules.Todo.csproj" />
     <ProjectReference Include="..\DynamicIsland.Modules.Recorder\DynamicIsland.Modules.Recorder.csproj" />
     <ProjectReference Include="..\DynamicIsland.Modules.Tools\DynamicIsland.Modules.Tools.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Notifications\DynamicIsland.Modules.Notifications.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicIsland.Tests" />
+  </ItemGroup>
+
+  <!-- Identity-only package and its public certificate for the notification history (D-038). -->
+  <ItemGroup>
+    <None Include="..\..\packaging\identity\DynamicIslandIdentity.msix" Link="DynamicIslandIdentity.msix" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\packaging\identity\DynamicIslandIdentity.cer" Link="DynamicIslandIdentity.cer" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
