@@ -7,6 +7,9 @@
     <RootNamespace>DynamicIsland.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <StartupObject>DynamicIsland.App.Program</StartupObject>
+    <!-- A small desktop app: one GC heap without the background GC thread, profile-guided JIT. -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
     <ApplicationIcon>Assets\island.ico</ApplicationIcon>
   </PropertyGroup>
 

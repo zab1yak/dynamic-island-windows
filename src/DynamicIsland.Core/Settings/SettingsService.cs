@@ -40,6 +40,9 @@ public sealed class SettingsService : ISettingsService, IDisposable
     public AppSettings Current { get; private set; } = new();
 
     /// <inheritdoc />
+    public bool IsFirstRun { get; private set; }
+
+    /// <inheritdoc />
     public event EventHandler? Changed;
 
     /// <inheritdoc />
@@ -49,6 +52,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
         if (json is null)
         {
             Current = new AppSettings();
+            IsFirstRun = true;
             return;
         }
 

@@ -6,6 +6,9 @@ public interface ISettingsService
     /// <summary>The live settings instance. Valid after <see cref="LoadAsync"/>.</summary>
     AppSettings Current { get; }
 
+    /// <summary>True when no settings file existed (first start after installation).</summary>
+    bool IsFirstRun { get; }
+
     /// <summary>Raised in the caller's synchronization context after <see cref="SaveAsync"/> succeeds.</summary>
     event EventHandler? Changed;
 

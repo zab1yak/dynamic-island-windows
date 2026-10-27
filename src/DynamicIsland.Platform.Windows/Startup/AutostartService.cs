@@ -17,6 +17,19 @@ public sealed class AutostartService(ILogger<AutostartService> logger)
     /// <summary>Command line written to the Run key.</summary>
     public static string Command(string exePath) => $"\"{exePath}\" --background";
 
+    /// <summary>
+    /// Whether <paramref name="exePath"/> belongs to an installed copy (Velopack puts the app in
+    /// <c>…\current\</c> next to <c>Update.exe</c>). Development builds never register themselves.
+    /// </summary>
+    public static bool IsInstalledBuild(string exePath)
+    {
+        var folder = Path.GetDirectoryName(exePath);
+        var root = folder is null ? null : Path.GetDirectoryName(folder);
+        return folder is not null && root is not null
+            && string.Equals(Path.GetFileName(folder), "current", StringComparison.OrdinalIgnoreCase)
+            && File.Exists(Path.Combine(root, "Update.exe"));
+    }
+
     /// <summary>Whether the Run value exists and points at <paramref name="exePath"/>.</summary>
     public static bool IsEnabled(string exePath)
     {

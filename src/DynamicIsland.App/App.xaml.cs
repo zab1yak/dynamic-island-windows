@@ -99,6 +99,19 @@ public partial class App : Application
             tray.Show();
 
             await services.GetRequiredService<ModuleHost>().InitializeAsync(CancellationToken.None);
+            if (settings.IsFirstRun && Environment.ProcessPath is { } exe && DynamicIsland.Platform.Windows.Startup.AutostartService.IsInstalledBuild(exe))
+            {
+                // On by default after installation; the user can switch it off in Settings.
+                services.GetRequiredService<DynamicIsland.Platform.Windows.Startup.AutostartService>().Set(settings.Current.LaunchAtStartup, exe);
+                await settings.SaveAsync();
+            }
+
+            if (_commandLine.Background)
+            {
+                // Started at sign-in: let the shell and the taskbar settle first.
+                await Task.Delay(TimeSpan.FromSeconds(3));
+            }
+
             var island = _island = services.GetRequiredService<IslandWindow>();
             island.HotkeyUnavailable += (_, hotkey) =>
                 tray.Notify(Loc.Instance["Hotkey.TakenTitle"], Loc.Instance.Format("Hotkey.Taken", hotkey));

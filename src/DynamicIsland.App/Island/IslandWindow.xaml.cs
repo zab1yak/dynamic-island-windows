@@ -98,6 +98,7 @@ internal sealed partial class IslandWindow : Window
         DpiChanged += (_, _) => Dispatcher.BeginInvoke(Reposition, System.Windows.Threading.DispatcherPriority.Loaded);
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
+        SystemEvents.SessionSwitch += OnSessionSwitch;
 
         Loaded += (_, _) => Reposition();
         _lastPageIndex = viewModel.Modules.CurrentIndex;
@@ -251,6 +252,7 @@ internal sealed partial class IslandWindow : Window
         _settings.Changed -= OnSettingsChanged;
         SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+        SystemEvents.SessionSwitch -= OnSessionSwitch;
         _clock.Stop();
         _dragWatch.Stop();
         _hotkey?.Dispose();
@@ -578,6 +580,28 @@ internal sealed partial class IslandWindow : Window
     {
         Reposition();
         _fullscreen?.Evaluate();
+    });
+
+    /// <summary>Locked or switched-away session: stop the drag watcher; on return, re-place and re-check.</summary>
+    private void OnSessionSwitch(object sender, SessionSwitchEventArgs e) => Dispatcher.BeginInvoke(() =>
+    {
+        switch (e.Reason)
+        {
+            case SessionSwitchReason.SessionLock or SessionSwitchReason.ConsoleDisconnect or SessionSwitchReason.RemoteDisconnect:
+                _dragWatch.Stop();
+                SetCatcher(false);
+                break;
+            case SessionSwitchReason.SessionUnlock or SessionSwitchReason.ConsoleConnect or SessionSwitchReason.RemoteConnect:
+                if (_stateMachine.DropEnabled)
+                {
+                    _dragWatch.Start();
+                }
+
+                _viewModel.RefreshClock();
+                Reposition();
+                _fullscreen?.Evaluate();
+                break;
+        }
     });
 
     private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
