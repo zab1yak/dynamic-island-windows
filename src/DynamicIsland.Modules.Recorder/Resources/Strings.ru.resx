@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Recorder.Delete" xml:space="preserve"><value>Удалить запись</value></data>
+  <data name="Recorder.DeviceLost" xml:space="preserve"><value>Микрофон отключился, запись сохранена</value></data>
+  <data name="Recorder.Empty" xml:space="preserve"><value>Записей пока нет</value></data>
+  <data name="Recorder.Mp3Unavailable" xml:space="preserve"><value>MP3 недоступен в этой Windows — сохранено в WAV</value></data>
+  <data name="Recorder.NoMicrophone" xml:space="preserve"><value>Микрофон недоступен</value></data>
+  <data name="Recorder.OpenFolder" xml:space="preserve"><value>Открыть папку записей</value></data>
+  <data name="Recorder.Pause" xml:space="preserve"><value>Пауза или продолжить</value></data>
+  <data name="Recorder.Play" xml:space="preserve"><value>Воспроизвести</value></data>
+  <data name="Recorder.Record" xml:space="preserve"><value>Начать запись</value></data>
+  <data name="Recorder.SaveFailed" xml:space="preserve"><value>Не удалось сохранить запись</value></data>
+  <data name="Recorder.Stop" xml:space="preserve"><value>Остановить и сохранить</value></data>
+  <data name="Recorder.Title" xml:space="preserve"><value>Диктофон</value></data>
+</root>

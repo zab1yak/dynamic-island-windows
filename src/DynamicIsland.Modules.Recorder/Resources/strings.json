@@ -1,0 +1,14 @@
+{
+  "Recorder.Title": { "en": "Voice recorder", "ru": "Диктофон" },
+  "Recorder.Record": { "en": "Start recording", "ru": "Начать запись" },
+  "Recorder.Pause": { "en": "Pause or resume", "ru": "Пауза или продолжить" },
+  "Recorder.Stop": { "en": "Stop and save", "ru": "Остановить и сохранить" },
+  "Recorder.Play": { "en": "Play", "ru": "Воспроизвести" },
+  "Recorder.Delete": { "en": "Delete recording", "ru": "Удалить запись" },
+  "Recorder.OpenFolder": { "en": "Open recordings folder", "ru": "Открыть папку записей" },
+  "Recorder.Empty": { "en": "No recordings yet", "ru": "Записей пока нет" },
+  "Recorder.NoMicrophone": { "en": "No microphone available", "ru": "Микрофон недоступен" },
+  "Recorder.DeviceLost": { "en": "The microphone was disconnected; the recording was saved", "ru": "Микрофон отключился, запись сохранена" },
+  "Recorder.SaveFailed": { "en": "The recording could not be saved", "ru": "Не удалось сохранить запись" },
+  "Recorder.Mp3Unavailable": { "en": "MP3 is not available on this Windows; saved as WAV", "ru": "MP3 недоступен в этой Windows — сохранено в WAV" }
+}

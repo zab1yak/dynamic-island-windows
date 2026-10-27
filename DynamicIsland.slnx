@@ -4,6 +4,7 @@
     <Project Path="src/DynamicIsland.Core/DynamicIsland.Core.csproj" />
     <Project Path="src/DynamicIsland.Modules.Media/DynamicIsland.Modules.Media.csproj" />
     <Project Path="src/DynamicIsland.Modules.Pomodoro/DynamicIsland.Modules.Pomodoro.csproj" />
+    <Project Path="src/DynamicIsland.Modules.Recorder/DynamicIsland.Modules.Recorder.csproj" />
     <Project Path="src/DynamicIsland.Modules.Shelf/DynamicIsland.Modules.Shelf.csproj" />
     <Project Path="src/DynamicIsland.Modules.Todo/DynamicIsland.Modules.Todo.csproj" />
     <Project Path="src/DynamicIsland.Modules.Water/DynamicIsland.Modules.Water.csproj" />
