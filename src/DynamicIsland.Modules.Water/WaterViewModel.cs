@@ -120,6 +120,23 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
     }
 
     [RelayCommand]
+    private Task IncreaseAsync()
+    {
+        _tracker.Adjust(_tracker.State.FineStepMl);
+        return AfterChangeAsync();
+    }
+
+    [RelayCommand]
+    private Task DecreaseAsync()
+    {
+        _tracker.Adjust(-_tracker.State.FineStepMl);
+        return AfterChangeAsync();
+    }
+
+    /// <summary>Label of the fine-step buttons, e.g. "50 ml".</summary>
+    public string FineStepText => Loc.Instance.Format("Water.FineStep", _tracker.State.FineStepMl);
+
+    [RelayCommand]
     private Task UndoAsync()
     {
         _tracker.Undo();
@@ -151,6 +168,7 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
         ReminderText = Loc.Instance.Format("Water.Every", _tracker.State.ReminderIntervalMinutes);
         CanUndo = _tracker.State.Today.Count > 0;
         DrinkText = Loc.Instance.Format("Water.Drink", _tracker.State.StepMl);
+        OnPropertyChanged(nameof(FineStepText));
         Changed?.Invoke(this, EventArgs.Empty);
     }
 

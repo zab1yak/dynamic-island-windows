@@ -11,6 +11,9 @@ public sealed class WaterState
     /// <summary>Amount added by one "Drink" press.</summary>
     public int StepMl { get; set; } = 250;
 
+    /// <summary>Amount changed by the − and + buttons around the bar.</summary>
+    public int FineStepMl { get; set; } = 50;
+
     /// <summary>Remind to drink.</summary>
     public bool RemindersEnabled { get; set; } = true;
 
@@ -40,6 +43,7 @@ public sealed class WaterState
     {
         GoalMl = Math.Clamp(GoalMl, 250, 10_000);
         StepMl = Math.Clamp(StepMl, 50, 2000);
+        FineStepMl = Math.Clamp(FineStepMl == 0 ? 50 : FineStepMl, 10, 500);
         ReminderIntervalMinutes = Math.Clamp(ReminderIntervalMinutes, 15, 480);
         ActiveFromHour = Math.Clamp(ActiveFromHour, 0, 23);
         ActiveToHour = Math.Clamp(ActiveToHour, ActiveFromHour + 1, 24);
@@ -88,6 +92,36 @@ public sealed class WaterTracker(WaterState state, TimeProvider time)
     {
         RollDay();
         State.Today.Add(new WaterEntry(time.GetUtcNow(), State.StepMl));
+    }
+
+    /// <summary>
+    /// Fine adjustment from the − / + buttons: a positive delta adds a small portion, a negative one
+    /// trims the most recent portions. The total never goes below zero.
+    /// </summary>
+    public void Adjust(int deltaMl)
+    {
+        RollDay();
+        if (deltaMl > 0)
+        {
+            State.Today.Add(new WaterEntry(time.GetUtcNow(), deltaMl));
+            return;
+        }
+
+        var remove = -deltaMl;
+        while (remove > 0 && State.Today.Count > 0)
+        {
+            var last = State.Today[^1];
+            if (last.Ml <= remove)
+            {
+                remove -= last.Ml;
+                State.Today.RemoveAt(State.Today.Count - 1);
+            }
+            else
+            {
+                State.Today[^1] = last with { Ml = last.Ml - remove };
+                remove = 0;
+            }
+        }
     }
 
     /// <summary>Removes the last portion of today. Returns <c>false</c> when there is nothing to undo.</summary>

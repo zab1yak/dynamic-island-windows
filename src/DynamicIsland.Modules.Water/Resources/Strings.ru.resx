@@ -8,11 +8,15 @@
   <data name="Water.ActiveTo" xml:space="preserve"><value>Напоминания до</value></data>
   <data name="Water.Drink" xml:space="preserve"><value>Выпить {0} мл</value></data>
   <data name="Water.Every" xml:space="preserve"><value>Каждые {0} мин</value></data>
+  <data name="Water.FineStep" xml:space="preserve"><value>{0} мл</value></data>
+  <data name="Water.FineStepSetting" xml:space="preserve"><value>Шаг кнопок − и +</value></data>
   <data name="Water.Goal" xml:space="preserve"><value>Цель на день</value></data>
   <data name="Water.Interval" xml:space="preserve"><value>Напоминать каждые</value></data>
+  <data name="Water.Less" xml:space="preserve"><value>Меньше воды</value></data>
   <data name="Water.Liters" xml:space="preserve"><value>л</value></data>
   <data name="Water.Min" xml:space="preserve"><value>мин</value></data>
   <data name="Water.Ml" xml:space="preserve"><value>мл</value></data>
+  <data name="Water.More" xml:space="preserve"><value>Больше воды</value></data>
   <data name="Water.Portion" xml:space="preserve"><value>Одна порция</value></data>
   <data name="Water.ReminderBody" xml:space="preserve"><value>Сегодня выпито: {0}</value></data>
   <data name="Water.ReminderTitle" xml:space="preserve"><value>Пора выпить воды</value></data>

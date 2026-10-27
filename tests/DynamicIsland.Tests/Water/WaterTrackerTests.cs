@@ -153,3 +153,40 @@ public sealed class WaterTrackerTests
         Assert.Equal(23, state.ActiveToHour);
     }
 }
+
+public sealed class WaterAdjustTests
+{
+    private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 27, 5, 0, 0, TimeSpan.Zero));
+
+    [Fact]
+    public void Plus_and_minus_change_by_the_fine_step_and_never_go_below_zero()
+    {
+        var state = new WaterState();
+        state.Normalize();
+        var tracker = new WaterTracker(state, _time);
+        Assert.Equal(50, state.FineStepMl);
+
+        tracker.Drink();                 // 250
+        tracker.Adjust(state.FineStepMl); // 300
+        Assert.Equal(300, tracker.TotalMl);
+
+        tracker.Adjust(-state.FineStepMl); // 250
+        tracker.Adjust(-200);              // 50
+        Assert.Equal(50, tracker.TotalMl);
+
+        tracker.Adjust(-500);
+        Assert.Equal(0, tracker.TotalMl);
+        Assert.Empty(state.Today);
+    }
+
+    [Fact]
+    public void Fine_step_is_clamped_and_defaults_to_50()
+    {
+        var state = new WaterState { FineStepMl = 0 };
+        state.Normalize();
+        Assert.Equal(50, state.FineStepMl);
+        state.FineStepMl = 99999;
+        state.Normalize();
+        Assert.Equal(500, state.FineStepMl);
+    }
+}

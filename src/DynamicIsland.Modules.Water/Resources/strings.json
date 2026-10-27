@@ -58,5 +58,21 @@
   "Water.Min": {
     "en": "min",
     "ru": "мин"
+  },
+  "Water.Less": {
+    "en": "Less water",
+    "ru": "Меньше воды"
+  },
+  "Water.More": {
+    "en": "More water",
+    "ru": "Больше воды"
+  },
+  "Water.FineStep": {
+    "en": "{0} ml",
+    "ru": "{0} мл"
+  },
+  "Water.FineStepSetting": {
+    "en": "Step of − and + buttons",
+    "ru": "Шаг кнопок − и +"
   }
 }

@@ -15,6 +15,9 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
     private int _stepMl;
 
     [ObservableProperty]
+    private int _fineStepMl;
+
+    [ObservableProperty]
     private bool _remindersEnabled;
 
     [ObservableProperty]
@@ -39,6 +42,7 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
         var s = _water.State;
         GoalMl = s.GoalMl;
         StepMl = s.StepMl;
+        FineStepMl = s.FineStepMl;
         RemindersEnabled = s.RemindersEnabled;
         IntervalMinutes = s.ReminderIntervalMinutes;
         ActiveFromHour = s.ActiveFromHour;
@@ -49,6 +53,8 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
     partial void OnGoalMlChanged(int value) => Apply();
 
     partial void OnStepMlChanged(int value) => Apply();
+
+    partial void OnFineStepMlChanged(int value) => Apply();
 
     partial void OnRemindersEnabledChanged(bool value) => Apply();
 
@@ -68,6 +74,7 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
         var s = _water.State;
         s.GoalMl = GoalMl;
         s.StepMl = StepMl;
+        s.FineStepMl = FineStepMl;
         s.RemindersEnabled = RemindersEnabled;
         s.ReminderIntervalMinutes = IntervalMinutes;
         s.ActiveFromHour = ActiveFromHour;

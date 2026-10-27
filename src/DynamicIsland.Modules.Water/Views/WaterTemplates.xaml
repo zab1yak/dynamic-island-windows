@@ -24,8 +24,24 @@
                     <c:Icon Glyph="Droplet" Width="18" Height="18" Foreground="{DynamicResource Brush.Blue}" Margin="0,0,6,0" />
                     <c:RollingText Text="{Binding TotalText}" TextStyle="{DynamicResource Text.Title}" />
                 </StackPanel>
-                <ProgressBar Style="{DynamicResource ProgressBar.Pill}" Margin="0,10,0,0" Minimum="0" Maximum="1"
-                             Value="{Binding Progress, Mode=OneWay}" />
+                <!-- − bar + : fine adjustment by the configured step (50 ml by default). -->
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Style="{DynamicResource IconButton}" Width="26" Height="26" Command="{Binding DecreaseCommand}"
+                            AutomationProperties.Name="{loc:Tr Water.Less}" ToolTip="{Binding FineStepText}">
+                        <c:Icon Glyph="Minus" Width="12" Height="12" />
+                    </Button>
+                    <ProgressBar Grid.Column="1" Style="{DynamicResource ProgressBar.Pill}" Margin="6,0" Minimum="0" Maximum="1"
+                                 VerticalAlignment="Center" Value="{Binding Progress, Mode=OneWay}" />
+                    <Button Grid.Column="2" Style="{DynamicResource IconButton}" Width="26" Height="26" Command="{Binding IncreaseCommand}"
+                            AutomationProperties.Name="{loc:Tr Water.More}" ToolTip="{Binding FineStepText}">
+                        <c:Icon Glyph="Plus" Width="12" Height="12" />
+                    </Button>
+                </Grid>
                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                     <ToggleButton Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding RemindersEnabled, Mode=OneWay}"
                                   Command="{Binding ToggleRemindersCommand}"
@@ -72,6 +88,11 @@
                     <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Water.Portion}" Style="{DynamicResource Settings.Label}" />
                         <c:NumberStepper DockPanel.Dock="Right" Value="{Binding StepMl}" Minimum="50" Maximum="2000" Step="50" Suffix="{loc:Tr Water.Ml}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.FineStepSetting}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding FineStepMl}" Minimum="10" Maximum="500" Step="10" Suffix="{loc:Tr Water.Ml}" />
                     </DockPanel>
                 </StackPanel>
             </c:SquircleBorder>

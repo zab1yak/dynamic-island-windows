@@ -8,11 +8,15 @@
   <data name="Water.ActiveTo" xml:space="preserve"><value>Reminders until</value></data>
   <data name="Water.Drink" xml:space="preserve"><value>Drink {0} ml</value></data>
   <data name="Water.Every" xml:space="preserve"><value>Every {0} min</value></data>
+  <data name="Water.FineStep" xml:space="preserve"><value>{0} ml</value></data>
+  <data name="Water.FineStepSetting" xml:space="preserve"><value>Step of − and + buttons</value></data>
   <data name="Water.Goal" xml:space="preserve"><value>Daily goal</value></data>
   <data name="Water.Interval" xml:space="preserve"><value>Remind every</value></data>
+  <data name="Water.Less" xml:space="preserve"><value>Less water</value></data>
   <data name="Water.Liters" xml:space="preserve"><value>L</value></data>
   <data name="Water.Min" xml:space="preserve"><value>min</value></data>
   <data name="Water.Ml" xml:space="preserve"><value>ml</value></data>
+  <data name="Water.More" xml:space="preserve"><value>More water</value></data>
   <data name="Water.Portion" xml:space="preserve"><value>One portion</value></data>
   <data name="Water.ReminderBody" xml:space="preserve"><value>So far today: {0}</value></data>
   <data name="Water.ReminderTitle" xml:space="preserve"><value>Time for some water</value></data>
