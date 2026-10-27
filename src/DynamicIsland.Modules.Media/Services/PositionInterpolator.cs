@@ -33,6 +33,10 @@ public static class PositionInterpolator
         snapshot.Duration > TimeSpan.Zero ? At(snapshot, now) / snapshot.Duration : 0;
 
     /// <summary>Formats a position as <c>m:ss</c> or <c>h:mm:ss</c>.</summary>
+    /// <summary>Time left as «-2:48», as on the reference photos; empty when the length is unknown.</summary>
+    public static string FormatRemaining(MediaSnapshot snapshot, DateTimeOffset now) =>
+        snapshot.Duration > TimeSpan.Zero ? "-" + Format(snapshot.Duration - At(snapshot, now)) : string.Empty;
+
     public static string Format(TimeSpan value)
     {
         if (value < TimeSpan.Zero)

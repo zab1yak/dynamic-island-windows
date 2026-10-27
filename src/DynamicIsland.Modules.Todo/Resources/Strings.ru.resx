@@ -6,7 +6,9 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Todo.Add" xml:space="preserve"><value>Добавить</value></data>
   <data name="Todo.Delete" xml:space="preserve"><value>Удалить</value></data>
+  <data name="Todo.DoneToday" xml:space="preserve"><value>выполнено сегодня</value></data>
   <data name="Todo.Edit" xml:space="preserve"><value>Редактировать задачи</value></data>
+  <data name="Todo.EditShort" xml:space="preserve"><value>Изменить</value></data>
   <data name="Todo.Empty" xml:space="preserve"><value>Задач нет.</value></data>
   <data name="Todo.Placeholder" xml:space="preserve"><value>Новая задача — Enter добавить, Shift+Enter перенос</value></data>
   <data name="Todo.Rename" xml:space="preserve"><value>Переименовать</value></data>

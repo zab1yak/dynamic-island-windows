@@ -75,6 +75,9 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
     private string _durationText = "0:00";
 
     [ObservableProperty]
+    private string _remainingText = string.Empty;
+
+    [ObservableProperty]
     private bool _hasMultipleSessions;
 
     [ObservableProperty]
@@ -294,6 +297,7 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         CanNext = snapshot?.CanNext ?? false;
         CanPrevious = snapshot?.CanPrevious ?? false;
         DurationText = PositionInterpolator.Format(snapshot?.Duration ?? TimeSpan.Zero);
+        RemainingText = snapshot is null ? string.Empty : PositionInterpolator.FormatRemaining(snapshot, _time.GetUtcNow());
 
         if (snapshot?.IsPlaying == true && previous?.IsPlaying != true)
         {
@@ -344,6 +348,7 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
 
         var now = _time.GetUtcNow();
         PositionText = PositionInterpolator.Format(PositionInterpolator.At(_current, now));
+        RemainingText = PositionInterpolator.FormatRemaining(_current, now);
         Progress = PositionInterpolator.Progress(_current, now);
     }
 

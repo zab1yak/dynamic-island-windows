@@ -28,6 +28,7 @@ ICONS = {
     "Battery": "battery",
     "BatteryCharging": "battery-charging",
     "Zap": "zap",
+    "Target": "target",
     "Timer": "timer",
     "Coffee": "coffee",
     "Brain": "brain",

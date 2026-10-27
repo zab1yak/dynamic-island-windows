@@ -3,6 +3,14 @@
     "en": "TodoList",
     "ru": "Список задач"
   },
+  "Todo.EditShort": {
+    "en": "Edit Task",
+    "ru": "Изменить"
+  },
+  "Todo.DoneToday": {
+    "en": "Task Done Today",
+    "ru": "выполнено сегодня"
+  },
   "Todo.TitleAccent": {
     "en": "List",
     "ru": "задач"

@@ -54,6 +54,10 @@ public sealed partial class TodoViewModel : ObservableObject
     [ObservableProperty]
     private string _summary = string.Empty;
 
+    /// <summary>«done/total» in large digits, as on the reference photo.</summary>
+    [ObservableProperty]
+    private string _counter = "0/0";
+
     [ObservableProperty]
     private bool _isEmpty = true;
 
@@ -229,8 +233,11 @@ public sealed partial class TodoViewModel : ObservableObject
         UpdateSummary();
     }
 
-    private void UpdateSummary() =>
+    private void UpdateSummary()
+    {
         Summary = Loc.Instance.Format("Todo.Summary", _list.DoneToday, _list.Items.Count);
+        Counter = string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{_list.DoneToday}/{_list.Items.Count}");
+    }
 }
 
 /// <summary>Todo list module.</summary>

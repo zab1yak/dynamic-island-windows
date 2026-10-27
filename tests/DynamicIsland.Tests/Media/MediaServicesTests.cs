@@ -27,6 +27,14 @@ public sealed class PositionInterpolatorTests
     }
 
     [Fact]
+    public void Time_left_counts_down_and_is_empty_without_a_length()
+    {
+        Assert.Equal("-2:20", PositionInterpolator.FormatRemaining(Snapshots.Track(), Snapshots.T0));
+        Assert.Equal("-2:10", PositionInterpolator.FormatRemaining(Snapshots.Track(), Snapshots.T0.AddSeconds(10)));
+        Assert.Equal(string.Empty, PositionInterpolator.FormatRemaining(Snapshots.Track(durationSeconds: 0), Snapshots.T0));
+    }
+
+    [Fact]
     public void Paused_track_stays_put()
     {
         var position = PositionInterpolator.At(Snapshots.Track(state: PlaybackState.Paused), Snapshots.T0.AddMinutes(5));

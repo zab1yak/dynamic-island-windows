@@ -7,17 +7,22 @@
     <Grid>
         <!-- Dashed drop zone. -->
         <Rectangle x:Name="Zone" Margin="0,0,0,4" RadiusX="16" RadiusY="16" StrokeThickness="1.5" StrokeDashArray="5 4"
-                   Stroke="{DynamicResource Brush.Surface3}" Fill="Transparent" />
+                   Stroke="{DynamicResource Brush.TextTertiary}" Fill="Transparent" />
 
         <!-- Empty state. -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
-            <c:Icon Glyph="Upload" Width="22" Height="22" Foreground="{DynamicResource Brush.TextSecondary}" />
-            <TextBlock Text="{loc:Tr Shelf.DropHere}" Style="{DynamicResource Text.Title}" FontSize="13" HorizontalAlignment="Center" Margin="0,6,0,2" />
-            <TextBlock Text="{loc:Tr Shelf.DropHint}" Style="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" />
-            <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Shelf.PasteShort}" Command="{Binding PasteCommand}"
-                    AutomationProperties.Name="{loc:Tr Shelf.Paste}" HorizontalAlignment="Center" Margin="0,8,0,0" Height="26" />
+            <c:Icon Glyph="Download" Width="24" Height="24" Foreground="{DynamicResource Brush.TextPrimary}" />
+            <TextBlock Text="{loc:Tr Shelf.DropHere}" Style="{DynamicResource Text.Title}" FontSize="14" HorizontalAlignment="Center" Margin="0,6,0,1" />
+            <TextBlock Text="{loc:Tr Shelf.DropHint}" Style="{DynamicResource Text.Secondary}" FontSize="11" HorizontalAlignment="Center" />
         </StackPanel>
+
+        <!-- Paste (Ctrl+V works too): a small button in the corner, the zone itself stays as on the reference photo. -->
+        <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="0,6,8,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                Command="{Binding PasteCommand}" AutomationProperties.Name="{loc:Tr Shelf.Paste}" ToolTip="{loc:Tr Shelf.Paste}"
+                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
+            <c:Icon Glyph="Copy" Width="14" Height="14" Foreground="{DynamicResource Brush.TextSecondary}" />
+        </Button>
 
         <!-- Items. -->
         <Grid Margin="10,6" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">

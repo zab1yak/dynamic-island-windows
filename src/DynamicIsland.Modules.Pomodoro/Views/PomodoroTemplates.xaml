@@ -5,46 +5,56 @@
                     xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
                     xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
 
-    <!-- Expanded page: red ring with a timer glyph, big countdown, phase buttons and a big red play. -->
+    <!-- Expanded page (reference photo): red ring with a stopwatch on the left; on the right the big
+         countdown with the phase and reset, and a row of Short Break · red play · Focus Time below. -->
     <DataTemplate DataType="{x:Type vm:PomodoroViewModel}">
         <Grid VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Grid Width="64" Height="64">
-                <c:RingProgress Value="{Binding Progress}" Thickness="7" ProgressBrush="{DynamicResource Brush.Red}" />
-                <c:Icon Glyph="Timer" Width="24" Height="24" Foreground="{DynamicResource Brush.Red}" />
+            <Grid Width="70" Height="70" VerticalAlignment="Center">
+                <c:RingProgress Value="{Binding Progress}" Thickness="8" ProgressBrush="{DynamicResource Brush.Red}" />
+                <c:Icon Glyph="Timer" Width="30" Height="30" Foreground="{DynamicResource Brush.TextPrimary}" />
             </Grid>
 
-            <StackPanel Grid.Column="1" Margin="14,0,8,0" VerticalAlignment="Center" MinWidth="112">
-                <c:RollingText Text="{Binding RemainingText}" TextStyle="{DynamicResource Text.LargeNumber}" />
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding PhaseText}" Style="{DynamicResource Text.Secondary}" />
-                    <TextBlock Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" Foreground="{DynamicResource Brush.TextTertiary}">
-                        <Run Text="{loc:Tr Pomodoro.Today}" /><Run Text=" " /><Run Text="{Binding CompletedToday, Mode=OneWay}" />
-                    </TextBlock>
+            <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid HorizontalAlignment="Center">
+                    <StackPanel HorizontalAlignment="Center">
+                        <c:RollingText Text="{Binding RemainingText}" TextStyle="{DynamicResource Text.LargeNumber}" HorizontalAlignment="Center" />
+                        <TextBlock Style="{DynamicResource Text.Secondary}" HorizontalAlignment="Center">
+                            <Run Text="{Binding PhaseText, Mode=OneWay}" /><Run Text=" · " Foreground="{DynamicResource Brush.TextTertiary}" /><Run
+                                 Text="{loc:Tr Pomodoro.Today}" Foreground="{DynamicResource Brush.TextTertiary}" /><Run Text=" " /><Run
+                                 Text="{Binding CompletedToday, Mode=OneWay}" Foreground="{DynamicResource Brush.TextTertiary}" />
+                        </TextBlock>
+                    </StackPanel>
+                    <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="0,4,-40,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Command="{Binding ResetCommand}" AutomationProperties.Name="{loc:Tr Pomodoro.Reset}" ToolTip="{loc:Tr Pomodoro.Reset}">
+                        <c:Icon Glyph="Reset" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    </Button>
+                </Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,6">
+                    <Button Style="{DynamicResource PillButton}" Height="27" Command="{Binding SelectPhaseCommand}" CommandParameter="{x:Static s:PomodoroPhase.ShortBreak}">
+                        <StackPanel Orientation="Horizontal">
+                            <c:Icon Glyph="Coffee" Width="13" Height="13" Margin="0,0,6,0" />
+                            <TextBlock Text="{loc:Tr Pomodoro.ShortBreak}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{DynamicResource PillButton}" Height="27" Background="{DynamicResource Brush.Red}" Width="56" Margin="8,0"
+                            Command="{Binding StartPauseCommand}" AutomationProperties.Name="{loc:Tr Pomodoro.StartPause}">
+                        <Grid>
+                            <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="15" Height="15" />
+                            <c:Icon x:Name="PauseGlyph" Glyph="Pause" Filled="True" Width="15" Height="15" Opacity="0" />
+                        </Grid>
+                    </Button>
+                    <Button Style="{DynamicResource PillButton}" Height="27" Command="{Binding SelectPhaseCommand}" CommandParameter="{x:Static s:PomodoroPhase.Focus}">
+                        <StackPanel Orientation="Horizontal">
+                            <c:Icon Glyph="Target" Width="13" Height="13" Margin="0,0,6,0" />
+                            <TextBlock Text="{loc:Tr Pomodoro.FocusTime}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </StackPanel>
-
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Pomodoro.ShortBreak}" Margin="0,0,8,0"
-                        Command="{Binding SelectPhaseCommand}" CommandParameter="{x:Static s:PomodoroPhase.ShortBreak}" />
-                <Button Style="{DynamicResource PrimaryButton.Red}" Command="{Binding StartPauseCommand}"
-                        AutomationProperties.Name="{loc:Tr Pomodoro.StartPause}">
-                    <Grid>
-                        <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="22" Height="22" />
-                        <c:Icon x:Name="PauseGlyph" Glyph="Pause" Filled="True" Width="22" Height="22" Opacity="0" />
-                    </Grid>
-                </Button>
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Pomodoro.FocusTime}" Margin="8,0,0,0"
-                        Command="{Binding SelectPhaseCommand}" CommandParameter="{x:Static s:PomodoroPhase.Focus}" />
-                <Button Style="{DynamicResource IconButton}" Margin="6,0,0,0" Command="{Binding ResetCommand}"
-                        AutomationProperties.Name="{loc:Tr Pomodoro.Reset}" ToolTip="{loc:Tr Pomodoro.Reset}">
-                    <c:Icon Glyph="Reset" Foreground="{DynamicResource Brush.TextSecondary}" />
-                </Button>
             </StackPanel>
         </Grid>
         <DataTemplate.Triggers>
