@@ -56,8 +56,10 @@
 
   <!-- Identity-only package and its public certificate for the notification history (D-038). -->
   <ItemGroup>
-    <None Include="..\..\packaging\identity\DynamicIslandIdentity.msix" Link="DynamicIslandIdentity.msix" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\packaging\identity\DynamicIslandIdentity.cer" Link="DynamicIslandIdentity.cer" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\packaging\identity\DynamicIslandIdentity.msix" Condition="Exists('..\..\packaging\identity\DynamicIslandIdentity.msix')"
+          Link="DynamicIslandIdentity.msix" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\packaging\identity\DynamicIslandIdentity.cer" Condition="Exists('..\..\packaging\identity\DynamicIslandIdentity.cer')"
+          Link="DynamicIslandIdentity.cer" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
