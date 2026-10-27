@@ -24,21 +24,21 @@
                     <TextBlock Text="{Binding Message}" Style="{DynamicResource Text.Secondary}" FontSize="11" Foreground="{DynamicResource Brush.Orange}"
                                Margin="0,3,0,0" Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}" />
                 </StackPanel>
-                <Button Grid.Column="2" Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="30"
+                <Button Grid.Column="2" Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Foreground="{DynamicResource Brush.OnAccent}" Height="30"
                         Command="{Binding EnableCommand}" Content="{loc:Tr Notifications.Enable}" AutomationProperties.Name="{loc:Tr Notifications.Enable}" />
             </Grid>
 
             <!-- Registered: restart to get identity. -->
             <StackPanel Visibility="{Binding ShowRestart, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="{loc:Tr Notifications.RestartBody}" Style="{DynamicResource Text.Title}" FontSize="13" HorizontalAlignment="Center" />
-                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
+                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Foreground="{DynamicResource Brush.OnAccent}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
                         Command="{Binding RestartCommand}" Content="{loc:Tr Notifications.Restart}" AutomationProperties.Name="{loc:Tr Notifications.Restart}" />
             </StackPanel>
 
             <!-- Identity present: ask Windows. -->
             <StackPanel Visibility="{Binding ShowPermission, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="{loc:Tr Notifications.PermissionBody}" Style="{DynamicResource Text.Title}" FontSize="13" HorizontalAlignment="Center" />
-                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
+                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Foreground="{DynamicResource Brush.OnAccent}" Height="30" Margin="0,10,0,0" HorizontalAlignment="Center"
                         Command="{Binding AllowCommand}" Content="{loc:Tr Notifications.Allow}" AutomationProperties.Name="{loc:Tr Notifications.Allow}" />
             </StackPanel>
 

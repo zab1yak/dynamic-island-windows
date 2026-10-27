@@ -29,6 +29,11 @@
     <a:SpringEase x:Key="Ease.Spring" DampingRatio="0.7" />
     <a:SpringEase x:Key="Ease.SpringSoft" DampingRatio="0.9" />
 
+    <!-- Icons follow the theme text colour unless a page sets one (light grey island: dark icons). -->
+    <Style TargetType="c:Icon">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+    </Style>
+
     <!-- Hover: the background brightens softly instead of snapping. -->
     <Style x:Key="Button.Base" TargetType="ButtonBase">
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
@@ -96,6 +101,7 @@
 
     <!-- Large circular primary action (play in Pomodoro). -->
     <Style x:Key="PrimaryButton.Red" TargetType="ButtonBase" BasedOn="{StaticResource Button.Base}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Red}" />
         <Setter Property="Width" Value="48" />
         <Setter Property="Height" Value="48" />
@@ -206,6 +212,10 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style TargetType="c:VisualizerBars">
+        <Setter Property="BarBrush" Value="{DynamicResource Brush.TextPrimary}" />
     </Style>
 
     <Style TargetType="c:PageDots">

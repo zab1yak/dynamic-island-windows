@@ -31,6 +31,15 @@ public sealed class BatteryIndicator : FrameworkElement
         set => SetValue(StatusProperty, value);
     }
 
+    /// <summary>Redraws with the new brushes when the island background changes (they are read in OnRender).</summary>
+    public BatteryIndicator()
+    {
+        Loaded += (_, _) => Theming.ThemeEvents.Changed += OnThemeChanged;
+        Unloaded += (_, _) => Theming.ThemeEvents.Changed -= OnThemeChanged;
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e) => InvalidateVisual();
+
     protected override Size MeasureOverride(Size availableSize) => Status.Appearance switch
     {
         BatteryAppearance.Hidden => default,

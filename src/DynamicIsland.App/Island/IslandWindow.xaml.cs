@@ -307,7 +307,9 @@ internal sealed partial class IslandWindow : Window
         _stateMachine.ExpandDelay = TimeSpan.FromMilliseconds(s.HoverExpandDelayMs);
         _stateMachine.CollapseDelay = TimeSpan.FromMilliseconds(s.HoverCollapseDelayMs);
         IslandTheme.Apply(s.Background);
-        _strokeBrush = null;
+        // The outline is set in code only while the shape moves; refresh it for a settled island too.
+        _strokeBrush = (System.Windows.Media.Brush)FindResource("Island.Stroke");
+        Outline.Stroke = _stateMachine.Mode == IslandMode.DropTarget ? _dropBrush ?? _strokeBrush : _strokeBrush;
         _stateMachine.SetLocked(s.IslandLocked);
         RootScale.ScaleX = RootScale.ScaleY = s.IslandScale;
         Width = IslandMetrics.WindowWidth * s.IslandScale;

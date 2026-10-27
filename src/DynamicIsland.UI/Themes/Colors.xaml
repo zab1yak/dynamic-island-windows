@@ -20,6 +20,10 @@
     <Color x:Key="Color.Yellow">#FFFFD60A</Color>
     <Color x:Key="Color.Blue">#FF0A84FF</Color>
 
+    <!-- Text and icons on accent fills (blue/red buttons): white in every island theme. -->
+    <Color x:Key="Color.OnAccent">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="Brush.OnAccent" Color="{StaticResource Color.OnAccent}" />
+
     <!-- «Полупрозрачный» island background (settings → Внешний вид). -->
     <Color x:Key="Color.IslandTranslucent">#C0000000</Color>
 

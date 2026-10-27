@@ -75,5 +75,7 @@ internal static class IslandTheme
                 }
             }
         }
+
+        UI.Theming.ThemeEvents.RaiseChanged();
     }
 }

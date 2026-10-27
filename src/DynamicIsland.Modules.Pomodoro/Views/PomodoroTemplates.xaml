@@ -44,8 +44,8 @@
                     <Button Style="{DynamicResource PillButton}" Height="27" Background="{DynamicResource Brush.Red}" Width="56" Margin="8,0"
                             Command="{Binding StartPauseCommand}" AutomationProperties.Name="{loc:Tr Pomodoro.StartPause}">
                         <Grid>
-                            <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="15" Height="15" />
-                            <c:Icon x:Name="PauseGlyph" Glyph="Pause" Filled="True" Width="15" Height="15" Opacity="0" />
+                            <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="15" Height="15" Foreground="{DynamicResource Brush.OnAccent}" />
+                            <c:Icon x:Name="PauseGlyph" Glyph="Pause" Filled="True" Width="15" Height="15" Opacity="0" Foreground="{DynamicResource Brush.OnAccent}" />
                         </Grid>
                     </Button>
                     <Button Style="{DynamicResource PillButton}" Height="27" Command="{Binding SelectPhaseCommand}" CommandParameter="{x:Static s:PomodoroPhase.Focus}">

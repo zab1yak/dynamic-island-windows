@@ -24,7 +24,7 @@
                     <Button Style="{DynamicResource PrimaryButton.Red}" Width="40" Height="40" Command="{Binding RecordCommand}"
                             AutomationProperties.Name="{loc:Tr Recorder.Record}" ToolTip="{loc:Tr Recorder.Record}"
                             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
-                        <c:Icon Glyph="Mic" Width="18" Height="18" />
+                        <c:Icon Glyph="Mic" Width="18" Height="18" Foreground="{DynamicResource Brush.OnAccent}" />
                     </Button>
                     <Button Style="{DynamicResource IconButton}" Command="{Binding PauseResumeCommand}"
                             AutomationProperties.Name="{loc:Tr Recorder.Pause}" ToolTip="{loc:Tr Recorder.Pause}"
@@ -34,7 +34,7 @@
                     <Button Style="{DynamicResource PrimaryButton.Red}" Width="40" Height="40" Margin="6,0,0,0" Command="{Binding StopCommand}"
                             AutomationProperties.Name="{loc:Tr Recorder.Stop}" ToolTip="{loc:Tr Recorder.Stop}"
                             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
-                        <c:Icon Glyph="Stop" Filled="True" Width="14" Height="14" />
+                        <c:Icon Glyph="Stop" Filled="True" Width="14" Height="14" Foreground="{DynamicResource Brush.OnAccent}" />
                     </Button>
                     <Button Style="{DynamicResource IconButton}" Margin="6,0,0,0" Command="{Binding OpenFolderCommand}"
                             AutomationProperties.Name="{loc:Tr Recorder.OpenFolder}" ToolTip="{loc:Tr Recorder.OpenFolder}">

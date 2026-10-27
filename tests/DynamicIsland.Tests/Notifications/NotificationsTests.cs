@@ -43,9 +43,17 @@ public sealed class NotificationsTests
     [Theory]
     [InlineData(unchecked((int)0x800B0109), true)]
     [InlineData(unchecked((int)0x800B010A), true)]
-    [InlineData(unchecked((int)0x80073CFF), true)]
+    [InlineData(unchecked((int)0x80073CFF), false)]
     [InlineData(unchecked((int)0x80073CF3), false)]
     [InlineData(0, false)]
-    public void Untrusted_certificate_errors_are_recognised(int hresult, bool untrusted) =>
+    public void Only_certificate_chain_errors_lead_to_the_trust_step(int hresult, bool untrusted) =>
         Assert.Equal(untrusted, PackageIdentityService.IsUntrustedCertificate(hresult));
+
+    [Fact]
+    public void Swapped_identity_files_are_refused()
+    {
+        var someCertificate = new byte[] { 1, 2, 3 };
+        var someHash = System.Security.Cryptography.SHA256.HashData(new byte[] { 4, 5, 6 });
+        Assert.False(PackageIdentityService.MatchesPinned(someCertificate, someHash));
+    }
 }

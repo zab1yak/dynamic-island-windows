@@ -16,6 +16,9 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
 {
     private static readonly TimeSpan ProgressInterval = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan VisualizerInterval = TimeSpan.FromMilliseconds(50);
+
+    // The compact sound wave is tiny: fewer wake-ups for an always-on overlay than the live pill or the page.
+    private static readonly TimeSpan CompactVisualizerInterval = TimeSpan.FromMilliseconds(125);
     private static readonly TimeSpan RecentPauseWindow = TimeSpan.FromMinutes(5);
 
     private readonly IMediaSessionSource _source;
@@ -28,6 +31,7 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
 
     private ITimer? _progressTimer;
     private ITimer? _visualizerTimer;
+    private TimeSpan _visualizerInterval;
     private ITimer? _pauseExpiry;
     private string? _selectedAppId;
     private MediaSnapshot? _current;
@@ -360,20 +364,24 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         var barsVisible = mode is IslandMode.LiveActivity or IslandMode.Compact || IslandMetrics.IsExpanded(mode);
 
         SetTimer(ref _progressTimer, playing && IslandMetrics.IsExpanded(mode), ProgressInterval, UpdateProgress);
-        if (playing && barsVisible && _visualizerTimer is null)
+        var interval = mode == IslandMode.Compact ? CompactVisualizerInterval : VisualizerInterval;
+        if (playing && barsVisible && (_visualizerTimer is null || interval != _visualizerInterval))
         {
             // The audio meter (COM) is read on the timer thread; only the bar update runs on the UI thread.
+            _visualizerTimer?.Dispose();
+            _visualizerInterval = interval;
             _visualizerTimer = _time.CreateTimer(_ =>
             {
                 var peak = _audio.ReadPeak();
                 _dispatcher.Post(() => ApplyPeak(peak));
-            }, null, VisualizerInterval, VisualizerInterval);
+            }, null, interval, interval);
         }
         else if (!(playing && barsVisible) && _visualizerTimer is not null)
         {
             _visualizerTimer.Dispose();
             _visualizerTimer = null;
         }
+
         if (!playing)
         {
             _visualizer.Rest();

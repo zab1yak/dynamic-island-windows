@@ -25,6 +25,12 @@ public sealed partial class PackageIdentityService(ILogger<PackageIdentityServic
     /// <summary>Public certificate next to the exe.</summary>
     public const string CertificateFile = "DynamicIslandIdentity.cer";
 
+    /// <summary>SHA-256 of the shipped public certificate (made by tools/make_identity_package.ps1).</summary>
+    public const string CertificateSha256 = "F0E2BD14E3A3649E37EECDF13D308ACD6EE8DF6517C1D29440E98DF83DABEC1B";
+
+    /// <summary>SHA-256 of the shipped signed identity package.</summary>
+    public const string PackageSha256 = "C53E538724253D55B1D65DC55711A1A5DD227CD4B0E19BA97327DF90D103F20C";
+
     private const int AppModelErrorNoPackage = 15700;
     private const int ErrorCancelled = 1223;
 
@@ -53,9 +59,29 @@ public sealed partial class PackageIdentityService(ILogger<PackageIdentityServic
             return IdentitySetupResult.PackageMissing;
         }
 
-        using var cert = X509CertificateLoader.LoadCertificateFromFile(certificate);
-        AddToStore(cert, StoreLocation.CurrentUser);
+        // The install folder is writable by any program running as the user. Lock both files against
+        // changes (read sharing only) and compare them with the pinned hashes before trusting anything;
+        // the handles stay open until certutil and AddPackage have read the very same bytes.
+        using var certificateLock = new FileStream(certificate, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var packageLock = new FileStream(package, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var certificateBytes = new byte[certificateLock.Length];
+        certificateLock.ReadExactly(certificateBytes);
+        var packageHash = await SHA256.HashDataAsync(packageLock, cancellationToken);
+        if (!MatchesPinned(certificateBytes, packageHash))
+        {
+            logger.LogWarning("Identity package files do not match the pinned hashes; refusing to trust them");
+            return IdentitySetupResult.Failed;
+        }
+
+        using var cert = X509CertificateLoader.LoadCertificate(certificateBytes);
         var hresult = await RegisterAsync(package, folder, cancellationToken);
+        if (hresult is not null && IsUntrustedCertificate(hresult.Value))
+        {
+            // Trust for the current user first (no prompt) — only once Windows says it is needed.
+            AddToStore(cert, StoreLocation.CurrentUser);
+            hresult = await RegisterAsync(package, folder, cancellationToken);
+        }
+
         if (hresult is not null && IsUntrustedCertificate(hresult.Value) && !IsInStore(cert, StoreLocation.LocalMachine))
         {
             // Windows checks sideloaded packages against the machine store: one administrator prompt.
@@ -88,13 +114,18 @@ public sealed partial class PackageIdentityService(ILogger<PackageIdentityServic
                 await new global::Windows.Management.Deployment.PackageManager().RemovePackageAsync(fullName).AsTask();
             }
 
-            var certificate = Path.Combine(AppContext.BaseDirectory, CertificateFile);
-            if (File.Exists(certificate))
+            // Remove exactly the pinned certificate, never whatever file now sits in the install folder.
+            // The machine-store copy (if the user granted it) needs administrator rights; see README.
+            using var store = new X509Store(StoreName.TrustedPeople, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadWrite);
+            foreach (var cert in store.Certificates)
             {
-                using var cert = X509CertificateLoader.LoadCertificateFromFile(certificate);
-                using var store = new X509Store(StoreName.TrustedPeople, StoreLocation.CurrentUser);
-                store.Open(OpenFlags.ReadWrite);
-                store.Remove(cert);
+                if (string.Equals(cert.GetCertHashString(HashAlgorithmName.SHA256), CertificateSha256, StringComparison.OrdinalIgnoreCase))
+                {
+                    store.Remove(cert);
+                }
+
+                cert.Dispose();
             }
         }
         catch (Exception ex) when (ex is COMException or CryptographicException or IOException or UnauthorizedAccessException)
@@ -103,8 +134,16 @@ public sealed partial class PackageIdentityService(ILogger<PackageIdentityServic
         }
     }
 
-    /// <summary>CERT_E_UNTRUSTEDROOT, CERT_E_CHAINING and the AppX "signature untrusted" codes.</summary>
-    internal static bool IsUntrustedCertificate(int hresult) => unchecked((uint)hresult) is 0x800B0109 or 0x800B010A or 0x800B0100 or 0x80073CFF;
+    /// <summary>
+    /// Certificate-chain errors only (CERT_E_UNTRUSTEDROOT, CERT_E_CHAINING, TRUST_E_NOSIGNATURE). Generic
+    /// AppX policy errors — for example a tampered package — never lead to an elevation prompt.
+    /// </summary>
+    internal static bool IsUntrustedCertificate(int hresult) => unchecked((uint)hresult) is 0x800B0109 or 0x800B010A or 0x800B0100;
+
+    /// <summary>Whether the certificate bytes and the package hash are exactly the shipped ones.</summary>
+    internal static bool MatchesPinned(byte[] certificate, byte[] packageHash) =>
+        string.Equals(Convert.ToHexString(SHA256.HashData(certificate)), CertificateSha256, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(Convert.ToHexString(packageHash), PackageSha256, StringComparison.OrdinalIgnoreCase);
 
     private static string? FindPackage()
     {

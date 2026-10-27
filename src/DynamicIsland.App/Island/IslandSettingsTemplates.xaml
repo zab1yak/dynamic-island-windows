@@ -57,6 +57,7 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsTranslucent}" Value="True">
                                                     <Setter Property="Background" Value="{DynamicResource Brush.Blue}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -68,6 +69,7 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsBlack}" Value="True">
                                                     <Setter Property="Background" Value="{DynamicResource Brush.Blue}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -79,6 +81,7 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLightGray}" Value="True">
                                                     <Setter Property="Background" Value="{DynamicResource Brush.Blue}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -163,11 +166,12 @@
                                                 <ControlTemplate TargetType="ListBoxItem">
                                                     <Grid Margin="4,0,0,0" Height="26">
                                                         <c:SquircleBorder x:Name="Bg" CornerRadius="999" Background="{DynamicResource Brush.Surface2}" />
-                                                        <TextBlock Text="{Binding Label}" Style="{DynamicResource Text.Base}" FontSize="11" Margin="10,0" VerticalAlignment="Center" />
+                                                        <TextBlock x:Name="Label" Text="{Binding Label}" Style="{DynamicResource Text.Base}" FontSize="11" Margin="10,0" VerticalAlignment="Center" />
                                                     </Grid>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsSelected" Value="True">
                                                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Brush.Blue}" />
+                                                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -243,7 +247,7 @@
                                 <DataTrigger Binding="{Binding QuitArmed}" Value="True">
                                     <Setter Property="Content" Value="{loc:Tr Settings.QuitConfirm}" />
                                     <Setter Property="Background" Value="{DynamicResource Brush.Red}" />
-                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

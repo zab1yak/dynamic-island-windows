@@ -35,7 +35,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "makeappx failed ($LASTEXITCODE)" }
 
     $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=DynamicIsland Identity' `
-        -KeyUsage DigitalSignature -KeyAlgorithm RSA -KeyLength 3072 -HashAlgorithm SHA256 `
+        -KeyUsage DigitalSignature -KeyAlgorithm RSA -KeyLength 3072 -HashAlgorithm SHA256 -KeyExportPolicy NonExportable `
         -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddYears(20) `
         -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
     try {
@@ -43,6 +43,9 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "signtool failed ($LASTEXITCODE)" }
         Export-Certificate -Cert $cert -FilePath $cer -Type CERT | Out-Null
         "Signed with $($cert.Thumbprint)"
+        "Pin these in PackageIdentityService (CertificateSha256, PackageSha256):"
+        "  certificate SHA-256: " + $cert.GetCertHashString([System.Security.Cryptography.HashAlgorithmName]::SHA256)
+        "  package SHA-256:     " + (Get-FileHash $msix -Algorithm SHA256).Hash
     }
     finally {
         # The private key must not outlive the signature.

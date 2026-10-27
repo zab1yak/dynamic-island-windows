@@ -60,15 +60,19 @@ internal sealed partial class IslandSettingsViewModel : ObservableObject
         _time = time;
         _quitGate = new ConfirmGate(time);
         settings.Changed += (_, _) => _dispatcher.Post(Reload);
+        var wasExpanded = false;
         island.ModeChanged += (_, mode) =>
         {
-            if (IslandMetrics.IsExpanded(mode))
+            // Pick up changes made in the settings window, only when the island opens (not on pin/drop).
+            var expanded = IslandMetrics.IsExpanded(mode);
+            if (expanded && !wasExpanded)
             {
-                // Pick up changes made in the settings window or by the hotkey.
                 General.Reload();
                 Pages.Reload();
                 Reload();
             }
+
+            wasExpanded = expanded;
         };
         Reload();
     }
