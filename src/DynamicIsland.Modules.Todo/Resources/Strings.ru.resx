@@ -8,7 +8,7 @@
   <data name="Todo.Delete" xml:space="preserve"><value>Удалить</value></data>
   <data name="Todo.Edit" xml:space="preserve"><value>Редактировать задачи</value></data>
   <data name="Todo.Empty" xml:space="preserve"><value>Задач нет.</value></data>
-  <data name="Todo.Placeholder" xml:space="preserve"><value>Новая задача — Enter, чтобы добавить</value></data>
+  <data name="Todo.Placeholder" xml:space="preserve"><value>Новая задача — Enter добавить, Shift+Enter перенос</value></data>
   <data name="Todo.Rename" xml:space="preserve"><value>Переименовать</value></data>
   <data name="Todo.Summary" xml:space="preserve"><value>{0}/{1} задач выполнено сегодня</value></data>
   <data name="Todo.Title" xml:space="preserve"><value>Задачи</value></data>

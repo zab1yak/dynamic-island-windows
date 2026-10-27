@@ -8,7 +8,7 @@
   <data name="Todo.Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="Todo.Edit" xml:space="preserve"><value>Edit tasks</value></data>
   <data name="Todo.Empty" xml:space="preserve"><value>No tasks.</value></data>
-  <data name="Todo.Placeholder" xml:space="preserve"><value>New task — Enter to add</value></data>
+  <data name="Todo.Placeholder" xml:space="preserve"><value>New task — Enter to add, Shift+Enter for a new line</value></data>
   <data name="Todo.Rename" xml:space="preserve"><value>Rename</value></data>
   <data name="Todo.Summary" xml:space="preserve"><value>{0}/{1} tasks done today</value></data>
   <data name="Todo.Title" xml:space="preserve"><value>To-do</value></data>

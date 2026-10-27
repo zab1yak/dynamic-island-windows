@@ -136,7 +136,14 @@ public sealed class TodoList(TodoState state, TimeProvider time)
 
     private static string? Clean(string? title)
     {
-        var clean = string.Join(' ', (title ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        // Shift+Enter makes multi-line tasks: clean each line, drop empty ones, keep at most 5 lines.
+        var lines = (title ?? string.Empty)
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .Select(line => string.Join(' ', line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)))
+            .Where(line => line.Length > 0)
+            .Take(5);
+        var clean = string.Join('\n', lines);
         if (clean.Length == 0)
         {
             return null;

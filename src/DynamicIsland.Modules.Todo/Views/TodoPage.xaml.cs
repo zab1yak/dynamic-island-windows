@@ -26,7 +26,9 @@ public partial class TodoPage : UserControl
                 Dispatcher.BeginInvoke(() => NewTask.Focus(), System.Windows.Threading.DispatcherPriority.Input);
             }
         };
-        NewTask.KeyDown += OnNewTaskKey;
+        // PreviewKeyDown: a multi-line TextBox would otherwise consume Enter itself.
+        NewTask.PreviewKeyDown += OnNewTaskKey;
+        NewTask.GotKeyboardFocus += (_, _) => ViewModel?.SetTyping(true);
         NewTask.LostKeyboardFocus += (_, _) =>
         {
             if (ViewModel is not { } vm)
@@ -100,8 +102,9 @@ public partial class TodoPage : UserControl
             return;
         }
 
-        if (e.Key == Key.Enter)
+        if (e.Key == Key.Enter && !Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
         {
+            // Enter adds the task; Shift+Enter falls through and inserts a line break.
             vm.CommitAddCommand.Execute(null);
             e.Handled = true;
         }

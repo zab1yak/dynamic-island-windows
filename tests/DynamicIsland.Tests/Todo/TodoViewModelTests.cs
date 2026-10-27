@@ -75,4 +75,25 @@ public sealed class TodoViewModelTests : IDisposable
         await vm.DeleteCommand.ExecuteAsync(vm.Items[0]);
         Assert.True(vm.IsEmpty);
     }
+
+    [Fact]
+    public async Task Tasks_are_saved_to_todos_json_and_the_old_file_is_migrated()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await File.WriteAllTextAsync(Path.Combine(_temp.Path, TodoViewModel.LegacyFileName),
+            """{ "items": [ { "title": "from v0.1.0" } ] }""", ct);
+
+        var vm = new TodoViewModel(_storage, _time, _host);
+        await vm.LoadAsync(ct);
+
+        Assert.Equal("from v0.1.0", Assert.Single(vm.Items).Title);
+        Assert.True(File.Exists(Path.Combine(_temp.Path, TodoViewModel.FileName)));
+        Assert.False(File.Exists(Path.Combine(_temp.Path, TodoViewModel.LegacyFileName)));
+
+        vm.NewTitle = "second";
+        await vm.CommitAddCommand.ExecuteAsync(null);
+        var reopened = new TodoViewModel(_storage, _time, _host);
+        await reopened.LoadAsync(ct);
+        Assert.Equal(["second", "from v0.1.0"], reopened.Items.Select(i => i.Title));
+    }
 }

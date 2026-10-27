@@ -32,7 +32,10 @@ public sealed partial class TodoItemViewModel(TodoItem item) : ObservableObject
 public sealed partial class TodoViewModel : ObservableObject
 {
     /// <summary>File name relative to the data folder.</summary>
-    public const string FileName = "todo.json";
+    public const string FileName = "todos.json";
+
+    /// <summary>File name used by v0.1.0; read once and replaced by <see cref="FileName"/>.</summary>
+    public const string LegacyFileName = "todo.json";
 
     private readonly IStorageService _storage;
     private readonly TimeProvider _time;
@@ -69,10 +72,30 @@ public sealed partial class TodoViewModel : ObservableObject
     /// <summary>Loads saved tasks.</summary>
     public async Task LoadAsync(CancellationToken cancellationToken)
     {
-        var state = await _storage.LoadAsync<TodoState>(FileName, cancellationToken) ?? new TodoState();
+        var state = await _storage.LoadAsync<TodoState>(FileName, cancellationToken);
+        if (state is null && await _storage.LoadAsync<TodoState>(LegacyFileName, cancellationToken) is { } legacy)
+        {
+            state = legacy;
+            await _storage.SaveAsync(FileName, legacy, cancellationToken);
+            TryDelete(_storage.ResolvePath(LegacyFileName));
+        }
+
+        state ??= new TodoState();
         state.Items ??= [];
         _list = new TodoList(state, _time);
         Reload();
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Harmless: the new file is already written and wins on the next start.
+        }
     }
 
     /// <summary>Saves the list.</summary>

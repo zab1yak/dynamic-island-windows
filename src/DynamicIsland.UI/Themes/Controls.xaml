@@ -172,8 +172,8 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Surface1}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Text}" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="Padding" Value="10,6" />
-        <Setter Property="Height" Value="30" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="MinHeight" Value="30" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>

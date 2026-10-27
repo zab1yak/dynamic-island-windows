@@ -37,6 +37,8 @@
 
             <TextBox x:Name="NewTask" Style="{DynamicResource TextField}" Tag="{loc:Tr Todo.Placeholder}"
                      Text="{Binding NewTitle, UpdateSourceTrigger=PropertyChanged}" MaxLength="200" Margin="0,0,0,6"
+                     AcceptsReturn="True" TextWrapping="Wrap" MaxHeight="64" Padding="10,6"
+                     AutomationProperties.Name="{loc:Tr Todo.Placeholder}"
                      Visibility="{Binding IsAdding, Converter={StaticResource BoolToVisibility}}" />
 
             <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -70,7 +72,7 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type t:TodoItemViewModel}">
-                        <Grid Height="26">
+                        <Grid MinHeight="26">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -89,7 +91,7 @@
                                             StrokeThickness="3" Opacity="0" />
                                 </Grid>
                             </Button>
-                            <TextBlock x:Name="Title" Grid.Column="1" Text="{Binding Title}" Style="{DynamicResource Text.Base}" Margin="6,0"
+                            <TextBlock x:Name="Title" Grid.Column="1" Text="{Binding Title}" Style="{DynamicResource Text.Base}" Margin="6,3" TextWrapping="Wrap"
                                        VerticalAlignment="Center" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
                             <TextBox Grid.Column="1" Style="{DynamicResource TextField}" Height="24" Padding="6,2" Margin="4,0" MaxLength="200" c:FocusOnVisible.Enabled="True"
                                      Text="{Binding Draft, UpdateSourceTrigger=PropertyChanged}" Tag="{Binding Title}"

@@ -1,11 +1,38 @@
 {
-  "Todo.Title": { "en": "To-do", "ru": "Задачи" },
-  "Todo.Summary": { "en": "{0}/{1} tasks done today", "ru": "{0}/{1} задач выполнено сегодня" },
-  "Todo.Add": { "en": "Add Task", "ru": "Добавить" },
-  "Todo.Edit": { "en": "Edit tasks", "ru": "Редактировать задачи" },
-  "Todo.Placeholder": { "en": "New task — Enter to add", "ru": "Новая задача — Enter, чтобы добавить" },
-  "Todo.Empty": { "en": "No tasks.", "ru": "Задач нет." },
-  "Todo.Toggle": { "en": "Mark done", "ru": "Отметить выполненной" },
-  "Todo.Rename": { "en": "Rename", "ru": "Переименовать" },
-  "Todo.Delete": { "en": "Delete", "ru": "Удалить" }
+  "Todo.Title": {
+    "en": "To-do",
+    "ru": "Задачи"
+  },
+  "Todo.Summary": {
+    "en": "{0}/{1} tasks done today",
+    "ru": "{0}/{1} задач выполнено сегодня"
+  },
+  "Todo.Add": {
+    "en": "Add Task",
+    "ru": "Добавить"
+  },
+  "Todo.Edit": {
+    "en": "Edit tasks",
+    "ru": "Редактировать задачи"
+  },
+  "Todo.Placeholder": {
+    "en": "New task — Enter to add, Shift+Enter for a new line",
+    "ru": "Новая задача — Enter добавить, Shift+Enter перенос"
+  },
+  "Todo.Empty": {
+    "en": "No tasks.",
+    "ru": "Задач нет."
+  },
+  "Todo.Toggle": {
+    "en": "Mark done",
+    "ru": "Отметить выполненной"
+  },
+  "Todo.Rename": {
+    "en": "Rename",
+    "ru": "Переименовать"
+  },
+  "Todo.Delete": {
+    "en": "Delete",
+    "ru": "Удалить"
+  }
 }

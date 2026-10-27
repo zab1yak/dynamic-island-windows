@@ -30,8 +30,39 @@ public static class WindowInterop
         NativeMethods.SetWindowLongPtr(hwnd, NativeMethods.GWL_EXSTYLE, (nint)style);
         if (activatable)
         {
-            // Allowed: the user just clicked our window, so we own the last input event.
+            ForceForeground(hwnd);
+        }
+    }
+
+    /// <summary>
+    /// Brings <paramref name="hwnd"/> to the foreground so it receives the keyboard. Windows may refuse
+    /// <c>SetForegroundWindow</c> to a background process (foreground lock); attaching to the input
+    /// queue of the current foreground thread for the duration of the call is the documented way
+    /// around it for a window the user is interacting with.
+    /// </summary>
+    public static void ForceForeground(nint hwnd)
+    {
+        if (NativeMethods.SetForegroundWindow(hwnd) && NativeMethods.GetForegroundWindow() == hwnd)
+        {
+            return;
+        }
+
+        var foreground = NativeMethods.GetForegroundWindow();
+        var foregroundThread = NativeMethods.GetWindowThreadProcessId(foreground, out _);
+        var ourThread = NativeMethods.GetCurrentThreadId();
+        var attached = foregroundThread != 0 && foregroundThread != ourThread && NativeMethods.AttachThreadInput(ourThread, foregroundThread, true);
+        try
+        {
+            NativeMethods.BringWindowToTop(hwnd);
             NativeMethods.SetForegroundWindow(hwnd);
+            NativeMethods.SetFocus(hwnd);
+        }
+        finally
+        {
+            if (attached)
+            {
+                NativeMethods.AttachThreadInput(ourThread, foregroundThread, false);
+            }
         }
     }
 

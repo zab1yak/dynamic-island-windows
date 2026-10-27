@@ -98,4 +98,11 @@ public sealed class TodoListTests
         Assert.Equal(TodoList.MaxItems, list.Items.Count);
         Assert.DoesNotContain(list.Items, i => i.Id == done.Id);
     }
+
+    [Fact]
+    public void Shift_enter_line_breaks_are_kept_and_cleaned()
+    {
+        var item = NewList().Add("  buy \r\n\r\n  milk   and bread \n");
+        Assert.Equal("buy\nmilk and bread", item!.Title);
+    }
 }

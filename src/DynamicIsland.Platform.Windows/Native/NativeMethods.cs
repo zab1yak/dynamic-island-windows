@@ -142,6 +142,20 @@ internal static unsafe partial class NativeMethods
     public static partial bool SetForegroundWindow(nint hWnd);
 
     [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool BringWindowToTop(nint hWnd);
+
+    [LibraryImport("user32.dll")]
+    public static partial nint SetFocus(nint hWnd);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool AttachThreadInput(uint idAttach, uint idAttachTo, [MarshalAs(UnmanagedType.Bool)] bool fAttach);
+
+    [LibraryImport("kernel32.dll")]
+    public static partial uint GetCurrentThreadId();
+
+    [LibraryImport("user32.dll")]
     public static partial nint SetWinEventHook(uint eventMin, uint eventMax, nint hmodWinEventProc,
         delegate* unmanaged<nint, uint, nint, int, int, uint, uint, void> pfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
 
