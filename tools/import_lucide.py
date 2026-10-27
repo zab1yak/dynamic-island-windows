@@ -75,6 +75,18 @@ ICONS = {
     "Download": "download",
     "LayoutGrid": "layout-grid",
     "Sparkles": "sparkles",
+    "Globe": "globe",
+    "Record": "circle-dot",
+    "Stop": "square",
+    "AudioLines": "audio-lines",
+    "Cpu": "cpu",
+    "Activity": "activity",
+    "Gauge": "gauge",
+    "BellRing": "bell-ring",
+    "Wrench": "wrench",
+    "Volume": "volume-2",
+    "MicOff": "mic-off",
+    "Cast": "cast",
 }
 
 NUM = r"-?\d*\.?\d+(?:e-?\d+)?"

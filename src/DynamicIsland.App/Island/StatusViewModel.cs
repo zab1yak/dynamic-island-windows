@@ -29,8 +29,16 @@ internal sealed partial class StatusViewModel : ObservableObject
     [ObservableProperty]
     private string _privacyText = string.Empty;
 
-    public StatusViewModel(IBatteryService battery, IPrivacyMonitor privacy)
+    /// <summary>Tab title of the browser in the foreground, or null.</summary>
+    [ObservableProperty]
+    private string? _browserTitle;
+
+    private readonly DynamicIsland.Platform.Windows.Status.ForegroundBrowserWatcher _browser;
+
+    public StatusViewModel(IBatteryService battery, IPrivacyMonitor privacy, DynamicIsland.Platform.Windows.Status.ForegroundBrowserWatcher browser)
     {
+        _browser = browser;
+        browser.Changed += (_, _) => BrowserTitle = browser.TabTitle;
         _battery = battery;
         _privacy = privacy;
         battery.Changed += (_, _) => UpdateBattery();
@@ -43,6 +51,8 @@ internal sealed partial class StatusViewModel : ObservableObject
     {
         _battery.Start();
         _privacy.Start();
+        _browser.Start();
+        BrowserTitle = _browser.TabTitle;
         UpdateBattery();
         UpdatePrivacy();
     }

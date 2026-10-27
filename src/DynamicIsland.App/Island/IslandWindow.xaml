@@ -111,7 +111,16 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="PageTitle" Grid.Column="0" Text="{Binding Modules.CurrentTitle}" Style="{DynamicResource Island.HeaderPrimary}" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock x:Name="PageTitle" Text="{Binding Modules.CurrentTitle}" Style="{DynamicResource Island.HeaderPrimary}" />
+                        <!-- Active browser tab (only when a browser is in the foreground). -->
+                        <StackPanel Orientation="Horizontal" Margin="0,1,8,0"
+                                    Visibility="{Binding Status.BrowserTitle, Converter={StaticResource NullToVisibility}}">
+                            <c:Icon Glyph="Globe" Width="10" Height="10" Foreground="{DynamicResource Brush.TextSecondary}" Margin="0,0,4,0" />
+                            <c:MarqueeText Text="{Binding Status.BrowserTitle}" TextStyle="{DynamicResource Text.Secondary}" Width="150"
+                                           ToolTip="{Binding Status.BrowserTitle}" />
+                        </StackPanel>
+                    </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <c:BatteryIndicator Status="{Binding Status.BatteryStatus}" Height="16" Margin="0,0,5,0" />
                         <TextBlock Text="{Binding Status.BatteryText}" Style="{DynamicResource Island.HeaderSecondary}" Margin="0,0,10,0" />

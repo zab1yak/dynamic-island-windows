@@ -125,6 +125,12 @@ internal static unsafe partial class NativeMethods
     public static partial nint GetShellWindow();
 
     [LibraryImport("user32.dll")]
+    public static partial uint GetWindowThreadProcessId(nint hWnd, out uint lpdwProcessId);
+
+    [LibraryImport("user32.dll", EntryPoint = "GetWindowTextW")]
+    public static partial int GetWindowText(nint hWnd, char* lpString, int nMaxCount);
+
+    [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool IsZoomed(nint hWnd);
 

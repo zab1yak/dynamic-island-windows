@@ -52,6 +52,7 @@ internal static class AppHostBuilder
         services.AddSingleton<IBatteryService, BatteryService>();
         services.AddSingleton<PrivacyMonitor>();
         services.AddSingleton<IPrivacyMonitor>(sp => sp.GetRequiredService<PrivacyMonitor>());
+        services.AddSingleton<ForegroundBrowserWatcher>();
         services.AddSingleton<StatusViewModel>();
         services.AddSingleton<LiveActivityHost>();
         services.AddSingleton<ModuleHost>();
