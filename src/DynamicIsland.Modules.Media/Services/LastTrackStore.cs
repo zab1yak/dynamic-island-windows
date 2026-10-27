@@ -34,6 +34,13 @@ public sealed class SavedTrack
 /// Persists the playing track so that after a reboot the island can show it paused at the same
 /// position. Saves on track change, on pause/stop, every <see cref="PeriodicInterval"/> while
 /// playing, and when Windows ends the session; never more often than needed.
+/// <para>
+/// After a restart the saved position is protected: players that come back with the same track
+/// report 0:00 (or a few seconds from a stale timestamp) and a closing player reports Stopped at 0.
+/// Neither may overwrite the saved position. The protection ends when the same track reaches the
+/// saved position (or the user seeks past it), plays for <see cref="RestoreGuardPlayTime"/>, or a
+/// different track appears.
+/// </para>
 /// </summary>
 public sealed class LastTrackStore(IStorageService storage, TimeProvider time) : IDisposable
 {
@@ -46,6 +53,9 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
     /// <summary>Periodic save interval while playing.</summary>
     public static readonly TimeSpan PeriodicInterval = TimeSpan.FromSeconds(5);
 
+    /// <summary>How long a reopened track must play before a smaller position may replace the saved one.</summary>
+    public static readonly TimeSpan RestoreGuardPlayTime = TimeSpan.FromSeconds(10);
+
     private const int KeepArtworkFiles = 8;
     private const long MaxArtworkBytes = 4 * 1024 * 1024;
     private bool _saving;
@@ -54,6 +64,8 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
     private SavedTrack? _last;
     private PlaybackState _lastState;
     private DateTimeOffset _lastSaved = DateTimeOffset.MinValue;
+    private bool _guardArmed;
+    private DateTimeOffset? _guardPlayingSince;
 
     /// <inheritdoc />
     public void Dispose() => _gate.Dispose();
@@ -72,7 +84,18 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
             return false;
         }
 
+        // Stopped means closed or unknown: its position is meaningless (players report 0 when they exit).
+        if (snapshot.State == PlaybackState.Stopped)
+        {
+            return false;
+        }
+
         var now = time.GetUtcNow();
+        if (IsGuarded(snapshot, now))
+        {
+            return false;
+        }
+
         var trackChanged = _last is null || _last.AppId != snapshot.AppId || _last.Title != snapshot.Title || _last.Artist != snapshot.Artist;
         var stateChanged = snapshot.State != _lastState;
         var periodic = snapshot.IsPlaying && now - _lastSaved >= PeriodicInterval;
@@ -105,6 +128,10 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
         }
 
         _last = track;
+        _lastState = PlaybackState.Paused;
+        _lastSaved = time.GetUtcNow();
+        _guardArmed = true;
+        _guardPlayingSince = null;
         return (track, artwork);
     }
 
@@ -117,6 +144,37 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
     /// <summary>Artwork names are always <c>&lt;sha256&gt;.img</c>; anything else is ignored.</summary>
     internal static bool IsSafeArtworkName(string? name) =>
         name is { Length: 68 } && name.EndsWith(".img", StringComparison.Ordinal) && name[..64].All(char.IsAsciiHexDigitLower);
+
+    private bool IsGuarded(MediaSnapshot snapshot, DateTimeOffset now)
+    {
+        if (!_guardArmed || _last is null)
+        {
+            return false;
+        }
+
+        var sameTrack = _last.AppId == snapshot.AppId && _last.Title == snapshot.Title && _last.Artist == snapshot.Artist;
+        var position = PositionInterpolator.At(snapshot, now).TotalSeconds;
+        if (!sameTrack || position >= _last.PositionSeconds - 1)
+        {
+            _guardArmed = false;
+            return false;
+        }
+
+        if (!snapshot.IsPlaying)
+        {
+            _guardPlayingSince = null;
+            return true;
+        }
+
+        _guardPlayingSince ??= now;
+        if (now - _guardPlayingSince.Value >= RestoreGuardPlayTime)
+        {
+            _guardArmed = false;
+            return false;
+        }
+
+        return true;
+    }
 
     private async Task SaveAsync(MediaSnapshot snapshot, DateTimeOffset now, bool writeArtwork)
     {

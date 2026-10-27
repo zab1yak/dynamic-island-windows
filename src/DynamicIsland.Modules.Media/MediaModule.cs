@@ -63,19 +63,17 @@ public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource so
         await source.StartAsync(cancellationToken);
         viewModel.Refresh();
 
-        if (source.Sessions.Count == 0)
+        // Loading also protects the saved position from the 0:00 the player reports when it comes back.
+        try
         {
-            try
+            if (await store.LoadAsync(cancellationToken) is { } saved && source.Sessions.Count == 0)
             {
-                if (await store.LoadAsync(cancellationToken) is { } saved)
-                {
-                    viewModel.ShowRestored(LastTrackStore.ToSnapshot(saved.Track, saved.Artwork));
-                }
+                viewModel.ShowRestored(LastTrackStore.ToSnapshot(saved.Track, saved.Artwork));
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                logger.LogWarning(ex, "Last track could not be restored");
-            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(ex, "Last track could not be restored");
         }
     }
 
@@ -138,7 +136,10 @@ public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource so
 
         try
         {
-            await store.OnSnapshotAsync(viewModel.CurrentSnapshot, force);
+            if (await store.OnSnapshotAsync(viewModel.CurrentSnapshot, force) && viewModel.CurrentSnapshot is { } saved)
+            {
+                logger.LogDebug("Last track saved ({Reason}, {State}, {Position:0} s)", force ? "flush" : "change or timer", saved.State, saved.Position.TotalSeconds);
+            }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

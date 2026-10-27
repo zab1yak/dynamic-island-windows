@@ -65,6 +65,85 @@ public sealed class LastTrackStoreTests : IDisposable
         Assert.True(await _store.OnSnapshotAsync(track with { Title = "Other", State = PlaybackState.Paused }, force: true));
     }
 
+    private async Task<LastTrackStore> RebootWithSavedAsync(double positionSeconds)
+    {
+        Assert.True(await _store.OnSnapshotAsync(Snapshots.Track(state: PlaybackState.Paused, positionSeconds: positionSeconds), force: true));
+        var fresh = new LastTrackStore(_storage, _time);
+        Assert.NotNull(await fresh.LoadAsync(TestContext.Current.CancellationToken));
+        return fresh;
+    }
+
+    private async Task<double> SavedPositionAsync()
+    {
+        var reread = new LastTrackStore(_storage, _time);
+        var loaded = await reread.LoadAsync(TestContext.Current.CancellationToken);
+        reread.Dispose();
+        return loaded!.Value.Track.PositionSeconds;
+    }
+
+    [Fact]
+    public async Task Stopped_session_at_zero_never_overwrites_the_position()
+    {
+        Assert.True(await _store.OnSnapshotAsync(Snapshots.Track(state: PlaybackState.Paused, positionSeconds: 125)));
+
+        // The player closes: Windows reports Stopped at 0, then the app flushes on exit.
+        Assert.False(await _store.OnSnapshotAsync(Snapshots.Track(state: PlaybackState.Stopped, positionSeconds: 0), force: true));
+
+        Assert.Equal(125, await SavedPositionAsync(), 3);
+    }
+
+    [Fact]
+    public async Task After_reboot_the_same_track_at_three_seconds_does_not_replace_the_saved_position()
+    {
+        using var store = await RebootWithSavedAsync(125);
+
+        // Spotify comes back with the same track paused at 0, or "playing" from a stale timestamp (0:03).
+        Assert.False(await store.OnSnapshotAsync(Snapshots.Track(state: PlaybackState.Paused, positionSeconds: 0)));
+        Assert.False(await store.OnSnapshotAsync(Snapshots.Track(state: PlaybackState.Paused, positionSeconds: 3), force: true));
+        _time.Advance(TimeSpan.FromSeconds(3));
+        Assert.False(await store.OnSnapshotAsync(Snapshots.Track(positionSeconds: 0, updated: Snapshots.T0)));
+
+        Assert.Equal(125, await SavedPositionAsync(), 3);
+    }
+
+    [Fact]
+    public async Task Resuming_at_the_saved_position_or_seeking_past_it_saves_again()
+    {
+        using var store = await RebootWithSavedAsync(125);
+
+        _time.Advance(TimeSpan.FromSeconds(2));
+        Assert.True(await store.OnSnapshotAsync(Snapshots.Track(positionSeconds: 125, updated: _time.GetUtcNow())));
+        _time.Advance(TimeSpan.FromSeconds(5));
+        Assert.True(await store.OnSnapshotAsync(Snapshots.Track(positionSeconds: 125, updated: _time.GetUtcNow() - TimeSpan.FromSeconds(5))));
+
+        Assert.Equal(130, await SavedPositionAsync(), 3);
+    }
+
+    [Fact]
+    public async Task Restarting_the_track_on_purpose_is_saved_after_ten_seconds_of_play()
+    {
+        using var store = await RebootWithSavedAsync(125);
+        var start = _time.GetUtcNow();
+
+        Assert.False(await store.OnSnapshotAsync(Snapshots.Track(positionSeconds: 0, updated: start)));
+        _time.Advance(TimeSpan.FromSeconds(9));
+        Assert.False(await store.OnSnapshotAsync(Snapshots.Track(positionSeconds: 0, updated: start)));
+        _time.Advance(LastTrackStore.RestoreGuardPlayTime - TimeSpan.FromSeconds(9));
+        Assert.True(await store.OnSnapshotAsync(Snapshots.Track(positionSeconds: 0, updated: start)));
+
+        Assert.Equal(10, await SavedPositionAsync(), 3);
+    }
+
+    [Fact]
+    public async Task A_different_track_after_reboot_is_saved_at_once()
+    {
+        using var store = await RebootWithSavedAsync(125);
+
+        Assert.True(await store.OnSnapshotAsync(Snapshots.Track(state: PlaybackState.Paused, positionSeconds: 4) with { Title = "Other" }));
+
+        Assert.Equal(4, await SavedPositionAsync(), 3);
+    }
+
     [Fact]
     public async Task Empty_titles_are_not_saved()
     {
