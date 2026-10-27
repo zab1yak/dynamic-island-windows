@@ -214,8 +214,18 @@ public sealed class WaterModule(WaterViewModel viewModel) : IIslandModule
     /// <inheritdoc />
     public object ExpandedViewModel => viewModel;
 
+    private WaterSettingsViewModel? _settings;
+
     /// <inheritdoc />
-    public object? SettingsViewModel => null;
+    public object? SettingsViewModel
+    {
+        get
+        {
+            _settings ??= new WaterSettingsViewModel(viewModel);
+            _settings.Reload();
+            return _settings;
+        }
+    }
 
     /// <inheritdoc />
     public ILiveActivitySource? LiveActivities => viewModel;

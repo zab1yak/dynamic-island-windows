@@ -54,6 +54,12 @@ internal static class AppHostBuilder
         services.AddSingleton<StatusViewModel>();
         services.AddSingleton<LiveActivityHost>();
         services.AddSingleton<ModuleHost>();
+        services.AddSingleton<DynamicIsland.Platform.Windows.Startup.AutostartService>();
+        services.AddSingleton<DynamicIsland.App.Settings.GeneralSettingsViewModel>();
+        services.AddSingleton<DynamicIsland.App.Settings.ModulesSettingsViewModel>();
+        services.AddSingleton<DynamicIsland.App.Settings.AboutViewModel>();
+        services.AddSingleton<DynamicIsland.App.Settings.SettingsViewModel>();
+        services.AddSingleton<DynamicIsland.App.Settings.SettingsWindow>();
         services.AddSingleton<IslandHostService>();
         services.AddSingleton<IIslandHost>(sp => sp.GetRequiredService<IslandHostService>());
         services.AddSingleton<IslandViewModel>();

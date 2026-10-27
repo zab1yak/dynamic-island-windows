@@ -58,5 +58,33 @@
   "Shelf.ExecutableRevealed": {
     "en": "Programs are shown in Explorer instead of being run",
     "ru": "Программы не запускаются по клику — показываю в проводнике"
+  },
+  "Shelf.CopyMode": {
+    "en": "Keep copies of files",
+    "ru": "Хранить копии файлов"
+  },
+  "Shelf.CopyModeHint": {
+    "en": "Off: the shelf only remembers where the original is (no disk space used).",
+    "ru": "Выключено: полка только помнит, где лежит оригинал (место на диске не занимается)."
+  },
+  "Shelf.Cleanup": {
+    "en": "Remove items after (0 = never)",
+    "ru": "Удалять через (0 — никогда)"
+  },
+  "Shelf.Days": {
+    "en": "days",
+    "ru": "дн."
+  },
+  "Shelf.Limit": {
+    "en": "Size limit",
+    "ru": "Лимит размера"
+  },
+  "Shelf.Mb": {
+    "en": "MB",
+    "ru": "МБ"
+  },
+  "Shelf.OpenFolder": {
+    "en": "Open folder",
+    "ru": "Открыть папку"
   }
 }

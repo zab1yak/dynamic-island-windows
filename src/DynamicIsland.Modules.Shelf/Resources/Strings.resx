@@ -4,14 +4,21 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Shelf.Cleanup" xml:space="preserve"><value>Remove items after (0 = never)</value></data>
   <data name="Shelf.ClearAll" xml:space="preserve"><value>Clear all</value></data>
+  <data name="Shelf.CopyMode" xml:space="preserve"><value>Keep copies of files</value></data>
+  <data name="Shelf.CopyModeHint" xml:space="preserve"><value>Off: the shelf only remembers where the original is (no disk space used).</value></data>
   <data name="Shelf.CopyPath" xml:space="preserve"><value>Copy path</value></data>
+  <data name="Shelf.Days" xml:space="preserve"><value>days</value></data>
   <data name="Shelf.DropHere" xml:space="preserve"><value>Drop files here</value></data>
   <data name="Shelf.DropHint" xml:space="preserve"><value>Drag out anytime · click to open</value></data>
   <data name="Shelf.ExecutableRevealed" xml:space="preserve"><value>Programs are shown in Explorer instead of being run</value></data>
   <data name="Shelf.Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Shelf.Limit" xml:space="preserve"><value>Size limit</value></data>
+  <data name="Shelf.Mb" xml:space="preserve"><value>MB</value></data>
   <data name="Shelf.Open" xml:space="preserve"><value>Open</value></data>
   <data name="Shelf.OpenFailed" xml:space="preserve"><value>The file could not be opened</value></data>
+  <data name="Shelf.OpenFolder" xml:space="preserve"><value>Open folder</value></data>
   <data name="Shelf.Paste" xml:space="preserve"><value>Paste from clipboard (Ctrl+V)</value></data>
   <data name="Shelf.PasteShort" xml:space="preserve"><value>Paste</value></data>
   <data name="Shelf.Remove" xml:space="preserve"><value>Remove</value></data>

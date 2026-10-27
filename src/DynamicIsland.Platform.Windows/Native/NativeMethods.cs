@@ -156,6 +156,9 @@ internal static unsafe partial class NativeMethods
     [LibraryImport("shell32.dll")]
     public static partial int SHQueryUserNotificationState(out int pquns);
 
+    [LibraryImport("dwmapi.dll")]
+    public static partial int DwmSetWindowAttribute(nint hwnd, int attribute, ref int value, int size);
+
     [LibraryImport("shell32.dll")]
     public static partial nuint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
 

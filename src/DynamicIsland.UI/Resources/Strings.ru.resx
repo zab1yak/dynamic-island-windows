@@ -15,6 +15,39 @@
   <data name="Privacy.Camera" xml:space="preserve"><value>Камера</value></data>
   <data name="Privacy.Microphone" xml:space="preserve"><value>Микрофон</value></data>
   <data name="Privacy.Recording" xml:space="preserve"><value>Запись экрана</value></data>
+  <data name="Settings.About" xml:space="preserve"><value>О программе</value></data>
+  <data name="Settings.Autostart" xml:space="preserve"><value>Запускать вместе с Windows</value></data>
+  <data name="Settings.CheckNow" xml:space="preserve"><value>Проверить обновления</value></data>
+  <data name="Settings.CheckUpdates" xml:space="preserve"><value>Проверять обновления автоматически</value></data>
+  <data name="Settings.CollapseDelay" xml:space="preserve"><value>Сворачивать после ухода курсора через</value></data>
+  <data name="Settings.Display" xml:space="preserve"><value>Монитор</value></data>
+  <data name="Settings.ExpandDelay" xml:space="preserve"><value>Раскрывать при наведении через</value></data>
+  <data name="Settings.General" xml:space="preserve"><value>Основные</value></data>
+  <data name="Settings.HideFullscreen" xml:space="preserve"><value>Прятать поверх полноэкранных приложений и игр</value></data>
+  <data name="Settings.Hotkey" xml:space="preserve"><value>Горячая клавиша</value></data>
+  <data name="Settings.HotkeyInvalid" xml:space="preserve"><value>Нужен хотя бы один модификатор (Ctrl, Alt, Shift или Win) и клавиша</value></data>
+  <data name="Settings.HotkeyPress" xml:space="preserve"><value>Нажмите сочетание</value></data>
+  <data name="Settings.IconsCredit" xml:space="preserve"><value>Иконки: Lucide (лицензия ISC), lucide.dev. Шрифты: SF Pro, если установлен, иначе Segoe UI Variable.</value></data>
+  <data name="Settings.Island" xml:space="preserve"><value>Остров</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Язык</value></data>
+  <data name="Settings.LanguageSystem" xml:space="preserve"><value>Как в Windows</value></data>
+  <data name="Settings.Licenses" xml:space="preserve"><value>Лицензии сторонних компонентов</value></data>
+  <data name="Settings.Modules" xml:space="preserve"><value>Страницы</value></data>
+  <data name="Settings.ModulesHint" xml:space="preserve"><value>Включайте страницы и меняйте их порядок</value></data>
+  <data name="Settings.Monitor" xml:space="preserve"><value>Монитор</value></data>
+  <data name="Settings.MonitorPrimary" xml:space="preserve"><value>Основной монитор</value></data>
+  <data name="Settings.MoveDown" xml:space="preserve"><value>Ниже</value></data>
+  <data name="Settings.MoveUp" xml:space="preserve"><value>Выше</value></data>
+  <data name="Settings.Ms" xml:space="preserve"><value>мс</value></data>
+  <data name="Settings.Open" xml:space="preserve"><value>Открыть</value></data>
+  <data name="Settings.Primary" xml:space="preserve"><value>основной</value></data>
+  <data name="Settings.Recording" xml:space="preserve"><value>Индикатор записи экрана</value></data>
+  <data name="Settings.RecordingHint" xml:space="preserve"><value>Эвристика: красная точка, пока запущена известная программа записи (OBS, ShareX…), даже если запись не идёт.</value></data>
+  <data name="Settings.Size" xml:space="preserve"><value>Размер острова</value></data>
+  <data name="Settings.Title" xml:space="preserve"><value>Настройки Dynamic Island</value></data>
+  <data name="Settings.UpdatesChecking" xml:space="preserve"><value>Проверяю…</value></data>
+  <data name="Settings.UpdatesUnavailable" xml:space="preserve"><value>Обновления работают в установленной версии</value></data>
+  <data name="Settings.Version" xml:space="preserve"><value>Версия</value></data>
   <data name="Tray.Exit" xml:space="preserve"><value>Выход</value></data>
   <data name="Tray.Restart" xml:space="preserve"><value>Перезапустить</value></data>
   <data name="Tray.Settings" xml:space="preserve"><value>Настройки…</value></data>

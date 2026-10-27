@@ -22,6 +22,7 @@ public partial class App : Application
     private readonly SingleInstance _instance;
     private readonly ILogger<App> _logger;
     private IslandWindow? _island;
+    private bool _settingsCreated;
 
     internal App(IHost host, CommandLine commandLine, SingleInstance instance)
     {
@@ -46,6 +47,10 @@ public partial class App : Application
         try
         {
             _island?.CloseForExit();
+            if (_settingsCreated)
+            {
+                _host.Services.GetRequiredService<Settings.SettingsWindow>().CloseForExit();
+            }
             Task.Run(() => _host.Services.GetRequiredService<ModuleHost>().ShutdownAsync()).GetAwaiter().GetResult();
             _host.Services.GetRequiredService<TrayIconService>().Dispose();
             // Off the UI thread: a hosted service waiting for the dispatcher must not deadlock us.
@@ -87,7 +92,10 @@ public partial class App : Application
             await settings.LoadAsync();
             Loc.Instance.SetLanguage(settings.Current.Language);
 
+            settings.Changed += (_, _) => Loc.Instance.SetLanguage(settings.Current.Language);
             var tray = services.GetRequiredService<TrayIconService>();
+            tray.SettingsRequested += (_, _) => OpenSettings(null);
+            services.GetRequiredService<IslandHostService>().SettingsRequested += (_, section) => OpenSettings(section);
             tray.Show();
 
             await services.GetRequiredService<ModuleHost>().InitializeAsync(CancellationToken.None);
@@ -139,9 +147,21 @@ public partial class App : Application
         }
     }
 
+    private void OpenSettings(string? section)
+    {
+        // Created on first use only: modules must be initialized before their settings pages exist.
+        _settingsCreated = true;
+        _host.Services.GetRequiredService<Settings.SettingsWindow>().ShowSection(section);
+    }
+
     private void HandleArguments(CommandLine commandLine)
     {
         _logger.LogDebug("Arguments: {CommandLine}", commandLine);
+        if (commandLine.OpenSettings && _island is not null)
+        {
+            OpenSettings(null);
+        }
+
 #if DEBUG
         if (commandLine.Showcase)
         {

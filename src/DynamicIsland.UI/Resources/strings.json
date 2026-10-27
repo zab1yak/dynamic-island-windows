@@ -62,5 +62,137 @@
   "Island.NextPage": {
     "en": "Next page",
     "ru": "Следующая страница"
+  },
+  "Settings.Title": {
+    "en": "Dynamic Island Settings",
+    "ru": "Настройки Dynamic Island"
+  },
+  "Settings.General": {
+    "en": "General",
+    "ru": "Основные"
+  },
+  "Settings.Island": {
+    "en": "Island",
+    "ru": "Остров"
+  },
+  "Settings.Modules": {
+    "en": "Pages",
+    "ru": "Страницы"
+  },
+  "Settings.About": {
+    "en": "About",
+    "ru": "О программе"
+  },
+  "Settings.Autostart": {
+    "en": "Start with Windows",
+    "ru": "Запускать вместе с Windows"
+  },
+  "Settings.Language": {
+    "en": "Language",
+    "ru": "Язык"
+  },
+  "Settings.LanguageSystem": {
+    "en": "As in Windows",
+    "ru": "Как в Windows"
+  },
+  "Settings.HideFullscreen": {
+    "en": "Hide over fullscreen apps and games",
+    "ru": "Прятать поверх полноэкранных приложений и игр"
+  },
+  "Settings.Recording": {
+    "en": "Screen recording indicator",
+    "ru": "Индикатор записи экрана"
+  },
+  "Settings.RecordingHint": {
+    "en": "Heuristic: shows a red dot while a known recorder (OBS, ShareX…) is running, even if it is not recording.",
+    "ru": "Эвристика: красная точка, пока запущена известная программа записи (OBS, ShareX…), даже если запись не идёт."
+  },
+  "Settings.CheckUpdates": {
+    "en": "Check for updates automatically",
+    "ru": "Проверять обновления автоматически"
+  },
+  "Settings.Monitor": {
+    "en": "Display",
+    "ru": "Монитор"
+  },
+  "Settings.MonitorPrimary": {
+    "en": "Primary display",
+    "ru": "Основной монитор"
+  },
+  "Settings.Display": {
+    "en": "Display",
+    "ru": "Монитор"
+  },
+  "Settings.Primary": {
+    "en": "primary",
+    "ru": "основной"
+  },
+  "Settings.Size": {
+    "en": "Island size",
+    "ru": "Размер острова"
+  },
+  "Settings.ExpandDelay": {
+    "en": "Open on hover after",
+    "ru": "Раскрывать при наведении через"
+  },
+  "Settings.CollapseDelay": {
+    "en": "Close after the pointer leaves",
+    "ru": "Сворачивать после ухода курсора через"
+  },
+  "Settings.Ms": {
+    "en": "ms",
+    "ru": "мс"
+  },
+  "Settings.Hotkey": {
+    "en": "Show or hide hotkey",
+    "ru": "Горячая клавиша"
+  },
+  "Settings.HotkeyPress": {
+    "en": "Press a combination",
+    "ru": "Нажмите сочетание"
+  },
+  "Settings.HotkeyInvalid": {
+    "en": "Use at least one modifier (Ctrl, Alt, Shift or Win) and a key",
+    "ru": "Нужен хотя бы один модификатор (Ctrl, Alt, Shift или Win) и клавиша"
+  },
+  "Settings.ModulesHint": {
+    "en": "Turn pages on or off and change their order",
+    "ru": "Включайте страницы и меняйте их порядок"
+  },
+  "Settings.MoveUp": {
+    "en": "Move up",
+    "ru": "Выше"
+  },
+  "Settings.MoveDown": {
+    "en": "Move down",
+    "ru": "Ниже"
+  },
+  "Settings.Version": {
+    "en": "Version",
+    "ru": "Версия"
+  },
+  "Settings.CheckNow": {
+    "en": "Check for updates",
+    "ru": "Проверить обновления"
+  },
+  "Settings.UpdatesChecking": {
+    "en": "Checking…",
+    "ru": "Проверяю…"
+  },
+  "Settings.UpdatesUnavailable": {
+    "en": "Updates work in the installed version",
+    "ru": "Обновления работают в установленной версии"
+  },
+  "Settings.Open": {
+    "en": "Open",
+    "ru": "Открыть"
+  },
+  "Settings.Licenses": {
+    "en": "Third-party licences",
+    "ru": "Лицензии сторонних компонентов"
+  },
+  "Settings.IconsCredit": {
+    "en": "Icons: Lucide (ISC licence), lucide.dev. Fonts: SF Pro if installed, otherwise Segoe UI Variable.",
+    "ru": "Иконки: Lucide (лицензия ISC), lucide.dev. Шрифты: SF Pro, если установлен, иначе Segoe UI Variable."
   }
 }

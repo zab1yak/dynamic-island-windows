@@ -30,5 +30,33 @@
   "Water.ReminderBody": {
     "en": "So far today: {0}",
     "ru": "Сегодня выпито: {0}"
+  },
+  "Water.Goal": {
+    "en": "Daily goal",
+    "ru": "Цель на день"
+  },
+  "Water.Portion": {
+    "en": "One portion",
+    "ru": "Одна порция"
+  },
+  "Water.Interval": {
+    "en": "Remind every",
+    "ru": "Напоминать каждые"
+  },
+  "Water.ActiveFrom": {
+    "en": "Reminders from",
+    "ru": "Напоминания с"
+  },
+  "Water.ActiveTo": {
+    "en": "Reminders until",
+    "ru": "Напоминания до"
+  },
+  "Water.Ml": {
+    "en": "ml",
+    "ru": "мл"
+  },
+  "Water.Min": {
+    "en": "min",
+    "ru": "мин"
   }
 }

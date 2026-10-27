@@ -210,4 +210,112 @@
     <Style TargetType="c:RingProgress">
         <Setter Property="TrackBrush" Value="{DynamicResource Brush.Surface2}" />
     </Style>
+    <c:ValueWithSuffixConverter x:Key="ValueWithSuffix" />
+
+    <Style TargetType="c:NumberStepper">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="c:NumberStepper">
+                    <c:SquircleBorder Background="{DynamicResource Brush.Surface2}" CornerRadius="999" Height="28">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Command="{x:Static c:NumberStepper.Decrease}">
+                                <c:Icon Glyph="Minus" Width="12" Height="12" />
+                            </Button>
+                            <TextBlock MinWidth="64" TextAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource Text.Base}">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource ValueWithSuffix}">
+                                        <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Suffix" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Command="{x:Static c:NumberStepper.Increase}">
+                                <c:Icon Glyph="Plus" Width="12" Height="12" />
+                            </Button>
+                        </StackPanel>
+                    </c:SquircleBorder>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Dark capsule ComboBox. -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Text}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Cursor="Hand">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <c:SquircleBorder Background="{DynamicResource Brush.Surface2}" CornerRadius="8" />
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter Margin="12,0,30,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
+                        <c:Icon Glyph="ChevronRight" Width="12" Height="12" HorizontalAlignment="Right" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5"
+                                Foreground="{DynamicResource Brush.TextSecondary}">
+                            <c:Icon.RenderTransform><RotateTransform Angle="90" /></c:Icon.RenderTransform>
+                        </c:Icon>
+                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                            <c:SquircleBorder Background="{DynamicResource Brush.Surface2}" CornerRadius="10" BorderBrush="{DynamicResource Island.Stroke}" BorderThickness="1"
+                                              MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" Padding="4" Margin="0,4,0,0">
+                                <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </c:SquircleBorder>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBoxItem">
+                                <Grid>
+                                    <c:SquircleBorder x:Name="Bg" CornerRadius="6" />
+                                    <ContentPresenter Margin="10,6" />
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsHighlighted" Value="True">
+                                        <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Brush.Blue}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Settings window building blocks (macOS System Settings look). -->
+    <Style x:Key="Settings.Group" TargetType="c:SquircleBorder">
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface1}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Island.Stroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="14,4" />
+        <Setter Property="Margin" Value="0,0,0,14" />
+    </Style>
+
+    <Style x:Key="Settings.Row" TargetType="DockPanel">
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="LastChildFill" Value="False" />
+    </Style>
+
+    <Style x:Key="Settings.Separator" TargetType="Rectangle">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Fill" Value="{DynamicResource Island.Stroke}" />
+    </Style>
 </ResourceDictionary>

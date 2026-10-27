@@ -8,11 +8,14 @@
   <data name="Pomodoro.FocusDone" xml:space="preserve"><value>Focus session complete</value></data>
   <data name="Pomodoro.FocusTime" xml:space="preserve"><value>Focus Time</value></data>
   <data name="Pomodoro.LongBreak" xml:space="preserve"><value>Long Break</value></data>
+  <data name="Pomodoro.LongBreakEvery" xml:space="preserve"><value>Long break after every N focus sessions</value></data>
+  <data name="Pomodoro.Min" xml:space="preserve"><value>min</value></data>
   <data name="Pomodoro.NextFocus" xml:space="preserve"><value>Time to focus again.</value></data>
   <data name="Pomodoro.NextLongBreak" xml:space="preserve"><value>You earned a long break.</value></data>
   <data name="Pomodoro.NextShortBreak" xml:space="preserve"><value>Take a short break.</value></data>
   <data name="Pomodoro.Reset" xml:space="preserve"><value>Reset</value></data>
   <data name="Pomodoro.ShortBreak" xml:space="preserve"><value>Short Break</value></data>
+  <data name="Pomodoro.SoundSetting" xml:space="preserve"><value>Sound and notification at the end</value></data>
   <data name="Pomodoro.StartPause" xml:space="preserve"><value>Start or pause</value></data>
   <data name="Pomodoro.Title" xml:space="preserve"><value>Pomodoro</value></data>
   <data name="Pomodoro.Today" xml:space="preserve"><value>Today:</value></data>

@@ -78,4 +78,37 @@
             <TextBlock Text="{Binding Timer.PhaseText}" Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" VerticalAlignment="Center" />
         </StackPanel>
     </DataTemplate>
+    <!-- Settings section. -->
+    <DataTemplate DataType="{x:Type vm:PomodoroSettingsViewModel}">
+        <StackPanel>
+            <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+                <StackPanel>
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Pomodoro.FocusTime}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding FocusMinutes}" Minimum="1" Maximum="180" Step="5" Suffix="{loc:Tr Pomodoro.Min}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Pomodoro.ShortBreak}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding ShortBreakMinutes}" Minimum="1" Maximum="60" Suffix="{loc:Tr Pomodoro.Min}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Pomodoro.LongBreak}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding LongBreakMinutes}" Minimum="1" Maximum="120" Step="5" Suffix="{loc:Tr Pomodoro.Min}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Pomodoro.LongBreakEvery}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding LongBreakEvery}" Minimum="2" Maximum="12" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Pomodoro.SoundSetting}" Style="{DynamicResource Settings.Label}" />
+                        <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding Sound}" VerticalAlignment="Center" />
+                    </DockPanel>
+                </StackPanel>
+            </c:SquircleBorder>
+        </StackPanel>
+    </DataTemplate>
 </ResourceDictionary>

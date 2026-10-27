@@ -318,7 +318,7 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
 }
 
 /// <summary>Shelf module: accepts drops, keeps files until they are dragged out or cleaned up.</summary>
-public sealed class ShelfModule(ShelfViewModel viewModel) : IIslandModule, IDropHandler
+public sealed class ShelfModule(ShelfViewModel viewModel, ShelfStore store) : IIslandModule, IDropHandler
 {
     /// <summary>Module id.</summary>
     public const string ModuleId = "shelf";
@@ -335,7 +335,17 @@ public sealed class ShelfModule(ShelfViewModel viewModel) : IIslandModule, IDrop
 
     public object ExpandedViewModel => viewModel;
 
-    public object? SettingsViewModel => null;
+    private ShelfSettingsViewModel? _settings;
+
+    public object? SettingsViewModel
+    {
+        get
+        {
+            _settings ??= new ShelfSettingsViewModel(store);
+            _settings.Reload();
+            return _settings;
+        }
+    }
 
     public ILiveActivitySource? LiveActivities => null;
 

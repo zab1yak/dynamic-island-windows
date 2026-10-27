@@ -27,7 +27,17 @@ public sealed class PomodoroModule(PomodoroViewModel viewModel) : IIslandModule
     public object ExpandedViewModel => viewModel;
 
     /// <inheritdoc />
-    public object? SettingsViewModel => null;
+    public object? SettingsViewModel
+    {
+        get
+        {
+            _settings ??= new PomodoroSettingsViewModel(viewModel);
+            _settings.Reload();
+            return _settings;
+        }
+    }
+
+    private PomodoroSettingsViewModel? _settings;
 
     /// <inheritdoc />
     public ILiveActivitySource? LiveActivities => viewModel;

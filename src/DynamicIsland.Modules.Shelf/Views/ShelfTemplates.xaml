@@ -1,8 +1,40 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:s="clr-namespace:DynamicIsland.Modules.Shelf"
-                    xmlns:v="clr-namespace:DynamicIsland.Modules.Shelf.Views">
+                    xmlns:v="clr-namespace:DynamicIsland.Modules.Shelf.Views"
+                    xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+                    xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
     <DataTemplate DataType="{x:Type s:ShelfViewModel}">
         <v:ShelfPage />
+    </DataTemplate>
+
+    <!-- Settings section. -->
+    <DataTemplate DataType="{x:Type s:ShelfSettingsViewModel}">
+        <StackPanel>
+            <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+                <StackPanel>
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Shelf.CopyMode}" Style="{DynamicResource Settings.Label}" />
+                        <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding CopyFiles}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{loc:Tr Shelf.CopyModeHint}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Shelf.Cleanup}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding AutoCleanupDays}" Minimum="0" Maximum="365" Suffix="{loc:Tr Shelf.Days}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Shelf.Limit}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding MaxSizeMb}" Minimum="50" Maximum="100000" Step="256" Suffix="{loc:Tr Shelf.Mb}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{Binding Folder}" Style="{DynamicResource Settings.Label}" Foreground="{DynamicResource Brush.TextSecondary}" FontSize="12" />
+                        <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Content="{loc:Tr Shelf.OpenFolder}" Command="{Binding OpenFolderCommand}" VerticalAlignment="Center" />
+                    </DockPanel>
+                </StackPanel>
+            </c:SquircleBorder>
+        </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

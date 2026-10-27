@@ -46,5 +46,17 @@
   "Pomodoro.NextLongBreak": {
     "en": "You earned a long break.",
     "ru": "Вы заслужили длинный перерыв."
+  },
+  "Pomodoro.Min": {
+    "en": "min",
+    "ru": "мин"
+  },
+  "Pomodoro.LongBreakEvery": {
+    "en": "Long break after every N focus sessions",
+    "ru": "Длинный перерыв после каждых N сессий"
+  },
+  "Pomodoro.SoundSetting": {
+    "en": "Sound and notification at the end",
+    "ru": "Звук и уведомление в конце"
   }
 }

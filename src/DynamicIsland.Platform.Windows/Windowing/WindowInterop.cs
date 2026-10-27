@@ -53,6 +53,14 @@ public static class WindowInterop
         return (p.X, p.Y, (NativeMethods.GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0);
     }
 
+    /// <summary>Asks DWM for a dark title bar (Windows 10 20H1 and later; ignored elsewhere).</summary>
+    public static void UseDarkTitleBar(nint hwnd)
+    {
+        const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        var on = 1;
+        _ = NativeMethods.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref on, sizeof(int));
+    }
+
     /// <summary>Whether <paramref name="hwnd"/> is the foreground window.</summary>
     public static bool IsForeground(nint hwnd) => NativeMethods.GetForegroundWindow() == hwnd;
 }

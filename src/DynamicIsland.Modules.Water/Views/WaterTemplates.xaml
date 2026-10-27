@@ -59,4 +59,45 @@
             <TextBlock Text="{Binding Water.PercentText}" Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" VerticalAlignment="Center" />
         </StackPanel>
     </DataTemplate>
+    <!-- Settings section. -->
+    <DataTemplate DataType="{x:Type w:WaterSettingsViewModel}">
+        <StackPanel>
+            <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+                <StackPanel>
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.Goal}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding GoalMl}" Minimum="250" Maximum="10000" Step="250" Suffix="{loc:Tr Water.Ml}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.Portion}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding StepMl}" Minimum="50" Maximum="2000" Step="50" Suffix="{loc:Tr Water.Ml}" />
+                    </DockPanel>
+                </StackPanel>
+            </c:SquircleBorder>
+            <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+                <StackPanel>
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.Reminders}" Style="{DynamicResource Settings.Label}" />
+                        <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding RemindersEnabled}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.Interval}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding IntervalMinutes}" Minimum="15" Maximum="480" Step="15" Suffix="{loc:Tr Water.Min}" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.ActiveFrom}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding ActiveFromHour}" Minimum="0" Maximum="23" Suffix=":00" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.ActiveTo}" Style="{DynamicResource Settings.Label}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding ActiveToHour}" Minimum="1" Maximum="24" Suffix=":00" />
+                    </DockPanel>
+                </StackPanel>
+            </c:SquircleBorder>
+        </StackPanel>
+    </DataTemplate>
 </ResourceDictionary>
