@@ -22,10 +22,13 @@
         UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType">
-    <Grid x:Name="Root" RenderTransformOrigin="0.5,0" Background="{x:Null}">
-        <Grid.RenderTransform>
+    <Grid x:Name="Root" Background="{x:Null}">
+        <!-- LayoutTransform, not RenderTransform: the scaled root must FIT the scaled window. A render
+             transform keeps the unscaled layout size, WPF clips it to the window and then shrinks the clip
+             too, cutting off the rounded corners and shoulders (v0.2.0 regression R1). -->
+        <Grid.LayoutTransform>
             <ScaleTransform x:Name="RootScale" ScaleX="1" ScaleY="1" />
-        </Grid.RenderTransform>
+        </Grid.LayoutTransform>
 
         <!-- Hover zone: sized to the TARGET island, not the animating shape, so hover cannot flicker at the edge. -->
         <Rectangle x:Name="HoverZone" Fill="{DynamicResource Island.DropCatcher}" HorizontalAlignment="Center" VerticalAlignment="Top" />

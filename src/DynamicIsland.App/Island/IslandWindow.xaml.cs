@@ -91,7 +91,7 @@ internal sealed partial class IslandWindow : Window
             }
         };
 
-        // Root keeps the unscaled layout size; RootScale applies the user's island size setting.
+        // Root keeps the unscaled size; RootScale (a layout transform) applies the user's island size setting.
         Root.Width = IslandMetrics.WindowWidth;
         Root.Height = IslandMetrics.WindowHeight;
         Root.HorizontalAlignment = HorizontalAlignment.Center;
@@ -523,7 +523,7 @@ internal sealed partial class IslandWindow : Window
         }
 
         var zoneHeight = 140 * _monitor.Scale;
-        var zoneHalfWidth = IslandMetrics.WindowWidth / 2 * _monitor.Scale;
+        var zoneHalfWidth = IslandMetrics.WindowWidth / 2 * _settings.Current.IslandScale * _monitor.Scale;
         var centerX = _monitor.Bounds.Left + (_monitor.Bounds.Width / 2.0);
         var near = down && y - _monitor.Bounds.Top < zoneHeight && Math.Abs(x - centerX) < zoneHalfWidth;
         SetCatcher(near || _stateMachine.Mode == IslandMode.DropTarget);

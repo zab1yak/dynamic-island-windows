@@ -131,13 +131,16 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Theory]
-    [InlineData(1.0, AppSettings.DefaultIslandScale)]
-    [InlineData(1.2, 1.2)]
-    public async Task Old_default_size_becomes_the_new_smaller_default(double stored, double expected)
+    [InlineData(1, 1.0, 1.0)]
+    [InlineData(1, 1.2, 1.2)]
+    [InlineData(2, 0.83, 1.0)]
+    [InlineData(2, 0.9, 0.9)]
+    [InlineData(2, 1.0, 1.0)]
+    public async Task The_v020_default_size_returns_to_the_v010_size(int schema, double stored, double expected)
     {
         var ct = TestContext.Current.CancellationToken;
         await File.WriteAllTextAsync(Path.Combine(_temp.Path, SettingsService.FileName),
-            $$"""{ "schemaVersion": 1, "islandScale": {{stored.ToString(System.Globalization.CultureInfo.InvariantCulture)}} }""", ct);
+            $$"""{ "schemaVersion": {{schema}}, "islandScale": {{stored.ToString(System.Globalization.CultureInfo.InvariantCulture)}} }""", ct);
 
         var service = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
         await service.LoadAsync(ct);
@@ -146,8 +149,8 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
-    public void New_island_is_about_17_percent_smaller()
+    public void Default_island_size_is_the_v010_size()
     {
-        Assert.InRange(new AppSettings().IslandScale, 0.80, 0.85);
+        Assert.Equal(1.0, new AppSettings().IslandScale);
     }
 }
