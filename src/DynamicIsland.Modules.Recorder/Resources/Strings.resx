@@ -5,6 +5,7 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Recorder.Delete" xml:space="preserve"><value>Delete recording</value></data>
+  <data name="Recorder.DeleteFailed" xml:space="preserve"><value>The recording could not be deleted</value></data>
   <data name="Recorder.DeviceLost" xml:space="preserve"><value>The microphone was disconnected; the recording was saved</value></data>
   <data name="Recorder.Empty" xml:space="preserve"><value>No recordings yet</value></data>
   <data name="Recorder.Mp3Unavailable" xml:space="preserve"><value>MP3 is not available on this Windows; saved as WAV</value></data>

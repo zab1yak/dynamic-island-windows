@@ -14,7 +14,8 @@ a Pomodoro timer, water reminders, a file shelf and a to-do list one glance away
   corners, spring animations. Hover to open, click to pin, `Ctrl+Alt+Space` to toggle. Clicks pass
   through the transparent area around it. Hides itself over fullscreen games, videos and presentations.
 - **Status** — battery (green bolt while charging, red below 20 %, yellow in energy saver), red dot while
-  the camera is in use, orange dot for the microphone (with the app name), optional screen-recording dot.
+  the camera is in use or the screen is being shared, orange dot for the microphone (with a readable app
+  name). The title of the active browser tab (Chrome, Edge, Yandex, Firefox) scrolls in the header.
 - **Music** — controls whatever plays in Windows (Spotify, Yandex Music, browsers, players): artwork,
   scrolling title, live position, drag to seek, previous / play-pause / next, switching between sources.
   A live pill with the artwork and **real-level** bars (the system's output peak meter) while music plays.
@@ -22,12 +23,16 @@ a Pomodoro timer, water reminders, a file shelf and a to-do list one glance away
   app is started for you, then playback resumes at that position (see [what works where](#resuming-the-last-track)).
 - **Pomodoro** — 25 / 5 / 15 minutes with a long break every 4 sessions (all adjustable), ring progress,
   rolling digits, sound + Windows notification + an alert in the island. Survives restarts.
-- **Water** — daily goal, "Drink 250 ml", undo, reminders every N minutes within active hours, midnight
+- **Water** — daily goal, "Drink 250 ml", fine − / + buttons (50 ml), undo, reminders every N minutes within active hours, midnight
   reset with 90-day history.
 - **Shelf** — a temporary basket: drop files, folders, browser images or text (or paste with Ctrl+V),
   drag them back out into any folder or messenger. Copy or link mode, shell thumbnails, auto-cleanup,
   size limit. The island turns into a drop zone when you drag a file to the top edge.
-- **To-do** — add with Enter, rename, check off with a little animation, drag to reorder.
+- **To-do** — add with Enter (Shift+Enter for a new line), rename, check off with a little animation,
+  drag to reorder.
+- **Voice recorder** — record, pause, stop; WAV or MP3 into `Music\DynamicIsland`; play and delete recent
+  recordings. A red dot with a timer while recording, a live waveform when expanded.
+- **Tools** — Settings and data-folder shortcuts, the island's own FPS, CPU load (green → yellow → red).
 - **Settings** in the style of macOS System Settings: start with Windows, display, size, delays, hotkey,
   pages on/off and order, per-page options, Russian / English.
 - Auto-updates from GitHub Releases.
@@ -65,9 +70,15 @@ Windows 10 version 2004 (build 19041) or newer, x64 or ARM64. Best on a laptop s
 
 ## Known limitations (honest list)
 
-- **Screen-recording indicator is a heuristic.** Windows has no public API for "the screen is being
-  recorded". With the option on, the dot shows while a known recorder (OBS, ShareX, Bandicam, Camtasia,
-  FlashBack) is running — even if it is not recording at the moment. It is off by default.
+- **Screen-sharing indicator is a heuristic.** Windows has no public API for "the screen is being
+  captured". The red dot follows the sharing bars of browsers (Meet and other sites), Zoom and Teams, and
+  Game Bar recording. **A Discord stream is not detected** (it shows no separate window). The optional
+  "known recorders" mode (OBS, ShareX, …) shows the dot while such a program merely runs.
+- **Notification history** (Tools page) needs a packaged (MSIX) app: Windows gives
+  `UserNotificationListener` only to apps with package identity, and this installer is not one. The page
+  says so instead of showing a fake list.
+- **Voice recorder MP3** uses the Windows Media Foundation encoder. Windows "N" editions without the Media
+  Feature Pack have none — recordings are then saved as WAV.
 - **Camera / microphone indicators** read the per-app usage records Windows keeps for its privacy settings
   (`CapabilityAccessManager\ConsentStore`). This format is not officially documented and may change in a
   future Windows update. Desktop apps are only counted while their process runs.
@@ -127,7 +138,10 @@ Architecture, plan and design decisions: [docs/ARCHITECTURE.md](docs/ARCHITECTUR
 ## Privacy
 
 Everything stays on your computer in `%LOCALAPPDATA%\DynamicIsland` (settings, timers, tasks, the shelf,
-logs). Logs never contain track titles, task texts or file names. The only network access is the update
+logs). To show the last track after a reboot, its title, artist and artwork are kept in
+`media-lasttrack.json` there. Logs never contain track titles, task texts, window titles, notification
+texts or file names. Voice recordings are written to a private temp folder first and only the finished file
+lands in your recordings folder. The only network access is the update
 check against this repository's GitHub Releases (can be turned off).
 
 ## Contributing
@@ -146,8 +160,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and ideas are welcome in
 
 **Dynamic Island for Windows** — чёрный анимированный «остров» по центру верхнего края экрана, как Dynamic
 Island на iPhone. Внутри: музыка (любой плеер Windows, обложка, перемотка, визуализатор по реальному уровню
-звука, запоминание последнего трека после перезагрузки), Pomodoro, напоминания пить воду, «Полка» для файлов
-и список задач. Индикаторы батареи, камеры, микрофона и (по желанию) записи экрана.
+звука, запоминание последнего трека после перезагрузки), Pomodoro, напоминания пить воду, «Полка» для файлов,
+список задач, диктофон и страница «Инструменты» (FPS, загрузка CPU). Индикаторы батареи, камеры, микрофона и
+показа экрана; название активной вкладки браузера в шапке.
 
 **Установка:** скачайте `DynamicIslandForWindows-win-Setup.exe` из
 [релизов](https://github.com/zab1yak/dynamic-island-windows/releases/latest) и запустите. Права администратора
@@ -156,7 +171,8 @@ Island на iPhone. Внутри: музыка (любой плеер Windows, �
 
 **Горячая клавиша:** `Ctrl+Alt+Space` (меняется в настройках). Наведение раскрывает остров, клик закрепляет.
 
-**Ограничения:** индикатор записи экрана — эвристика (по запущенным программам записи); индикаторы камеры и
+**Ограничения:** индикатор показа экрана — эвристика (по окнам-плашкам браузеров, Zoom, Teams и записи
+Game Bar; стрим Discord не определяется); история уведомлений доступна только MSIX-приложениям; индикаторы камеры и
 микрофона читают недокументированные записи Windows о доступе к устройствам; браузеры не умеют сами открыть
 вкладку, поэтому трек из браузера после перезагрузки нужно открыть вручную. Полный список — выше, в разделе
 «Known limitations».

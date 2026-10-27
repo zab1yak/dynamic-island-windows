@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using DynamicIsland.Core;
 using DynamicIsland.Modules.Recorder.Services;
 using NAudio.MediaFoundation;
 using NAudio.Wave;
@@ -9,45 +10,108 @@ namespace DynamicIsland.Modules.Recorder.Interop;
 /// Records the default microphone to a temporary WAV (44.1 kHz, mono, 16-bit) with NAudio and, on
 /// stop, keeps it as WAV or converts it to MP3 with Windows Media Foundation. Pausing keeps the
 /// device open and simply stops writing, so resume is instant.
+/// <para>
+/// The raw audio is written to a private folder (<c>%LOCALAPPDATA%\DynamicIsland\recorder-temp</c>),
+/// not to the recordings folder, which may sync to the cloud. A temp file left by a crash is
+/// recovered into the recordings folder as a WAV on the next start.
+/// </para>
 /// </summary>
-internal sealed class MicrophoneRecorder : IDisposable
+internal sealed class MicrophoneRecorder(string? tempFolder = null) : IDisposable
 {
+    private const string TempPrefix = ".recording-";
+    private readonly string _tempFolder = tempFolder ?? Path.Combine(AppPaths.DataRoot, "recorder-temp");
+
     private WaveIn? _input;
     private WaveFileWriter? _writer;
     private string? _tempPath;
     private volatile bool _paused;
 
-    /// <summary>Peak level (0–1) of each ~50 ms buffer, raised on the audio thread.</summary>
+    /// <summary>Peak level (0–1) of each ~50 ms buffer (WaveIn uses window callbacks: the UI thread).</summary>
     public event EventHandler<float>? Level;
 
-    /// <summary>Raised on the audio thread when the device stopped with an error (unplugged microphone).</summary>
+    /// <summary>Raised when the device stopped with an error (unplugged microphone).</summary>
     public event EventHandler<Exception>? Failed;
 
     /// <summary>Whether a recording is open.</summary>
     public bool IsRecording => _input is not null;
 
-    /// <summary>Starts recording into a temporary file in <paramref name="folder"/>.</summary>
-    public void Start(string folder)
+    /// <summary>
+    /// Starts recording into a private temporary file. On failure nothing stays open, so the next
+    /// attempt (for example after plugging a microphone in) starts cleanly.
+    /// </summary>
+    public void Start()
     {
         if (_input is not null)
         {
             return;
         }
 
-        Directory.CreateDirectory(folder);
-        _tempPath = Path.Combine(folder, $".recording-{Guid.NewGuid():N}.wav");
-        _input = new WaveIn { WaveFormat = new WaveFormat(44100, 16, 1), BufferMilliseconds = 50 };
-        _writer = new WaveFileWriter(_tempPath, _input.WaveFormat);
-        _input.DataAvailable += OnData;
-        _input.RecordingStopped += (_, e) =>
+        Directory.CreateDirectory(_tempFolder);
+        var temp = Path.Combine(_tempFolder, $"{TempPrefix}{Guid.NewGuid():N}.wav");
+        WaveIn? input = null;
+        WaveFileWriter? writer = null;
+        try
         {
-            if (e.Exception is not null)
+            input = new WaveIn { WaveFormat = new WaveFormat(44100, 16, 1), BufferMilliseconds = 50 };
+            writer = new WaveFileWriter(temp, input.WaveFormat);
+            input.DataAvailable += OnData;
+            input.RecordingStopped += (_, e) =>
             {
-                Failed?.Invoke(this, e.Exception);
+                if (e.Exception is not null)
+                {
+                    Failed?.Invoke(this, e.Exception);
+                }
+            };
+            _paused = false;
+            (_input, _writer, _tempPath) = (input, writer, temp);
+            input.StartRecording();
+        }
+        catch
+        {
+            if (input is not null)
+            {
+                input.DataAvailable -= OnData;
+                input.Dispose();
             }
-        };
-        _paused = false;
-        _input.StartRecording();
+
+            writer?.Dispose();
+            (_input, _writer, _tempPath) = (null, null, null);
+            TryDelete(temp);
+            throw;
+        }
+    }
+
+    /// <summary>Moves temp files left by a crash into <paramref name="folder"/> as WAV recordings.</summary>
+    /// <returns>How many recordings were recovered.</returns>
+    public int RecoverStale(string folder)
+    {
+        if (_input is not null || !Directory.Exists(_tempFolder))
+        {
+            return 0;
+        }
+
+        var recovered = 0;
+        foreach (var file in new DirectoryInfo(_tempFolder).GetFiles(TempPrefix + "*.wav"))
+        {
+            try
+            {
+                if (file.Length <= 44)
+                {
+                    file.Delete();
+                    continue;
+                }
+
+                Directory.CreateDirectory(folder);
+                File.Move(file.FullName, RecordingLibrary.UniquePath(folder, RecordingLibrary.FileName(file.CreationTime, RecordingFormat.Wav)));
+                recovered++;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Still locked or the folder is unavailable: try again next start.
+            }
+        }
+
+        return recovered;
     }
 
     /// <summary>Pauses or resumes writing.</summary>
@@ -74,6 +138,8 @@ internal sealed class MicrophoneRecorder : IDisposable
 
         return await Task.Run(() =>
         {
+            var folder = Path.GetDirectoryName(targetPath)!;
+            Directory.CreateDirectory(folder);
             if (format == RecordingFormat.Mp3 && Mp3Available())
             {
                 try
@@ -83,19 +149,34 @@ internal sealed class MicrophoneRecorder : IDisposable
                         MediaFoundationEncoder.EncodeToMp3(reader, targetPath, 128_000);
                     }
 
-                    File.Delete(temp);
+                    TryDelete(temp);
                     return targetPath;
                 }
-                catch (Exception ex) when (ex is COMException or InvalidOperationException or ArgumentException)
+                catch (Exception ex) when (ex is COMException or InvalidOperationException or ArgumentException
+                    or IOException or UnauthorizedAccessException or NAudio.MmException)
                 {
-                    // Fall back to WAV below.
+                    // A half-written MP3 must not show up in the list; keep the WAV instead.
+                    TryDelete(targetPath);
                 }
             }
 
-            var wavPath = Path.ChangeExtension(targetPath, ".wav");
+            // If this move fails, the temp file stays in the private folder and is recovered next start.
+            var wavPath = RecordingLibrary.UniquePath(folder, Path.ChangeExtension(Path.GetFileName(targetPath), ".wav"));
             File.Move(temp, wavPath, overwrite: false);
             return wavPath;
         });
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Left for RecoverStale.
+        }
     }
 
     /// <summary>Whether Windows has an MP3 encoder (Media Foundation).</summary>
@@ -154,8 +235,8 @@ internal sealed class RecordingPlayer : IDisposable
     private WaveOut? _output;
     private AudioFileReader? _reader;
 
-    /// <summary>Raised when playback ends (on a worker thread).</summary>
-    public event EventHandler? Stopped;
+    /// <summary>Raised when the current recording ends by itself; the argument is its path.</summary>
+    public event EventHandler<string>? Stopped;
 
     /// <summary>Path being played, or <c>null</c>.</summary>
     public string? Current { get; private set; }
@@ -166,13 +247,19 @@ internal sealed class RecordingPlayer : IDisposable
         _reader = new AudioFileReader(path);
         _output = new WaveOut();
         _output.Init(_reader);
-        _output.PlaybackStopped += (_, _) => Stopped?.Invoke(this, EventArgs.Empty);
+        _output.PlaybackStopped += OnPlaybackStopped;
         Current = path;
         _output.Play();
     }
 
     public void Stop()
     {
+        if (_output is not null)
+        {
+            // Detach first: a stopped event of the old output must not reset the next one.
+            _output.PlaybackStopped -= OnPlaybackStopped;
+        }
+
         _output?.Stop();
         _output?.Dispose();
         _reader?.Dispose();
@@ -182,4 +269,12 @@ internal sealed class RecordingPlayer : IDisposable
     }
 
     public void Dispose() => Stop();
+
+    private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
+    {
+        if (ReferenceEquals(sender, _output) && Current is { } path)
+        {
+            Stopped?.Invoke(this, path);
+        }
+    }
 }

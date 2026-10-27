@@ -203,11 +203,13 @@ public sealed class LastTrackStore(IStorageService storage, TimeProvider time) :
             };
             await storage.SaveAsync(FileName, track);
             _last = track;
-            _lastState = snapshot.State;
-            _lastSaved = now;
         }
         finally
         {
+            // Also after a failed write (disk full, file locked): retry on the next change or period,
+            // not on every snapshot.
+            _lastState = snapshot.State;
+            _lastSaved = now;
             _saving = false;
             _gate.Release();
         }

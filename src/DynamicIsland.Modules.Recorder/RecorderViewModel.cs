@@ -83,11 +83,17 @@ public sealed partial class RecorderViewModel : ObservableObject, ILiveActivityS
         Live = new RecorderLiveViewModel(this);
         _recorder.Level += (_, peak) => _dispatcher.Post(() => OnLevel(peak));
         _recorder.Failed += (_, ex) => _dispatcher.Post(() => OnFailed(ex));
-        _player.Stopped += (_, _) => _dispatcher.Post(() =>
+        _player.Stopped += (_, path) => _dispatcher.Post(() =>
         {
+            // Release the file so it can be deleted, but only if nothing else started meanwhile.
+            if (_player.Current == path)
+            {
+                _player.Stop();
+            }
+
             foreach (var item in Recordings)
             {
-                item.IsPlaying = false;
+                item.IsPlaying = item.File.Path == _player.Current;
             }
         });
     }
@@ -114,6 +120,11 @@ public sealed partial class RecorderViewModel : ObservableObject, ILiveActivityS
     public async Task LoadAsync(CancellationToken cancellationToken)
     {
         Settings = await _storage.LoadAsync<RecorderSettings>(SettingsFile, cancellationToken) ?? new RecorderSettings();
+        if (_recorder.RecoverStale(Settings.EffectiveFolder) is > 0 and var recovered)
+        {
+            _logger.LogInformation("Recovered {Count} unfinished recording(s)", recovered);
+        }
+
         ReloadList();
     }
 
@@ -146,7 +157,7 @@ public sealed partial class RecorderViewModel : ObservableObject, ILiveActivityS
         try
         {
             _player.Stop();
-            _recorder.Start(Settings.EffectiveFolder);
+            _recorder.Start();
         }
         catch (Exception ex) when (ex is NAudio.MmException or IOException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -254,12 +265,16 @@ public sealed partial class RecorderViewModel : ObservableObject, ILiveActivityS
             return;
         }
 
-        if (item.IsPlaying)
+        if (item.IsPlaying || _player.Current == item.File.Path)
         {
             _player.Stop();
         }
 
-        RecordingLibrary.Delete(Settings.EffectiveFolder, item.File.Path);
+        if (!RecordingLibrary.Delete(Settings.EffectiveFolder, item.File.Path))
+        {
+            ShowNotice(Loc.Instance["Recorder.DeleteFailed"]);
+        }
+
         ReloadList();
     }
 

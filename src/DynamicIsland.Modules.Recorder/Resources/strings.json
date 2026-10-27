@@ -9,6 +9,7 @@
   "Recorder.Empty": { "en": "No recordings yet", "ru": "Записей пока нет" },
   "Recorder.NoMicrophone": { "en": "No microphone available", "ru": "Микрофон недоступен" },
   "Recorder.DeviceLost": { "en": "The microphone was disconnected; the recording was saved", "ru": "Микрофон отключился, запись сохранена" },
+  "Recorder.DeleteFailed": { "en": "The recording could not be deleted", "ru": "Не удалось удалить запись" },
   "Recorder.SaveFailed": { "en": "The recording could not be saved", "ru": "Не удалось сохранить запись" },
   "Recorder.Mp3Unavailable": { "en": "MP3 is not available on this Windows; saved as WAV", "ru": "MP3 недоступен в этой Windows — сохранено в WAV" }
 }

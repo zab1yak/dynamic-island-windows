@@ -99,7 +99,8 @@ public sealed class AnimationClock
 
         if (!moving)
         {
-            LastRun = (_frames, now - _started, _longest);
+            // N frames span N - 1 intervals; report intervals so FPS is not overstated.
+            LastRun = (Math.Max(0, _frames - 1), now - _started, _longest);
             Stop();
             Finished?.Invoke(this, EventArgs.Empty);
         }

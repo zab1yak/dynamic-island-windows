@@ -56,6 +56,12 @@ public sealed unsafe class ForegroundBrowserWatcher : IDisposable
 
     private void Evaluate(nint hwnd)
     {
+        if (hwnd == 0)
+        {
+            // No foreground window for a moment (menu closing, switching): keep the current title.
+            return;
+        }
+
         NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
         string? processName = null;
         if (pid != 0 && pid != (uint)Environment.ProcessId)

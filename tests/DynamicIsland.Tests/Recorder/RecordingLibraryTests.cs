@@ -16,6 +16,37 @@ public sealed class RecordingLibraryTests : IDisposable
     }
 
     [Fact]
+    public void Delete_refuses_subfolders_other_extensions_and_missing_files()
+    {
+        var sub = Directory.CreateDirectory(Path.Combine(_temp.Path, "sub")).FullName;
+        var nested = Path.Combine(sub, "Recording n.wav");
+        File.WriteAllText(nested, "x");
+        var text = Path.Combine(_temp.Path, "Recording t.txt");
+        File.WriteAllText(text, "x");
+
+        Assert.False(RecordingLibrary.Delete(_temp.Path, nested));
+        Assert.False(RecordingLibrary.Delete(_temp.Path, text));
+        Assert.False(RecordingLibrary.Delete(_temp.Path, Path.Combine(_temp.Path, "Recording gone.wav")));
+        Assert.True(File.Exists(nested));
+        Assert.True(File.Exists(text));
+    }
+
+    [Fact]
+    public void Unsafe_recordings_folders_fall_back_to_the_default()
+    {
+        var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        string?[] bad = [null, "", @"relative\path", @"\\server\share\rec", Path.GetPathRoot(windows), windows, Path.Combine(windows, "Temp")];
+        foreach (var folder in bad)
+        {
+            Assert.False(RecorderSettings.IsAcceptableFolder(folder), folder);
+            Assert.Equal(RecorderSettings.DefaultFolder, new RecorderSettings { Folder = folder }.EffectiveFolder);
+        }
+
+        Assert.True(RecorderSettings.IsAcceptableFolder(_temp.Path));
+        Assert.Equal(_temp.Path, new RecorderSettings { Folder = _temp.Path }.EffectiveFolder);
+    }
+
+    [Fact]
     public void Unique_path_never_overwrites()
     {
         var first = RecordingLibrary.UniquePath(_temp.Path, "Recording a.wav");

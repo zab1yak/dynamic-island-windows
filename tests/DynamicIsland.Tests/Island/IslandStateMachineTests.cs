@@ -28,6 +28,20 @@ public sealed class IslandStateMachineTests : IDisposable
     }
 
     [Fact]
+    public void Hover_after_fullscreen_ended_expands_again_without_leaving()
+    {
+        _sm.PointerEntered();
+        _sm.SetFullscreen(true);
+        Advance(500);
+        _sm.SetFullscreen(false);
+
+        _sm.PointerEntered();
+        Advance(150);
+
+        Assert.Equal(IslandMode.Expanded, _sm.Mode);
+    }
+
+    [Fact]
     public void Brief_hover_does_not_expand()
     {
         _sm.PointerEntered();

@@ -91,6 +91,11 @@ public sealed class IslandStateMachine : IDisposable
                     _expanded = true;
                     Phase = HoverPhase.Expanded;
                 }
+                else
+                {
+                    // Fullscreen began meanwhile: forget the pending expand so the next enter starts over.
+                    Phase = HoverPhase.Idle;
+                }
             });
         }
     }
@@ -160,6 +165,10 @@ public sealed class IslandStateMachine : IDisposable
         {
             CancelTimer();
             _expanded = _pinned;
+            if (Phase == HoverPhase.ExpandPending)
+            {
+                Phase = HoverPhase.Idle;
+            }
         }
 
         Update();

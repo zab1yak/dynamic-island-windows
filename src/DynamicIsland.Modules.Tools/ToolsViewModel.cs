@@ -93,7 +93,7 @@ public sealed partial class ToolsViewModel : ObservableObject, IDisposable
         var access = _notifications.Access == NotificationAccess.Allowed ? NotificationAccess.Allowed : await _notifications.RequestAccessAsync();
         NotificationStatus = access switch
         {
-            NotificationAccess.Allowed => string.Empty,
+            NotificationAccess.Allowed or NotificationAccess.Unknown => string.Empty,
             NotificationAccess.Denied => Loc.Instance["Tools.NotificationsDenied"],
             _ => Loc.Instance["Tools.NotificationsUnavailable"],
         };

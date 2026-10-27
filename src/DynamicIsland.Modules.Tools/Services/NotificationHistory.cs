@@ -53,7 +53,12 @@ public sealed partial class NotificationHistory
             var status = await UserNotificationListener.Current.RequestAccessAsync().AsTask().WaitAsync(RequestTimeout);
             Access = status == UserNotificationListenerAccessStatus.Allowed ? NotificationAccess.Allowed : NotificationAccess.Denied;
         }
-        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException or TypeLoadException or TimeoutException)
+        catch (TimeoutException)
+        {
+            // The consent prompt is still open or Windows is slow: let the user try again.
+            Access = NotificationAccess.Unknown;
+        }
+        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException or TypeLoadException)
         {
             Access = NotificationAccess.Unavailable;
         }
@@ -78,7 +83,7 @@ public sealed partial class NotificationHistory
                 .Select(ToEntry)
                 .ToList();
         }
-        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException or TypeLoadException)
         {
             Access = NotificationAccess.Unavailable;
             return [];

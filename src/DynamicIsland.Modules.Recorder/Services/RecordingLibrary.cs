@@ -26,8 +26,64 @@ public sealed class RecorderSettings
     public static string DefaultFolder =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "DynamicIsland");
 
-    /// <summary>The folder actually used (falls back to the default for empty or relative values).</summary>
-    public string EffectiveFolder => !string.IsNullOrWhiteSpace(Folder) && Path.IsPathFullyQualified(Folder) ? Folder : DefaultFolder;
+    /// <summary>The folder actually used: the configured one when it is acceptable, otherwise the default.</summary>
+    public string EffectiveFolder => IsAcceptableFolder(Folder) ? Folder! : DefaultFolder;
+
+    /// <summary>
+    /// A local, fully qualified folder that is not a drive root, not inside Windows or Program Files and not
+    /// a junction or symbolic link. Network paths are refused: opening them could hang the island and send
+    /// Windows credentials to the server.
+    /// </summary>
+    public static bool IsAcceptableFolder(string? folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder) || !Path.IsPathFullyQualified(folder) || folder.StartsWith(@"\\", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string full;
+        try
+        {
+            full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folder));
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+
+        if (Path.GetPathRoot(full) is not { } root || string.Equals(Path.TrimEndingDirectorySeparator(root), full, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string[] system =
+        [
+            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+        ];
+        if (system.Any(s => s.Length > 0 && (string.Equals(full, s, StringComparison.OrdinalIgnoreCase)
+            || full.StartsWith(s + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))))
+        {
+            return false;
+        }
+
+        try
+        {
+            var drive = new DriveInfo(root);
+            if (drive.DriveType is DriveType.Network or DriveType.NoRootDirectory)
+            {
+                return false;
+            }
+
+            var info = new DirectoryInfo(full);
+            return !info.Exists || (info.Attributes & FileAttributes.ReparsePoint) == 0;
+        }
+        catch (Exception ex) when (ex is ArgumentException or IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
 }
 
 /// <summary>A saved recording.</summary>
@@ -77,22 +133,34 @@ public static class RecordingLibrary
             .ToList();
     }
 
-    /// <summary>Deletes a recording, but only a file the recorder created inside <paramref name="folder"/>.</summary>
+    /// <summary>
+    /// Deletes a recording, but only a <c>.wav</c>/<c>.mp3</c> file the recorder created directly inside
+    /// <paramref name="folder"/> (not in a subfolder, not a link).
+    /// </summary>
     public static bool Delete(string folder, string path)
     {
-        var full = Path.GetFullPath(path);
-        var root = Path.GetFullPath(folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase) || !Path.GetFileName(full).StartsWith(Prefix, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
         try
         {
-            File.Delete(full);
+            var full = Path.GetFullPath(path);
+            var name = Path.GetFileName(full);
+            var extension = Path.GetExtension(full);
+            if (!string.Equals(Path.GetDirectoryName(full), Path.TrimEndingDirectorySeparator(Path.GetFullPath(folder)), StringComparison.OrdinalIgnoreCase)
+                || !name.StartsWith(Prefix, StringComparison.Ordinal)
+                || !(extension.Equals(".wav", StringComparison.OrdinalIgnoreCase) || extension.Equals(".mp3", StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            var file = new FileInfo(full);
+            if (!file.Exists || (file.Attributes & FileAttributes.ReparsePoint) != 0)
+            {
+                return false;
+            }
+
+            file.Delete();
             return true;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
             return false;
         }

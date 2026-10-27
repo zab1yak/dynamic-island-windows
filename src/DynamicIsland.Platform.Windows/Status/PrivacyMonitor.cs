@@ -40,6 +40,9 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
     private IReadOnlyList<string> _recorders = [];
     private volatile bool _disposed;
 
+    // Timer callbacks may overlap (1 s recheck, 3 s sharing check, registry events): one scan at a time.
+    private readonly Lock _scanLock = new();
+
     public PrivacyMonitor(IUiDispatcher dispatcher, ILogger<PrivacyMonitor> logger)
     {
         _dispatcher = dispatcher;
@@ -162,7 +165,13 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
 
         try
         {
-            Scan();
+            lock (_scanLock)
+            {
+                if (!_disposed)
+                {
+                    Scan();
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -257,6 +266,7 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
     /// </summary>
     private void UpdateActiveTimer(bool active)
     {
+        active &= !_disposed;
         if (active && _activeTimer is null)
         {
             _activeTimer = new Timer(_ => SafeScan(), null, ActiveRecheckInterval, ActiveRecheckInterval);
@@ -277,7 +287,12 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
 
         try
         {
-            var sharing = LiveCaptureSignals.ScreenSharing();
+            IReadOnlyList<string> sharing;
+            lock (_scanLock)
+            {
+                sharing = LiveCaptureSignals.ScreenSharing();
+            }
+
             if (!sharing.SequenceEqual(_sharing))
             {
                 _sharing = sharing;
