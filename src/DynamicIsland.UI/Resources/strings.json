@@ -214,5 +214,9 @@
   "Update.Failed": {
     "en": "Could not check for updates. Try again later.",
     "ru": "Не удалось проверить обновления. Попробуйте позже."
+  },
+  "Privacy.SystemApp": {
+    "en": "System app",
+    "ru": "Системное приложение"
   }
 }

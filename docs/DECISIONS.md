@@ -139,3 +139,10 @@ HTTPS GitHub и хешах в `releases.*.json`. Подпись — после �
 «— Google Chrome», «Microsoft Edge», «Яндекс Браузер», «Mozilla Firefox», «and N more pages» убираются;
 для других приложений строка не показывается. Пока впереди окно самого острова, показывается последний
 браузер (остров не забирает фокус, но окно настроек может).
+
+## D-030. Имена приложений в индикаторах
+Для desktop-приложения — `ProductName`/`FileDescription` из exe (путь из ключа `NonPackaged`), для
+Store-приложения — `DisplayName` пакета (`PackageManager.FindPackagesForUser`), раньше обоих — словарь
+популярных приложений (Discord, Telegram, Zoom, Teams, Яндекс Браузер, OBS, Chrome…). Компоненты Windows
+(`windows.immersive*`, `Microsoft.Windows.*`, `MicrosoftWindows.*`, exe из папки Windows) показываются как
+«Системное приложение». Результаты кешируются по ключу.

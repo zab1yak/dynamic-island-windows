@@ -76,19 +76,22 @@ internal sealed partial class StatusViewModel : ObservableObject
     internal static string Describe(PrivacyStatus status, Loc loc)
     {
         var parts = new List<string>(3);
+        string Names(IEnumerable<string> apps) =>
+            string.Join(", ", apps.Select(a => a == AppNames.SystemApp ? loc["Privacy.SystemApp"] : a).Distinct());
+
         if (status.CameraInUse)
         {
-            parts.Add($"{loc["Privacy.Camera"]}: {string.Join(", ", status.CameraApps)}");
+            parts.Add($"{loc["Privacy.Camera"]}: {Names(status.CameraApps)}");
         }
 
         if (status.MicrophoneInUse)
         {
-            parts.Add($"{loc["Privacy.Microphone"]}: {string.Join(", ", status.MicrophoneApps)}");
+            parts.Add($"{loc["Privacy.Microphone"]}: {Names(status.MicrophoneApps)}");
         }
 
         if (status.Recording)
         {
-            parts.Add($"{loc["Privacy.Recording"]}: {string.Join(", ", status.RecordingApps)}");
+            parts.Add($"{loc["Privacy.Recording"]}: {Names(status.RecordingApps)}");
         }
 
         return string.Join(" · ", parts);

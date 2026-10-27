@@ -68,11 +68,12 @@ public static class ConsentStoreParser
     /// Checks a desktop app by its executable path. An app that crashed never writes
     /// <c>LastUsedTimeStop</c>, so a non-packaged entry only counts while its process is alive.
     /// </param>
-    public static IReadOnlyList<string> AppsInUse(IEnumerable<ConsentEntry> entries, Func<string, bool>? isRunning = null) =>
+    /// <param name="name">Readable name of an entry; defaults to <see cref="DisplayName"/>.</param>
+    public static IReadOnlyList<string> AppsInUse(IEnumerable<ConsentEntry> entries, Func<string, bool>? isRunning = null, Func<ConsentEntry, string>? name = null) =>
         entries
             .Where(e => e.LastUsedTimeStart != 0 && e.LastUsedTimeStop == 0)
             .Where(e => !e.IsNonPackaged || isRunning is null || isRunning(ExecutablePath(e)))
-            .Select(DisplayName)
+            .Select(name ?? DisplayName)
             .Where(n => n.Length > 0)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Order(StringComparer.OrdinalIgnoreCase)

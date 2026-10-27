@@ -15,6 +15,7 @@
   <data name="Privacy.Camera" xml:space="preserve"><value>Camera</value></data>
   <data name="Privacy.Microphone" xml:space="preserve"><value>Microphone</value></data>
   <data name="Privacy.Recording" xml:space="preserve"><value>Recording</value></data>
+  <data name="Privacy.SystemApp" xml:space="preserve"><value>System app</value></data>
   <data name="Settings.About" xml:space="preserve"><value>About</value></data>
   <data name="Settings.Autostart" xml:space="preserve"><value>Start with Windows</value></data>
   <data name="Settings.CheckNow" xml:space="preserve"><value>Check for updates</value></data>

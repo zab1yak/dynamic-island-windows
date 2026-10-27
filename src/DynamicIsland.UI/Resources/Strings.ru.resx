@@ -15,6 +15,7 @@
   <data name="Privacy.Camera" xml:space="preserve"><value>Камера</value></data>
   <data name="Privacy.Microphone" xml:space="preserve"><value>Микрофон</value></data>
   <data name="Privacy.Recording" xml:space="preserve"><value>Запись экрана</value></data>
+  <data name="Privacy.SystemApp" xml:space="preserve"><value>Системное приложение</value></data>
   <data name="Settings.About" xml:space="preserve"><value>О программе</value></data>
   <data name="Settings.Autostart" xml:space="preserve"><value>Запускать вместе с Windows</value></data>
   <data name="Settings.CheckNow" xml:space="preserve"><value>Проверить обновления</value></data>

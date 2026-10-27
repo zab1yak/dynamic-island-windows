@@ -216,8 +216,8 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         try
         {
             status = new PrivacyStatus(
-                ConsentStoreParser.AppsInUse(ReadEntries("webcam"), IsProcessRunning),
-                ConsentStoreParser.AppsInUse(ReadEntries("microphone"), IsProcessRunning),
+                ConsentStoreParser.AppsInUse(ReadEntries("webcam"), IsProcessRunning, NameOf),
+                ConsentStoreParser.AppsInUse(ReadEntries("microphone"), IsProcessRunning, NameOf),
                 _recorders);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
@@ -237,6 +237,46 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         }
 
         _dispatcher.Post(() => Changed?.Invoke(this, EventArgs.Empty));
+    }
+
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Readable app name (cached): exe version info, package display name, known apps.</summary>
+    private string NameOf(ConsentEntry entry) =>
+        _names.GetOrAdd((entry.IsNonPackaged ? "n:" : "p:") + entry.KeyName, _ => AppNames.Resolve(entry, ProductName, PackageName));
+
+    private static string? ProductName(string exePath)
+    {
+        try
+        {
+            if (!File.Exists(exePath))
+            {
+                return null;
+            }
+
+            var info = FileVersionInfo.GetVersionInfo(exePath);
+            return string.IsNullOrWhiteSpace(info.ProductName) ? info.FileDescription : info.ProductName;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    private static string? PackageName(string familyName)
+    {
+        try
+        {
+            var manager = new global::Windows.Management.Deployment.PackageManager();
+            var package = manager.FindPackagesForUser(string.Empty, familyName).FirstOrDefault();
+            var name = package?.DisplayName;
+            // Unresolved resource strings look like "ms-resource:..."; those are useless.
+            return name is null || name.StartsWith("ms-resource:", StringComparison.OrdinalIgnoreCase) ? null : name;
+        }
+        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or ArgumentException)
+        {
+            return null;
+        }
     }
 
     /// <summary>Whether a process started from <paramref name="exePath"/> is alive (by name; path when readable).</summary>
