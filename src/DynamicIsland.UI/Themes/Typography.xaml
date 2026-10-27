@@ -45,6 +45,13 @@
         <Setter Property="FontSize" Value="12" />
     </Style>
 
+    <!-- Medium figures ("0.3 / 2.0 L" on the water page). -->
+    <Style x:Key="Text.MediumNumber" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
+        <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontSize" Value="22" />
+    </Style>
+
     <Style x:Key="Text.LargeNumber" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
         <Setter Property="FontWeight" Value="SemiBold" />

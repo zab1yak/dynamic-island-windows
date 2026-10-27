@@ -4,65 +4,85 @@
                     xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
                     xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
 
-    <!-- Expanded page: percent ring, "0.3 / 2.0 L" with a bar, Drink / Undo / reminders. -->
+    <!-- Expanded page (reference photo): litres with the reminder switch, status, thin bar, then
+         − portion + · Drink · Settings · undo; on the right a percent ring with a droplet. -->
     <DataTemplate DataType="{x:Type w:WaterViewModel}">
         <Grid VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Grid Width="64" Height="64">
-                <c:RingProgress Value="{Binding Progress}" Thickness="7" ProgressBrush="{DynamicResource Brush.Blue}" />
-                <TextBlock Text="{Binding PercentText}" Style="{DynamicResource Text.Title}" FontSize="13"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Grid>
-
-            <StackPanel Grid.Column="1" Margin="16,0,16,0" VerticalAlignment="Center">
+            <StackPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <c:Icon Glyph="Droplet" Width="18" Height="18" Foreground="{DynamicResource Brush.Blue}" Margin="0,0,6,0" />
-                    <c:RollingText Text="{Binding TotalText}" TextStyle="{DynamicResource Text.Title}" />
+                    <c:RollingText Text="{Binding TotalText}" TextStyle="{DynamicResource Text.MediumNumber}" VerticalAlignment="Center" />
+                    <ToggleButton Style="{DynamicResource ToggleSwitch}" Margin="12,0,0,0" IsChecked="{Binding RemindersEnabled, Mode=OneWay}"
+                                  Command="{Binding ToggleRemindersCommand}" VerticalAlignment="Center"
+                                  AutomationProperties.Name="{loc:Tr Water.Reminders}" ToolTip="{Binding ReminderText}" />
                 </StackPanel>
-                <!-- − bar + : fine adjustment by the configured step (50 ml by default). -->
-                <Grid Margin="0,6,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Button Style="{DynamicResource IconButton}" Width="26" Height="26" Command="{Binding DecreaseCommand}"
-                            AutomationProperties.Name="{loc:Tr Water.Less}" ToolTip="{Binding FineStepText}">
-                        <c:Icon Glyph="Minus" Width="12" Height="12" />
-                    </Button>
-                    <ProgressBar Grid.Column="1" Style="{DynamicResource ProgressBar.Pill}" Margin="6,0" Minimum="0" Maximum="1"
-                                 VerticalAlignment="Center" Value="{Binding Progress, Mode=OneWay}" />
-                    <Button Grid.Column="2" Style="{DynamicResource IconButton}" Width="26" Height="26" Command="{Binding IncreaseCommand}"
-                            AutomationProperties.Name="{loc:Tr Water.More}" ToolTip="{Binding FineStepText}">
-                        <c:Icon Glyph="Plus" Width="12" Height="12" />
-                    </Button>
-                </Grid>
+                <TextBlock Text="{Binding StatusText}" FontSize="12" Margin="0,1,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Secondary}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding GoalReached}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource Brush.Blue}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ProgressBar Style="{DynamicResource ProgressBar.Pill}" Margin="0,6,0,0" Height="4" Width="210" HorizontalAlignment="Left"
+                             Minimum="0" Maximum="1" Value="{Binding Progress, Mode=OneWay}" />
                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <ToggleButton Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding RemindersEnabled, Mode=OneWay}"
-                                  Command="{Binding ToggleRemindersCommand}"
-                                  AutomationProperties.Name="{loc:Tr Water.Reminders}" />
-                    <TextBlock Text="{Binding ReminderText}" Style="{DynamicResource Text.Secondary}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    <!-- Portion picker: − 250 ml + (step from the settings, 50–1000 ml). -->
+                    <c:SquircleBorder CornerRadius="999" Background="{DynamicResource Brush.Surface2}" Height="28">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Command="{Binding DecreaseCommand}"
+                                    IsEnabled="{Binding CanDecreasePortion}" AutomationProperties.Name="{loc:Tr Water.Less}" ToolTip="{Binding FineStepText}">
+                                <c:Icon Glyph="Minus" Width="12" Height="12" />
+                            </Button>
+                            <c:RollingText Text="{Binding PortionText}" TextStyle="{DynamicResource Text.Base}" MinWidth="52" VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" />
+                            <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Command="{Binding IncreaseCommand}"
+                                    IsEnabled="{Binding CanIncreasePortion}" AutomationProperties.Name="{loc:Tr Water.More}" ToolTip="{Binding FineStepText}">
+                                <c:Icon Glyph="Plus" Width="12" Height="12" />
+                            </Button>
+                        </StackPanel>
+                    </c:SquircleBorder>
+                    <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="28" Padding="12,0" Margin="8,0,0,0"
+                            Command="{Binding DrinkCommand}" AutomationProperties.Name="{Binding DrinkText}">
+                        <StackPanel Orientation="Horizontal">
+                            <c:Icon Glyph="Droplet" Width="13" Height="13" Margin="0,0,5,0" />
+                            <TextBlock Text="{Binding DrinkText}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{DynamicResource PillButton}" Height="28" Padding="10,0" Margin="6,0,0,0" Command="{Binding OpenSettingsCommand}"
+                            AutomationProperties.Name="{loc:Tr Water.Settings}">
+                        <StackPanel Orientation="Horizontal">
+                            <c:Icon Glyph="SlidersHorizontal" Width="13" Height="13" Margin="0,0,5,0" />
+                            <TextBlock Text="{loc:Tr Water.Settings}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="4,0,0,0" Command="{Binding UndoCommand}"
+                            IsEnabled="{Binding CanUndo}" AutomationProperties.Name="{loc:Tr Water.Undo}" ToolTip="{loc:Tr Water.Undo}">
+                        <c:Icon Glyph="Undo" Width="14" Height="14" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    </Button>
                 </StackPanel>
             </StackPanel>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{DynamicResource IconButton}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}"
-                        AutomationProperties.Name="{loc:Tr Water.Undo}" ToolTip="{loc:Tr Water.Undo}" Margin="0,0,8,0">
-                    <c:Icon Glyph="Undo" Foreground="{DynamicResource Brush.TextSecondary}" />
-                </Button>
-                <Button Style="{DynamicResource PillButton}" Background="{DynamicResource Brush.Blue}" Height="40" Padding="18,0"
-                        Command="{Binding DrinkCommand}" AutomationProperties.Name="{Binding DrinkText}">
-                    <StackPanel Orientation="Horizontal">
-                        <c:Icon Glyph="GlassWater" Width="16" Height="16" Margin="0,0,6,0" />
-                        <TextBlock Text="{Binding DrinkText}" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <Rectangle Grid.Column="1" Width="1" Margin="14,6" Fill="{DynamicResource Brush.Surface3}" />
+
+            <Grid Grid.Column="2" Width="76" Height="76" VerticalAlignment="Center">
+                <c:RingProgress Value="{Binding Progress}" Thickness="6" ProgressBrush="{DynamicResource Brush.Blue}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding PercentNumber}" Style="{DynamicResource Text.Title}" FontSize="22" HorizontalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,-3,0,0">
+                        <c:Icon Glyph="Droplet" Width="10" Height="10" Foreground="{DynamicResource Brush.Blue}" />
+                        <TextBlock Text="%" Style="{DynamicResource Text.Secondary}" FontSize="10" Margin="2,0,0,0" />
                     </StackPanel>
-                </Button>
-            </StackPanel>
+                </StackPanel>
+            </Grid>
         </Grid>
     </DataTemplate>
 
@@ -87,7 +107,7 @@
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Water.Portion}" Style="{DynamicResource Settings.Label}" />
-                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding StepMl}" Minimum="50" Maximum="2000" Step="50" Suffix="{loc:Tr Water.Ml}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding StepMl}" Minimum="50" Maximum="1000" Step="50" Suffix="{loc:Tr Water.Ml}" />
                     </DockPanel>
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">

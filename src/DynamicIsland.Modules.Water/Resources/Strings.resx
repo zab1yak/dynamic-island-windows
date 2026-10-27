@@ -7,20 +7,26 @@
   <data name="Water.ActiveFrom" xml:space="preserve"><value>Reminders from</value></data>
   <data name="Water.ActiveTo" xml:space="preserve"><value>Reminders until</value></data>
   <data name="Water.Drink" xml:space="preserve"><value>Drink {0} ml</value></data>
+  <data name="Water.DrinkShort" xml:space="preserve"><value>Drink</value></data>
   <data name="Water.Every" xml:space="preserve"><value>Every {0} min</value></data>
   <data name="Water.FineStep" xml:space="preserve"><value>{0} ml</value></data>
-  <data name="Water.FineStepSetting" xml:space="preserve"><value>Step of − and + buttons</value></data>
+  <data name="Water.FineStepSetting" xml:space="preserve"><value>Portion step (− / +)</value></data>
   <data name="Water.Goal" xml:space="preserve"><value>Daily goal</value></data>
+  <data name="Water.GoalReached" xml:space="preserve"><value>Daily goal reached</value></data>
   <data name="Water.Interval" xml:space="preserve"><value>Remind every</value></data>
-  <data name="Water.Less" xml:space="preserve"><value>Less water</value></data>
+  <data name="Water.Less" xml:space="preserve"><value>Smaller portion</value></data>
   <data name="Water.Liters" xml:space="preserve"><value>L</value></data>
   <data name="Water.Min" xml:space="preserve"><value>min</value></data>
   <data name="Water.Ml" xml:space="preserve"><value>ml</value></data>
-  <data name="Water.More" xml:space="preserve"><value>More water</value></data>
-  <data name="Water.Portion" xml:space="preserve"><value>One portion</value></data>
+  <data name="Water.More" xml:space="preserve"><value>Bigger portion</value></data>
+  <data name="Water.Portion" xml:space="preserve"><value>Default portion</value></data>
   <data name="Water.ReminderBody" xml:space="preserve"><value>So far today: {0}</value></data>
   <data name="Water.ReminderTitle" xml:space="preserve"><value>Time for some water</value></data>
   <data name="Water.Reminders" xml:space="preserve"><value>Reminders</value></data>
+  <data name="Water.RemindersOff" xml:space="preserve"><value>Reminders off</value></data>
+  <data name="Water.RemindersOn" xml:space="preserve"><value>Reminders on</value></data>
+  <data name="Water.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Water.Status" xml:space="preserve"><value>Today · {0} · {1}</value></data>
   <data name="Water.Title" xml:space="preserve"><value>Water Reminder</value></data>
   <data name="Water.TitleAccent" xml:space="preserve"><value>Reminder</value></data>
   <data name="Water.Undo" xml:space="preserve"><value>Undo last drink</value></data>

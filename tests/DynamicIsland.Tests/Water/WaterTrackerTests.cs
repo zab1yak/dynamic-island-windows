@@ -148,35 +148,119 @@ public sealed class WaterTrackerTests
         var state = new WaterState { GoalMl = 1, StepMl = 99999, ReminderIntervalMinutes = 1, ActiveFromHour = 22, ActiveToHour = 3 };
         state.Normalize();
         Assert.Equal(250, state.GoalMl);
-        Assert.Equal(2000, state.StepMl);
+        Assert.Equal(1000, state.StepMl);
         Assert.Equal(15, state.ReminderIntervalMinutes);
         Assert.Equal(23, state.ActiveToHour);
     }
 }
 
-public sealed class WaterAdjustTests
+public sealed class WaterPortionTests
 {
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 27, 5, 0, 0, TimeSpan.Zero));
 
-    [Fact]
-    public void Plus_and_minus_change_by_the_fine_step_and_never_go_below_zero()
+    private WaterTracker NewTracker(out WaterState state)
     {
-        var state = new WaterState();
+        state = new WaterState();
         state.Normalize();
-        var tracker = new WaterTracker(state, _time);
+        return new WaterTracker(state, _time);
+    }
+
+    [Fact]
+    public void Plus_and_minus_change_the_picked_portion_not_the_total()
+    {
+        var tracker = NewTracker(out var state);
+        Assert.Equal(250, state.StepMl);
         Assert.Equal(50, state.FineStepMl);
 
-        tracker.Drink();                 // 250
-        tracker.Adjust(state.FineStepMl); // 300
-        Assert.Equal(300, tracker.TotalMl);
+        tracker.ChangePortion(1);
+        tracker.ChangePortion(1);
+        Assert.Equal(350, state.StepMl);
+        Assert.Equal(0, tracker.TotalMl);
 
-        tracker.Adjust(-state.FineStepMl); // 250
-        tracker.Adjust(-200);              // 50
-        Assert.Equal(50, tracker.TotalMl);
+        tracker.Drink();
+        Assert.Equal(350, tracker.TotalMl);
 
-        tracker.Adjust(-500);
+        tracker.ChangePortion(-1);
+        tracker.Drink();
+        Assert.Equal(650, tracker.TotalMl);
+    }
+
+    [Theory]
+    [InlineData(-100, 50)]
+    [InlineData(100, 1000)]
+    public void Portion_stays_between_50_and_1000_ml(int steps, int expected)
+    {
+        var tracker = NewTracker(out var state);
+        for (var i = 0; i < Math.Abs(steps); i++)
+        {
+            tracker.ChangePortion(Math.Sign(steps));
+        }
+
+        Assert.Equal(expected, state.StepMl);
+    }
+
+    [Fact]
+    public void Saved_portion_is_clamped_to_the_allowed_range()
+    {
+        var state = new WaterState { StepMl = 10 };
+        state.Normalize();
+        Assert.Equal(WaterState.MinPortionMl, state.StepMl);
+    }
+
+    [Fact]
+    public void Undo_removes_the_last_drink_and_the_total_never_goes_below_zero()
+    {
+        var tracker = NewTracker(out var state);
+        tracker.Drink();
+        tracker.ChangePortion(1);
+        tracker.Drink();
+        Assert.Equal(550, tracker.TotalMl);
+
+        Assert.True(tracker.Undo());
+        Assert.Equal(250, tracker.TotalMl);
+        Assert.True(tracker.Undo());
+        Assert.False(tracker.Undo());
         Assert.Equal(0, tracker.TotalMl);
         Assert.Empty(state.Today);
+    }
+
+    [Fact]
+    public void Percent_is_capped_at_100_when_the_goal_is_exceeded()
+    {
+        var tracker = NewTracker(out var state);
+        state.GoalMl = 1000;
+        for (var i = 0; i < 6; i++)
+        {
+            tracker.Drink(); // 6 × 250 = 1500 ml
+        }
+
+        Assert.Equal(1500, tracker.TotalMl);
+        Assert.Equal(100, tracker.Percent);
+        Assert.Equal(1.0, tracker.Progress);
+        Assert.True(tracker.GoalReached);
+    }
+
+    [Fact]
+    public void Percent_rounds_and_is_zero_for_an_empty_day()
+    {
+        var tracker = NewTracker(out var state);
+        Assert.Equal(0, tracker.Percent);
+        tracker.Drink(); // 250 of 2000
+        Assert.Equal(13, tracker.Percent);
+        Assert.False(tracker.GoalReached);
+    }
+
+    [Fact]
+    public void Midnight_moves_the_day_into_history_and_resets_the_total()
+    {
+        var tracker = NewTracker(out var state);
+        tracker.Drink();
+        _time.Advance(TimeSpan.FromDays(1));
+
+        Assert.True(tracker.RollDay());
+        Assert.Equal(0, tracker.TotalMl);
+        Assert.Equal(250, state.History.Values.Last());
+        Assert.False(tracker.Undo());
     }
 
     [Fact]

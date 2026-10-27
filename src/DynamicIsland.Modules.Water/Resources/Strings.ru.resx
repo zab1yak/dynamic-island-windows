@@ -7,20 +7,26 @@
   <data name="Water.ActiveFrom" xml:space="preserve"><value>Напоминания с</value></data>
   <data name="Water.ActiveTo" xml:space="preserve"><value>Напоминания до</value></data>
   <data name="Water.Drink" xml:space="preserve"><value>Выпить {0} мл</value></data>
+  <data name="Water.DrinkShort" xml:space="preserve"><value>Выпить</value></data>
   <data name="Water.Every" xml:space="preserve"><value>Каждые {0} мин</value></data>
   <data name="Water.FineStep" xml:space="preserve"><value>{0} мл</value></data>
-  <data name="Water.FineStepSetting" xml:space="preserve"><value>Шаг кнопок − и +</value></data>
+  <data name="Water.FineStepSetting" xml:space="preserve"><value>Шаг порции (− / +)</value></data>
   <data name="Water.Goal" xml:space="preserve"><value>Цель на день</value></data>
+  <data name="Water.GoalReached" xml:space="preserve"><value>Норма выполнена</value></data>
   <data name="Water.Interval" xml:space="preserve"><value>Напоминать каждые</value></data>
-  <data name="Water.Less" xml:space="preserve"><value>Меньше воды</value></data>
+  <data name="Water.Less" xml:space="preserve"><value>Меньше порция</value></data>
   <data name="Water.Liters" xml:space="preserve"><value>л</value></data>
   <data name="Water.Min" xml:space="preserve"><value>мин</value></data>
   <data name="Water.Ml" xml:space="preserve"><value>мл</value></data>
-  <data name="Water.More" xml:space="preserve"><value>Больше воды</value></data>
-  <data name="Water.Portion" xml:space="preserve"><value>Одна порция</value></data>
+  <data name="Water.More" xml:space="preserve"><value>Больше порция</value></data>
+  <data name="Water.Portion" xml:space="preserve"><value>Порция</value></data>
   <data name="Water.ReminderBody" xml:space="preserve"><value>Сегодня выпито: {0}</value></data>
   <data name="Water.ReminderTitle" xml:space="preserve"><value>Пора выпить воды</value></data>
   <data name="Water.Reminders" xml:space="preserve"><value>Напоминания</value></data>
+  <data name="Water.RemindersOff" xml:space="preserve"><value>напоминания выкл</value></data>
+  <data name="Water.RemindersOn" xml:space="preserve"><value>напоминания вкл</value></data>
+  <data name="Water.Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Water.Status" xml:space="preserve"><value>Сегодня · {0} · {1}</value></data>
   <data name="Water.Title" xml:space="preserve"><value>Водный баланс</value></data>
   <data name="Water.TitleAccent" xml:space="preserve"><value>баланс</value></data>
   <data name="Water.Undo" xml:space="preserve"><value>Отменить последнее</value></data>

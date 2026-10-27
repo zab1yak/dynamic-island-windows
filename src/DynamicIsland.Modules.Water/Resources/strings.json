@@ -3,6 +3,30 @@
     "en": "Water Reminder",
     "ru": "Водный баланс"
   },
+  "Water.Settings": {
+    "en": "Settings",
+    "ru": "Настройки"
+  },
+  "Water.GoalReached": {
+    "en": "Daily goal reached",
+    "ru": "Норма выполнена"
+  },
+  "Water.RemindersOff": {
+    "en": "Reminders off",
+    "ru": "напоминания выкл"
+  },
+  "Water.RemindersOn": {
+    "en": "Reminders on",
+    "ru": "напоминания вкл"
+  },
+  "Water.Status": {
+    "en": "Today · {0} · {1}",
+    "ru": "Сегодня · {0} · {1}"
+  },
+  "Water.DrinkShort": {
+    "en": "Drink",
+    "ru": "Выпить"
+  },
   "Water.TitleAccent": {
     "en": "Reminder",
     "ru": "баланс"
@@ -40,8 +64,8 @@
     "ru": "Цель на день"
   },
   "Water.Portion": {
-    "en": "One portion",
-    "ru": "Одна порция"
+    "en": "Default portion",
+    "ru": "Порция"
   },
   "Water.Interval": {
     "en": "Remind every",
@@ -64,19 +88,19 @@
     "ru": "мин"
   },
   "Water.Less": {
-    "en": "Less water",
-    "ru": "Меньше воды"
+    "en": "Smaller portion",
+    "ru": "Меньше порция"
   },
   "Water.More": {
-    "en": "More water",
-    "ru": "Больше воды"
+    "en": "Bigger portion",
+    "ru": "Больше порция"
   },
   "Water.FineStep": {
     "en": "{0} ml",
     "ru": "{0} мл"
   },
   "Water.FineStepSetting": {
-    "en": "Step of − and + buttons",
-    "ru": "Шаг кнопок − и +"
+    "en": "Portion step (− / +)",
+    "ru": "Шаг порции (− / +)"
   }
 }

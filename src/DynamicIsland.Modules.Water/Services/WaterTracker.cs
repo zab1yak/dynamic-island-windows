@@ -8,10 +8,16 @@ public sealed class WaterState
     /// <summary>Daily goal in millilitres.</summary>
     public int GoalMl { get; set; } = 2000;
 
-    /// <summary>Amount added by one "Drink" press.</summary>
+    /// <summary>Smallest portion the user can pick.</summary>
+    public const int MinPortionMl = 50;
+
+    /// <summary>Largest portion the user can pick.</summary>
+    public const int MaxPortionMl = 1000;
+
+    /// <summary>The portion the user picked with − / +; "Drink" adds it (250 ml by default).</summary>
     public int StepMl { get; set; } = 250;
 
-    /// <summary>Amount changed by the − and + buttons around the bar.</summary>
+    /// <summary>How much − and + change the picked portion (50 ml by default).</summary>
     public int FineStepMl { get; set; } = 50;
 
     /// <summary>Remind to drink.</summary>
@@ -42,7 +48,7 @@ public sealed class WaterState
     public void Normalize()
     {
         GoalMl = Math.Clamp(GoalMl, 250, 10_000);
-        StepMl = Math.Clamp(StepMl, 50, 2000);
+        StepMl = Math.Clamp(StepMl, MinPortionMl, MaxPortionMl);
         FineStepMl = Math.Clamp(FineStepMl == 0 ? 50 : FineStepMl, 10, 500);
         ReminderIntervalMinutes = Math.Clamp(ReminderIntervalMinutes, 15, 480);
         ActiveFromHour = Math.Clamp(ActiveFromHour, 0, 23);
@@ -87,7 +93,7 @@ public sealed class WaterTracker(WaterState state, TimeProvider time)
     /// <summary>Whether the goal is reached.</summary>
     public bool GoalReached => TotalMl >= State.GoalMl;
 
-    /// <summary>Adds one portion.</summary>
+    /// <summary>Adds the picked portion to today's total.</summary>
     public void Drink()
     {
         RollDay();
@@ -95,34 +101,16 @@ public sealed class WaterTracker(WaterState state, TimeProvider time)
     }
 
     /// <summary>
-    /// Fine adjustment from the − / + buttons: a positive delta adds a small portion, a negative one
-    /// trims the most recent portions. The total never goes below zero.
+    /// Changes the picked portion by one step up (<paramref name="steps"/> &gt; 0) or down, within
+    /// <see cref="WaterState.MinPortionMl"/>–<see cref="WaterState.MaxPortionMl"/>. Today's total is not touched.
     /// </summary>
-    public void Adjust(int deltaMl)
+    public void ChangePortion(int steps)
     {
-        RollDay();
-        if (deltaMl > 0)
-        {
-            State.Today.Add(new WaterEntry(time.GetUtcNow(), deltaMl));
-            return;
-        }
-
-        var remove = -deltaMl;
-        while (remove > 0 && State.Today.Count > 0)
-        {
-            var last = State.Today[^1];
-            if (last.Ml <= remove)
-            {
-                remove -= last.Ml;
-                State.Today.RemoveAt(State.Today.Count - 1);
-            }
-            else
-            {
-                State.Today[^1] = last with { Ml = last.Ml - remove };
-                remove = 0;
-            }
-        }
+        State.StepMl = Math.Clamp(State.StepMl + (steps * State.FineStepMl), WaterState.MinPortionMl, WaterState.MaxPortionMl);
     }
+
+    /// <summary>Share of the goal in whole percent, never above 100.</summary>
+    public int Percent => (int)Math.Round(Progress * 100, MidpointRounding.AwayFromZero);
 
     /// <summary>Removes the last portion of today. Returns <c>false</c> when there is nothing to undo.</summary>
     public bool Undo()

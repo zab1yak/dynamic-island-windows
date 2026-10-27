@@ -53,8 +53,32 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
     [ObservableProperty]
     private string _drinkText = string.Empty;
 
-    public WaterViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, INotificationService notifications)
+    /// <summary>The picked portion, e.g. «250 мл».</summary>
+    [ObservableProperty]
+    private string _portionText = string.Empty;
+
+    /// <summary>«Сегодня · 17% · напоминания выкл» or «норма выполнена».</summary>
+    [ObservableProperty]
+    private string _statusText = string.Empty;
+
+    /// <summary>Percent number in the ring, 0–100.</summary>
+    [ObservableProperty]
+    private string _percentNumber = "0";
+
+    [ObservableProperty]
+    private bool _goalReached;
+
+    [ObservableProperty]
+    private bool _canDecreasePortion;
+
+    [ObservableProperty]
+    private bool _canIncreasePortion;
+
+    private readonly IIslandHost? _host;
+
+    public WaterViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, INotificationService notifications, IIslandHost? host = null)
     {
+        _host = host;
         _storage = storage;
         _time = time;
         _dispatcher = dispatcher;
@@ -119,21 +143,27 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
         return AfterChangeAsync();
     }
 
+    /// <summary>+ next to the portion: a bigger glass.</summary>
     [RelayCommand]
     private Task IncreaseAsync()
     {
-        _tracker.Adjust(_tracker.State.FineStepMl);
+        _tracker.ChangePortion(1);
         return AfterChangeAsync();
     }
 
+    /// <summary>− next to the portion: a smaller glass.</summary>
     [RelayCommand]
     private Task DecreaseAsync()
     {
-        _tracker.Adjust(-_tracker.State.FineStepMl);
+        _tracker.ChangePortion(-1);
         return AfterChangeAsync();
     }
 
-    /// <summary>Label of the fine-step buttons, e.g. "50 ml".</summary>
+    /// <summary>Opens the water section of the settings.</summary>
+    [RelayCommand]
+    private void OpenSettings() => _host?.OpenSettings("water");
+
+    /// <summary>Label of the − / + buttons, e.g. "50 ml".</summary>
     public string FineStepText => Loc.Instance.Format("Water.FineStep", _tracker.State.FineStepMl);
 
     [RelayCommand]
@@ -163,11 +193,19 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
         var liters = Loc.Instance["Water.Liters"];
         TotalText = string.Create(culture, $"{_tracker.TotalMl / 1000.0:0.0} / {_tracker.State.GoalMl / 1000.0:0.0} {liters}");
         Progress = _tracker.Progress;
-        PercentText = string.Create(culture, $"{Math.Round(_tracker.TotalMl * 100.0 / _tracker.State.GoalMl):0}%");
+        PercentText = string.Create(culture, $"{_tracker.Percent}%");
+        PercentNumber = _tracker.Percent.ToString(culture);
+        GoalReached = _tracker.GoalReached;
+        PortionText = Loc.Instance.Format("Water.FineStep", _tracker.State.StepMl);
+        CanDecreasePortion = _tracker.State.StepMl > WaterState.MinPortionMl;
+        CanIncreasePortion = _tracker.State.StepMl < WaterState.MaxPortionMl;
+        StatusText = _tracker.GoalReached
+            ? Loc.Instance["Water.GoalReached"]
+            : Loc.Instance.Format("Water.Status", PercentText, Loc.Instance[_tracker.State.RemindersEnabled ? "Water.RemindersOn" : "Water.RemindersOff"]);
         RemindersEnabled = _tracker.State.RemindersEnabled;
         ReminderText = Loc.Instance.Format("Water.Every", _tracker.State.ReminderIntervalMinutes);
         CanUndo = _tracker.State.Today.Count > 0;
-        DrinkText = Loc.Instance.Format("Water.Drink", _tracker.State.StepMl);
+        DrinkText = Loc.Instance["Water.DrinkShort"];
         OnPropertyChanged(nameof(FineStepText));
         Changed?.Invoke(this, EventArgs.Empty);
     }
