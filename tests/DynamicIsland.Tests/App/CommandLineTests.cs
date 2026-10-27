@@ -32,3 +32,13 @@ public sealed class CommandLineTests
         Assert.Equal(new CommandLine(false, false, false, null), CommandLine.Parse([]));
     }
 }
+
+public sealed class CommandLineRobustnessTests
+{
+    [Fact]
+    public void Null_arguments_are_ignored()
+    {
+        var cl = DynamicIsland.App.Hosting.CommandLine.Parse([null!, "--show", null!]);
+        Assert.True(cl.Show);
+    }
+}

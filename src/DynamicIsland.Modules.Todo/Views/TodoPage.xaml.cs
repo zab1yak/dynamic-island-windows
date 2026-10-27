@@ -29,9 +29,19 @@ public partial class TodoPage : UserControl
         NewTask.KeyDown += OnNewTaskKey;
         NewTask.LostKeyboardFocus += (_, _) =>
         {
-            if (ViewModel is { } vm && string.IsNullOrWhiteSpace(vm.NewTitle))
+            if (ViewModel is not { } vm)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(vm.NewTitle))
             {
                 vm.CancelAddCommand.Execute(null);
+            }
+            else
+            {
+                // Keep the draft visible, but give the keyboard back to Windows.
+                vm.SetTyping(false);
             }
         };
 
@@ -48,13 +58,14 @@ public partial class TodoPage : UserControl
             if (e.OldFocus is TextBox { DataContext: TodoItemViewModel row } && row.IsEditing)
             {
                 ViewModel?.CommitRenameCommand.Execute(row);
+                ViewModel?.SetTyping(false);
             }
         }));
 
         List.PreviewMouseLeftButtonDown += (_, e) =>
         {
             _pressed = (e.OriginalSource as FrameworkElement)?.DataContext as TodoItemViewModel;
-            _pressAt = _pressed is null || e.OriginalSource is TextBox ? null : e.GetPosition(List);
+            _pressAt = _pressed is null || IsInsideTextBox(e.OriginalSource as DependencyObject) ? null : e.GetPosition(List);
         };
         List.PreviewMouseMove += OnMove;
         List.DragOver += (_, e) =>
@@ -66,6 +77,21 @@ public partial class TodoPage : UserControl
     }
 
     private TodoViewModel? ViewModel => DataContext as TodoViewModel;
+
+    private static bool IsInsideTextBox(DependencyObject? element)
+    {
+        while (element is not null)
+        {
+            if (element is TextBox)
+            {
+                return true;
+            }
+
+            element = element is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(element) : LogicalTreeHelper.GetParent(element);
+        }
+
+        return false;
+    }
 
     private void OnNewTaskKey(object sender, KeyEventArgs e)
     {

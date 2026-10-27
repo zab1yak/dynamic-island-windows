@@ -91,7 +91,10 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
         await AfterChangeAsync();
     }
 
-    /// <summary>Re-checks the day and timers (after resume or a clock change).</summary>
+    /// <summary>Re-checks from any thread (SystemEvents fire on their own thread).</summary>
+    public void RecheckSoon() => _dispatcher.Post(() => _ = RecheckAsync());
+
+    /// <summary>Re-checks the day and timers (after resume or a clock change). UI thread only.</summary>
     public Task RecheckAsync()
     {
         _tracker.RollDay();
@@ -255,11 +258,11 @@ public sealed class WaterModule(WaterViewModel viewModel) : IIslandModule
     {
         if (e.Mode == Microsoft.Win32.PowerModes.Resume)
         {
-            _ = viewModel.RecheckAsync();
+            viewModel.RecheckSoon();
         }
     }
 
-    private void OnTimeChanged(object? sender, EventArgs e) => _ = viewModel.RecheckAsync();
+    private void OnTimeChanged(object? sender, EventArgs e) => viewModel.RecheckSoon();
 }
 
 /// <summary>DI registration of the Water module.</summary>

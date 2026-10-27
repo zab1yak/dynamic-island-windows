@@ -3,6 +3,7 @@ using DynamicIsland.App.Hosting;
 using DynamicIsland.Platform.Windows;
 using Serilog;
 using Serilog.Extensions.Logging;
+using Velopack;
 
 namespace DynamicIsland.App;
 
@@ -12,6 +13,11 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        // Velopack install/update/uninstall hooks run here and exit before anything else starts.
+        VelopackApp.Build()
+            .OnBeforeUninstallFastCallback(_ => RemoveAutostart())
+            .Run();
+
         var commandLine = CommandLine.Parse(args);
         Log.Logger = Logging.CreateLogger();
 
@@ -57,6 +63,13 @@ internal static class Program
             Log.Information("Dynamic Island stopped");
             Log.CloseAndFlush();
         }
+    }
+
+    /// <summary>Uninstall must not leave a Run entry pointing at a deleted exe.</summary>
+    private static void RemoveAutostart()
+    {
+        using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
+        key?.DeleteValue(DynamicIsland.Platform.Windows.Startup.AutostartService.ValueName, throwOnMissingValue: false);
     }
 
     private static void WaitForPreviousProcess(int pid)

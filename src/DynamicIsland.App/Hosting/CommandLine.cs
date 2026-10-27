@@ -27,26 +27,26 @@ internal sealed record CommandLine(bool Background, bool OpenSettings, bool Show
         int? restart = null;
         foreach (var arg in args)
         {
-            if (arg.Equals(BackgroundSwitch, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(arg, BackgroundSwitch, StringComparison.OrdinalIgnoreCase))
             {
                 background = true;
             }
-            else if (arg.Equals(SettingsSwitch, StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(arg, SettingsSwitch, StringComparison.OrdinalIgnoreCase))
             {
                 settings = true;
             }
-            else if (arg.Equals(ShowSwitch, StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(arg, ShowSwitch, StringComparison.OrdinalIgnoreCase))
             {
                 show = true;
             }
-            else if (arg.StartsWith(RestartSwitch, StringComparison.OrdinalIgnoreCase)
+            else if (arg is not null && arg.StartsWith(RestartSwitch, StringComparison.OrdinalIgnoreCase)
                 && int.TryParse(arg.AsSpan(RestartSwitch.Length), NumberStyles.None, CultureInfo.InvariantCulture, out var pid))
             {
                 restart = pid;
             }
         }
 
-        var showcase = args.Any(a => a.Equals(ShowcaseSwitch, StringComparison.OrdinalIgnoreCase));
+        var showcase = args.Any(a => string.Equals(a, ShowcaseSwitch, StringComparison.OrdinalIgnoreCase));
         return new CommandLine(background, settings, show, restart) { Showcase = showcase };
     }
 }

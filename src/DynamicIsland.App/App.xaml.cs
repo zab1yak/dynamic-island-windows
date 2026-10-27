@@ -23,6 +23,7 @@ public partial class App : Application
     private readonly ILogger<App> _logger;
     private IslandWindow? _island;
     private bool _settingsCreated;
+    private bool _modulesReady;
 
     internal App(IHost host, CommandLine commandLine, SingleInstance instance)
     {
@@ -99,6 +100,7 @@ public partial class App : Application
             tray.Show();
 
             await services.GetRequiredService<ModuleHost>().InitializeAsync(CancellationToken.None);
+            _modulesReady = true;
             if (settings.IsFirstRun && Environment.ProcessPath is { } exe && DynamicIsland.Platform.Windows.Startup.AutostartService.IsInstalledBuild(exe))
             {
                 // On by default after installation; the user can switch it off in Settings.
@@ -149,6 +151,10 @@ public partial class App : Application
             settings.Changed += (_, _) => privacy.SetRecordingDetection(settings.Current.DetectScreenRecording);
             services.GetRequiredService<LiveActivityHost>().Start();
 
+            var updates = services.GetRequiredService<UpdateService>();
+            services.GetRequiredService<Settings.AboutViewModel>().CheckUpdates = () => updates.CheckAsync(notify: false);
+            updates.Start();
+
             _instance.SetHandler(args => Dispatcher.BeginInvoke(() => HandleArguments(CommandLine.Parse(args))));
             HandleArguments(_commandLine);
             _logger.LogInformation("Started (background: {Background})", _commandLine.Background);
@@ -162,6 +168,12 @@ public partial class App : Application
 
     private void OpenSettings(string? section)
     {
+        if (!_modulesReady)
+        {
+            // Pages are built from initialized modules; the tray click before that is ignored.
+            return;
+        }
+
         // Created on first use only: modules must be initialized before their settings pages exist.
         _settingsCreated = true;
         _host.Services.GetRequiredService<Settings.SettingsWindow>().ShowSection(section);

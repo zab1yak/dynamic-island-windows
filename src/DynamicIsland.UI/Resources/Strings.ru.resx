@@ -53,4 +53,9 @@
   <data name="Tray.Settings" xml:space="preserve"><value>Настройки…</value></data>
   <data name="Tray.Showcase" xml:space="preserve"><value>Витрина компонентов (Debug)</value></data>
   <data name="Tray.Tooltip" xml:space="preserve"><value>Dynamic Island</value></data>
+  <data name="Update.Body" xml:space="preserve"><value>Версия {0} установится при выходе из Dynamic Island.</value></data>
+  <data name="Update.Failed" xml:space="preserve"><value>Не удалось проверить обновления. Попробуйте позже.</value></data>
+  <data name="Update.Ready" xml:space="preserve"><value>Обновление готово и установится при выходе</value></data>
+  <data name="Update.Title" xml:space="preserve"><value>Обновление загружено</value></data>
+  <data name="Update.UpToDate" xml:space="preserve"><value>Установлена последняя версия ({0})</value></data>
 </root>

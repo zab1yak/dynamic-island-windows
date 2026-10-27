@@ -45,6 +45,17 @@ public sealed class WaterState
         ActiveToHour = Math.Clamp(ActiveToHour, ActiveFromHour + 1, 24);
         Today ??= [];
         History ??= [];
+        // A hand-edited or damaged file must not make sums overflow or the UI crawl.
+        Today.RemoveAll(e => e is null || e.Ml is < 1 or > 5000);
+        if (Today.Count > 500)
+        {
+            Today.RemoveRange(0, Today.Count - 500);
+        }
+
+        foreach (var day in History.Where(kv => kv.Value is < 0 or > 100_000).Select(kv => kv.Key).ToList())
+        {
+            History.Remove(day);
+        }
     }
 }
 

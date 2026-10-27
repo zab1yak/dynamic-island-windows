@@ -194,5 +194,25 @@
   "Settings.IconsCredit": {
     "en": "Icons: Lucide (ISC licence), lucide.dev. Fonts: SF Pro if installed, otherwise Segoe UI Variable.",
     "ru": "Иконки: Lucide (лицензия ISC), lucide.dev. Шрифты: SF Pro, если установлен, иначе Segoe UI Variable."
+  },
+  "Update.Title": {
+    "en": "Update downloaded",
+    "ru": "Обновление загружено"
+  },
+  "Update.Body": {
+    "en": "Version {0} will be installed when you exit Dynamic Island.",
+    "ru": "Версия {0} установится при выходе из Dynamic Island."
+  },
+  "Update.Ready": {
+    "en": "An update is ready and will be installed on exit",
+    "ru": "Обновление готово и установится при выходе"
+  },
+  "Update.UpToDate": {
+    "en": "You have the latest version ({0})",
+    "ru": "Установлена последняя версия ({0})"
+  },
+  "Update.Failed": {
+    "en": "Could not check for updates. Try again later.",
+    "ru": "Не удалось проверить обновления. Попробуйте позже."
   }
 }

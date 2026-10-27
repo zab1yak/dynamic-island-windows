@@ -52,7 +52,9 @@ public sealed class SettingsService : ISettingsService, IDisposable
         if (json is null)
         {
             Current = new AppSettings();
-            IsFirstRun = true;
+            // A damaged file was moved aside as "*.corrupt": that is not a fresh installation.
+            var folder = Path.GetDirectoryName(_storage.ResolvePath(FileName))!;
+            IsFirstRun = !Directory.Exists(folder) || Directory.GetFiles(folder, FileName + ".*.corrupt").Length == 0;
             return;
         }
 

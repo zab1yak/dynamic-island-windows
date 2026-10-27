@@ -74,5 +74,7 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
         s.ActiveToHour = ActiveToHour;
         s.Normalize();
         _ = _water.RecheckAsync();
+        // Show what was actually stored (for example "until" is kept after "from").
+        Reload();
     }
 }

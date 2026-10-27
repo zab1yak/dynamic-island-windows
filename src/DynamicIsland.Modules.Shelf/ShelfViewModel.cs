@@ -205,7 +205,8 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
         try
         {
             var explorer = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
-            using var _ = Process.Start(new ProcessStartInfo(explorer) { UseShellExecute = false, ArgumentList = { "/select," + item.Path } });
+            // Explorer parses /select itself and needs the path quoted after the comma (paths cannot contain quotes).
+            using var _ = Process.Start(new ProcessStartInfo(explorer) { UseShellExecute = false, Arguments = $"/select,\"{item.Path}\"" });
         }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
         {
@@ -235,7 +236,15 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
     [RelayCommand]
     private async Task RemoveAsync(ShelfItemViewModel? item)
     {
-        await _store.RemoveAsync(Selected(item).Select(i => i.Item.Id).ToList());
+        try
+        {
+            await _store.RemoveAsync(Selected(item).Select(i => i.Item.Id).ToList());
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger.LogWarning(ex, "Removing shelf items failed");
+        }
+
         Reload();
     }
 
@@ -243,7 +252,15 @@ public sealed partial class ShelfViewModel : ObservableObject, IDropHandler, IDi
     [RelayCommand]
     private async Task ClearAllAsync()
     {
-        await _store.RemoveAsync(_store.Items.Select(i => i.Id).ToList());
+        try
+        {
+            await _store.RemoveAsync(_store.Items.Select(i => i.Id).ToList());
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger.LogWarning(ex, "Clearing the shelf failed");
+        }
+
         Reload();
     }
 

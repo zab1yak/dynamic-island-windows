@@ -141,7 +141,15 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
             return;
         }
 
-        _autostart.Set(value, exe);
+        if (!_autostart.Set(value, exe))
+        {
+            // The registry refused: show the real state.
+            _loading = true;
+            LaunchAtStartup = AutostartService.IsEnabled(exe);
+            _loading = false;
+            return;
+        }
+
         _settings.Current.LaunchAtStartup = value;
         Save();
     }
@@ -291,7 +299,14 @@ internal sealed partial class AboutViewModel : ObservableObject
     private static void OpenUrl(string url)
     {
         // Only our own constant https URLs are opened here.
-        using var _ = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        try
+        {
+            using var _ = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // No default browser: nothing else to do.
+        }
     }
 }
 

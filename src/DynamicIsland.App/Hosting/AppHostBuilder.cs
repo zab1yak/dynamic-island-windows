@@ -45,6 +45,7 @@ internal static class AppHostBuilder
         services.AddSingleton<AppLifetime>();
         services.AddSingleton<TrayIconService>();
         services.AddSingleton<INotificationService, TrayNotificationService>();
+        services.AddSingleton<UpdateService>();
         services.AddSingleton<GlobalExceptionHandler>();
         services.AddSingleton<IUiDispatcher>(_ => new WpfUiDispatcher(System.Windows.Application.Current.Dispatcher));
         services.AddSingleton<IslandStateMachine>();

@@ -106,6 +106,7 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
         var state = await _storage.LoadAsync<PomodoroState>(FileName, cancellationToken) ?? new PomodoroState();
         state.Settings ??= new PomodoroSettings();
         state.Settings.Normalize();
+        Sanitize(state, _time.GetUtcNow());
         _timer = new PomodoroTimer(state, _time);
         _timer.CheckCompletion();
         _startedAt = _time.GetUtcNow();
@@ -113,6 +114,32 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
         ScheduleCompletion();
         UpdateTick();
     }
+
+    /// <summary>Drops impossible values a damaged or hand-edited file could contain.</summary>
+    internal static void Sanitize(PomodoroState state, DateTimeOffset now)
+    {
+        state.RemainingSeconds = double.IsFinite(state.RemainingSeconds) ? Math.Clamp(state.RemainingSeconds, 0, 3 * 3600) : 0;
+        state.CompletedFocus = Math.Clamp(state.CompletedFocus, 0, 1000);
+        state.CompletedToday = Math.Clamp(state.CompletedToday, 0, 1000);
+        if (state.Status == PomodoroStatus.Running && (state.EndsAtUtc is not { } end || end > now + TimeSpan.FromHours(3)))
+        {
+            state.Status = PomodoroStatus.Idle;
+            state.EndsAtUtc = null;
+        }
+    }
+
+    /// <summary>After sleep or a clock change: complete what ended and re-arm the end timer. Any thread.</summary>
+    public void RecheckSoon() => _dispatcher.Post(() =>
+    {
+        if (_timer.CheckCompletion() is not null)
+        {
+            _ = AfterChangeAsync();
+            return;
+        }
+
+        Refresh();
+        ScheduleCompletion();
+    });
 
     /// <summary>Saves the state.</summary>
     public Task SaveAsync() => _storage.SaveAsync(FileName, _timer.State);
@@ -241,6 +268,7 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
         var run = IsRunning && _island.Mode != IslandMode.Hidden;
         if (run && _tick is null)
         {
+            Refresh();
             _tick = _time.CreateTimer(_ => _dispatcher.Post(Refresh), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
         else if (!run && _tick is not null)

@@ -191,7 +191,9 @@ public sealed class SingleInstance : IDisposable
             }
         }
 
-        return JsonSerializer.Deserialize<string[]>(buffer.ToArray()) ?? [];
+        var args = JsonSerializer.Deserialize<string[]>(buffer.ToArray()) ?? [];
+        // Any process of this user can write here: keep only real strings, and not too many.
+        return [.. args.Where(a => a is not null).Take(16)];
     }
 
     private void Dispatch(string[] args)

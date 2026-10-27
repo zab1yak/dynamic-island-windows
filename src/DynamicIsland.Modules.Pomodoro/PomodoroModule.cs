@@ -43,11 +43,23 @@ public sealed class PomodoroModule(PomodoroViewModel viewModel) : IIslandModule
     public ILiveActivitySource? LiveActivities => viewModel;
 
     /// <inheritdoc />
-    public Task InitializeAsync(CancellationToken cancellationToken)
+    public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         Loc.Instance.Register(Strings);
-        return viewModel.LoadAsync(cancellationToken);
+        await viewModel.LoadAsync(cancellationToken);
+        Microsoft.Win32.SystemEvents.PowerModeChanged += OnPowerModeChanged;
+        Microsoft.Win32.SystemEvents.TimeChanged += OnTimeChanged;
     }
+
+    private void OnPowerModeChanged(object sender, Microsoft.Win32.PowerModeChangedEventArgs e)
+    {
+        if (e.Mode == Microsoft.Win32.PowerModes.Resume)
+        {
+            viewModel.RecheckSoon();
+        }
+    }
+
+    private void OnTimeChanged(object? sender, EventArgs e) => viewModel.RecheckSoon();
 
     /// <inheritdoc />
     public Task FlushAsync() => viewModel.SaveAsync();
@@ -55,6 +67,8 @@ public sealed class PomodoroModule(PomodoroViewModel viewModel) : IIslandModule
     /// <inheritdoc />
     public async Task ShutdownAsync()
     {
+        Microsoft.Win32.SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+        Microsoft.Win32.SystemEvents.TimeChanged -= OnTimeChanged;
         await viewModel.SaveAsync();
         viewModel.Dispose();
     }

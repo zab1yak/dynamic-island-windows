@@ -86,12 +86,13 @@ public enum ShelfAddError
 /// name, so names never collide on disk and nothing can be written outside the shelf folder.
 /// Folders are copied without following junctions or symbolic links.
 /// </summary>
-public sealed class ShelfStore
+public sealed class ShelfStore : IDisposable
 {
     private const string IndexFile = "index.json";
     private const string ItemsFolder = "items";
 
     private readonly TimeProvider _time;
+    private readonly SemaphoreSlim _saveGate = new(1, 1);
     private ShelfIndex _index = new();
 
     public ShelfStore(string root, TimeProvider time)
@@ -99,6 +100,9 @@ public sealed class ShelfStore
         Root = Path.GetFullPath(root);
         _time = time;
     }
+
+    /// <inheritdoc />
+    public void Dispose() => _saveGate.Dispose();
 
     /// <summary>Absolute shelf folder.</summary>
     public string Root { get; }
@@ -164,21 +168,27 @@ public sealed class ShelfStore
     /// <summary>Saves the index atomically.</summary>
     public async Task SaveAsync(CancellationToken cancellationToken = default)
     {
-        Directory.CreateDirectory(Root);
-        var path = Path.Combine(Root, IndexFile);
-        var temp = $"{path}.{Guid.NewGuid():N}.tmp";
-        await using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+        // Snapshot on the caller's (UI) thread, then write one file at a time.
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(_index, JsonDefaults.Options);
+        await _saveGate.WaitAsync(cancellationToken);
+        try
         {
-            await JsonSerializer.SerializeAsync(stream, _index, JsonDefaults.Options, cancellationToken);
+            Directory.CreateDirectory(Root);
+            var path = Path.Combine(Root, IndexFile);
+            var temp = $"{path}.{Guid.NewGuid():N}.tmp";
+            await File.WriteAllBytesAsync(temp, bytes, cancellationToken);
+            if (File.Exists(path))
+            {
+                File.Replace(temp, path, null, ignoreMetadataErrors: true);
+            }
+            else
+            {
+                File.Move(temp, path);
+            }
         }
-
-        if (File.Exists(path))
+        finally
         {
-            File.Replace(temp, path, null, ignoreMetadataErrors: true);
-        }
-        else
-        {
-            File.Move(temp, path);
+            _saveGate.Release();
         }
     }
 

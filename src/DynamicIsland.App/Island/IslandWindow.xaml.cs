@@ -451,8 +451,9 @@ internal sealed partial class IslandWindow : Window
     /// </summary>
     private void WatchForDrag()
     {
-        if (_monitor is null || _hwnd == 0)
+        if (_monitor is null || _hwnd == 0 || _stateMachine.Mode == IslandMode.Hidden)
         {
+            // Hidden over a fullscreen app: dropping onto the island is impossible anyway.
             return;
         }
 

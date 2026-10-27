@@ -31,7 +31,26 @@ public sealed class TodoList(TodoState state, TimeProvider time)
     /// <summary>Most tasks kept (older completed ones are dropped first).</summary>
     public const int MaxItems = 500;
 
-    public TodoState State { get; } = state;
+    public TodoState State { get; } = Sanitized(state);
+
+    /// <summary>Cleans a loaded list: no nulls, clean titles, unique ids, bounded size.</summary>
+    private static TodoState Sanitized(TodoState state)
+    {
+        state.Items ??= [];
+        var seen = new HashSet<Guid>();
+        state.Items.RemoveAll(i => i is null || Clean(i.Title) is null || !seen.Add(i.Id));
+        foreach (var item in state.Items)
+        {
+            item.Title = Clean(item.Title)!;
+        }
+
+        if (state.Items.Count > MaxItems)
+        {
+            state.Items.RemoveRange(MaxItems, state.Items.Count - MaxItems);
+        }
+
+        return state;
+    }
 
     public IReadOnlyList<TodoItem> Items => State.Items;
 
@@ -130,7 +149,8 @@ public sealed class TodoList(TodoState state, TimeProvider time)
     {
         while (State.Items.Count > MaxItems)
         {
-            var victim = State.Items.LastOrDefault(i => i.Done) ?? State.Items[^1];
+            // Drop the task completed longest ago first, then the oldest open one.
+            var victim = State.Items.Where(i => i.Done).MinBy(i => i.DoneAt) ?? State.Items[^1];
             State.Items.Remove(victim);
         }
     }

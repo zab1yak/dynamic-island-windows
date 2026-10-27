@@ -13,6 +13,9 @@ public sealed class JsonStorageService : IStorageService
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new(StringComparer.OrdinalIgnoreCase);
     private readonly ILogger<JsonStorageService> _logger;
 
+    /// <summary>Documents above this size are treated as corrupt (protects against memory blow-ups).</summary>
+    public const long MaxDocumentBytes = 16 * 1024 * 1024;
+
     /// <summary>Creates the service rooted at <paramref name="rootPath"/>; the folder is created if missing.</summary>
     public JsonStorageService(string rootPath, ILogger<JsonStorageService> logger)
     {
@@ -59,10 +62,15 @@ public sealed class JsonStorageService : IStorageService
 
             try
             {
+                if (new FileInfo(path).Length > MaxDocumentBytes)
+                {
+                    throw new JsonException("Document is larger than the allowed size.");
+                }
+
                 await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
                 return await JsonSerializer.DeserializeAsync<T>(stream, JsonDefaults.Options, cancellationToken).ConfigureAwait(false);
             }
-            catch (JsonException ex)
+            catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException)
             {
                 var corrupt = $"{path}.{DateTime.UtcNow:yyyyMMddHHmmss}.corrupt";
                 _logger.LogError(ex, "Corrupt JSON in {Path}; moving it to {CorruptPath}", path, corrupt);
@@ -88,6 +96,8 @@ public sealed class JsonStorageService : IStorageService
     public async Task SaveAsync<T>(string relativePath, T value, CancellationToken cancellationToken = default) where T : class
     {
         ArgumentNullException.ThrowIfNull(value);
+        // Serialize now, on the caller's thread: callers pass live objects the UI keeps changing.
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(value, JsonDefaults.Options);
         var path = ResolvePath(relativePath);
         var gate = _locks.GetOrAdd(path, _ => new SemaphoreSlim(1, 1));
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -98,7 +108,7 @@ public sealed class JsonStorageService : IStorageService
             var temp = $"{path}.{Guid.NewGuid():N}.tmp";
             try
             {
-                await WriteAndReplaceAsync(path, temp, value, cancellationToken).ConfigureAwait(false);
+                await WriteAndReplaceAsync(path, temp, bytes, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -114,11 +124,11 @@ public sealed class JsonStorageService : IStorageService
         }
     }
 
-    private static async Task WriteAndReplaceAsync<T>(string path, string temp, T value, CancellationToken cancellationToken)
+    private static async Task WriteAndReplaceAsync(string path, string temp, byte[] bytes, CancellationToken cancellationToken)
     {
         await using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough | FileOptions.Asynchronous))
         {
-            await JsonSerializer.SerializeAsync(stream, value, JsonDefaults.Options, cancellationToken).ConfigureAwait(false);
+            await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
             await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
             stream.Flush(flushToDisk: true);
         }
