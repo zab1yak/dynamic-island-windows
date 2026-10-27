@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicIsland.Core.Island;
 using DynamicIsland.UI.Localization;
 
+using DynamicIsland.Core.Modules;
+
 namespace DynamicIsland.App.Island;
 
 /// <summary>State shown by the island chrome itself (clock, date, mode).</summary>
@@ -21,8 +23,12 @@ internal sealed partial class IslandViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private IslandMode _mode = IslandMode.Compact;
 
-    public IslandViewModel(TimeProvider time, StatusViewModel status, LiveActivityHost live, ModuleHost modules)
+    /// <summary>Music playback for the sound wave, or <c>null</c> when the media module is absent.</summary>
+    public IPlaybackLevels? Playback { get; }
+
+    public IslandViewModel(TimeProvider time, StatusViewModel status, LiveActivityHost live, ModuleHost modules, IEnumerable<IPlaybackLevels> playback)
     {
+        Playback = playback.FirstOrDefault();
         _time = time;
         Status = status;
         Live = live;

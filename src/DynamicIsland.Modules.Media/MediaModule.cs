@@ -35,6 +35,9 @@ public sealed class MediaModule(MediaViewModel viewModel, IMediaSessionSource so
     public string TitleKey => "Media.Title";
 
     /// <inheritdoc />
+    public bool ShowsTitle => false;
+
+    /// <inheritdoc />
     public string IconKey => "Music";
 
     /// <inheritdoc />

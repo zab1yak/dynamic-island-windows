@@ -79,6 +79,13 @@
         <Setter Property="Height" Value="32" />
     </Style>
 
+    <!-- Round grey page arrow at the island's sides (‹ ›), as on the reference photos. -->
+    <Style x:Key="PageArrow" TargetType="ButtonBase" BasedOn="{StaticResource Button.Base}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface3}" />
+        <Setter Property="Width" Value="22" />
+        <Setter Property="Height" Value="22" />
+    </Style>
+
     <!-- Capsule button with text ("Short Break", "Add Task"). -->
     <Style x:Key="PillButton" TargetType="ButtonBase" BasedOn="{StaticResource Button.Base}">
         <Setter Property="Background" Value="{DynamicResource Brush.Surface2}" />

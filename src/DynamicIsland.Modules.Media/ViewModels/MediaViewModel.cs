@@ -12,7 +12,7 @@ namespace DynamicIsland.Modules.Media.ViewModels;
 /// reports), transport commands and the real-level visualizer. Timers run only while they are
 /// visible: the progress clock while expanded and playing, the visualizer while playing.
 /// </summary>
-public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySource, IDisposable
+public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySource, IDisposable, DynamicIsland.Core.Modules.IPlaybackLevels
 {
     private static readonly TimeSpan ProgressInterval = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan VisualizerInterval = TimeSpan.FromMilliseconds(50);
@@ -351,8 +351,8 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
     {
         var mode = _island.Mode;
         var playing = _current?.IsPlaying == true;
-        // Bars are on screen only in the live pill and on the expanded page.
-        var barsVisible = mode == IslandMode.LiveActivity || IslandMetrics.IsExpanded(mode);
+        // Bars are on screen in the live pill, the compact sound wave and the expanded page (not when hidden).
+        var barsVisible = mode is IslandMode.LiveActivity or IslandMode.Compact || IslandMetrics.IsExpanded(mode);
 
         SetTimer(ref _progressTimer, playing && IslandMetrics.IsExpanded(mode), ProgressInterval, UpdateProgress);
         if (playing && barsVisible && _visualizerTimer is null)

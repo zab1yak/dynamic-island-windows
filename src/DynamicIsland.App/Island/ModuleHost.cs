@@ -25,7 +25,8 @@ internal sealed partial class ModuleHost : ObservableObject
     private IReadOnlyList<IIslandModule> _pages = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CurrentPage), nameof(CurrentTitle))]
+    [NotifyPropertyChangedFor(nameof(CurrentPage), nameof(CurrentTitle), nameof(CurrentTitleMain), nameof(CurrentTitleAccent),
+        nameof(CurrentTitleAccentBrush), nameof(CurrentShowsTitle))]
     private int _currentIndex;
 
     public ModuleHost(IEnumerable<IIslandModule> modules, IEnumerable<ModuleResources> resources, ISettingsService settings, ILogger<ModuleHost> logger)
@@ -35,7 +36,7 @@ internal sealed partial class ModuleHost : ObservableObject
         _settings = settings;
         _logger = logger;
         settings.Changed += (_, _) => Rebuild();
-        Loc.Instance.CultureChanged += (_, _) => OnPropertyChanged(nameof(CurrentTitle));
+        Loc.Instance.CultureChanged += (_, _) => NotifyTitle();
     }
 
     /// <summary>All registered modules, enabled or not (for the settings window).</summary>
@@ -49,6 +50,33 @@ internal sealed partial class ModuleHost : ObservableObject
 
     /// <summary>Localized title of the visible page.</summary>
     public string CurrentTitle => CurrentModule is { } m ? Loc.Instance[m.TitleKey] : string.Empty;
+
+    /// <summary>White part of the title («Water » in «Water Reminder»).</summary>
+    public string CurrentTitleMain => SplitTitle(CurrentTitle, CurrentTitleAccent).Main;
+
+    /// <summary>Coloured part of the title («Reminder»), or empty.</summary>
+    public string CurrentTitleAccent => CurrentModule?.TitleAccentKey is { } key ? SplitTitle(CurrentTitle, Loc.Instance[key]).Accent : string.Empty;
+
+    /// <summary>Brush of the coloured part.</summary>
+    public object? CurrentTitleAccentBrush => CurrentModule is { } m ? System.Windows.Application.Current?.TryFindResource(m.TitleAccentBrushKey) : null;
+
+    /// <summary>Whether the header shows the title (not on the music page).</summary>
+    public bool CurrentShowsTitle => CurrentModule?.ShowsTitle ?? true;
+
+    /// <summary>Splits a full title into its white and coloured parts; a mismatch keeps it single-colour.</summary>
+    internal static (string Main, string Accent) SplitTitle(string full, string accent) =>
+        accent.Length > 0 && full.Length > accent.Length && full.EndsWith(accent, StringComparison.Ordinal)
+            ? (full[..^accent.Length], accent)
+            : (full, string.Empty);
+
+    private void NotifyTitle()
+    {
+        OnPropertyChanged(nameof(CurrentTitle));
+        OnPropertyChanged(nameof(CurrentTitleMain));
+        OnPropertyChanged(nameof(CurrentTitleAccent));
+        OnPropertyChanged(nameof(CurrentTitleAccentBrush));
+        OnPropertyChanged(nameof(CurrentShowsTitle));
+    }
 
     /// <summary>Merges templates and initializes modules. Call once on the UI thread.</summary>
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -148,7 +176,7 @@ internal sealed partial class ModuleHost : ObservableObject
         var index = Pages.ToList().FindIndex(m => m.Id == currentId);
         CurrentIndex = index >= 0 ? index : 0;
         OnPropertyChanged(nameof(CurrentPage));
-        OnPropertyChanged(nameof(CurrentTitle));
+        NotifyTitle();
     }
 
     /// <summary>Saved order first, then new modules by their default order; disabled ones removed.</summary>

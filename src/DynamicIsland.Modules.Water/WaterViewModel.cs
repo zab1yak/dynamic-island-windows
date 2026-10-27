@@ -226,6 +226,8 @@ public sealed class WaterModule(WaterViewModel viewModel) : IIslandModule
     /// <inheritdoc />
     public string TitleKey => "Water.Title";
 
+    public string? TitleAccentKey => "Water.TitleAccent";
+
     /// <inheritdoc />
     public string IconKey => "Droplet";
 

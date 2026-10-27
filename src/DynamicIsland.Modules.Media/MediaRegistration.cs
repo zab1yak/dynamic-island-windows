@@ -23,6 +23,7 @@ public static class MediaRegistration
             sp.GetRequiredService<IUiDispatcher>(),
             sp.GetRequiredService<IslandStateMachine>(),
             ArtworkPalette.AccentAsync));
+        services.AddSingleton<IPlaybackLevels>(sp => sp.GetRequiredService<MediaViewModel>());
         services.AddSingleton<IAppLauncher, AppLauncher>();
         services.AddSingleton<LastTrackStore>();
         services.AddSingleton<RestoreFlow>();

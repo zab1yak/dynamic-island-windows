@@ -11,6 +11,7 @@
   <data name="Todo.Placeholder" xml:space="preserve"><value>Новая задача — Enter добавить, Shift+Enter перенос</value></data>
   <data name="Todo.Rename" xml:space="preserve"><value>Переименовать</value></data>
   <data name="Todo.Summary" xml:space="preserve"><value>{0}/{1} задач выполнено сегодня</value></data>
-  <data name="Todo.Title" xml:space="preserve"><value>Задачи</value></data>
+  <data name="Todo.Title" xml:space="preserve"><value>Список задач</value></data>
+  <data name="Todo.TitleAccent" xml:space="preserve"><value>задач</value></data>
   <data name="Todo.Toggle" xml:space="preserve"><value>Отметить выполненной</value></data>
 </root>

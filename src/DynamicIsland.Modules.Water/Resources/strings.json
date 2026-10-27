@@ -1,7 +1,11 @@
 {
   "Water.Title": {
-    "en": "Water",
-    "ru": "Вода"
+    "en": "Water Reminder",
+    "ru": "Водный баланс"
+  },
+  "Water.TitleAccent": {
+    "en": "Reminder",
+    "ru": "баланс"
   },
   "Water.Liters": {
     "en": "L",

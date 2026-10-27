@@ -21,6 +21,7 @@
   <data name="Water.ReminderBody" xml:space="preserve"><value>So far today: {0}</value></data>
   <data name="Water.ReminderTitle" xml:space="preserve"><value>Time for some water</value></data>
   <data name="Water.Reminders" xml:space="preserve"><value>Reminders</value></data>
-  <data name="Water.Title" xml:space="preserve"><value>Water</value></data>
+  <data name="Water.Title" xml:space="preserve"><value>Water Reminder</value></data>
+  <data name="Water.TitleAccent" xml:space="preserve"><value>Reminder</value></data>
   <data name="Water.Undo" xml:space="preserve"><value>Undo last drink</value></data>
 </root>

@@ -242,6 +242,10 @@ public sealed class TodoModule(TodoViewModel viewModel) : IIslandModule
 
     public string TitleKey => "Todo.Title";
 
+    public string? TitleAccentKey => "Todo.TitleAccent";
+
+    public string TitleAccentBrushKey => "Brush.Green";
+
     public string IconKey => "ListTodo";
 
     public int Order => 4;

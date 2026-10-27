@@ -1,7 +1,11 @@
 {
   "Todo.Title": {
-    "en": "To-do",
-    "ru": "Задачи"
+    "en": "TodoList",
+    "ru": "Список задач"
+  },
+  "Todo.TitleAccent": {
+    "en": "List",
+    "ru": "задач"
   },
   "Todo.Summary": {
     "en": "{0}/{1} tasks done today",

@@ -48,6 +48,15 @@
         <Grid x:Name="ContentHost">
             <Grid.Resources>
                 <BooleanToVisibilityConverter x:Key="Visible" />
+                <!-- Sound wave (as on the reference photos): live bars while music plays, a static icon otherwise. -->
+                <DataTemplate x:Key="SoundWave">
+                    <Grid Width="18" Height="14" VerticalAlignment="Center">
+                        <c:Icon Glyph="AudioLines" Width="16" Height="14" Foreground="{DynamicResource Brush.TextSecondary}"
+                                Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                        <c:VisualizerBars Levels="{Binding Levels}" BarBrush="{DynamicResource Brush.TextSecondary}"
+                                          Visibility="{Binding IsPlaying, Converter={StaticResource Visible}}" />
+                    </Grid>
+                </DataTemplate>
                 <!-- iOS-style privacy dots, most important first: screen sharing (red ring), camera (red), microphone (orange). -->
                 <DataTemplate x:Key="PrivacyDots">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -63,7 +72,7 @@
                 </DataTemplate>
             </Grid.Resources>
 
-            <!-- Compact pill: battery left, time in the middle, privacy dots right. -->
+            <!-- Compact pill: battery left, time in the middle, privacy dots and the sound wave right. -->
             <Grid x:Name="CompactLayer" Width="200" Height="34" HorizontalAlignment="Center" VerticalAlignment="Top"
                   RenderTransformOrigin="0.5,0">
                 <Grid.RenderTransform>
@@ -78,8 +87,11 @@
                                     HorizontalAlignment="Left" Margin="16,0,0,0" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="1" Text="{Binding Time24}" Style="{DynamicResource Island.CompactTime}"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <ContentPresenter Grid.Column="2" Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}"
-                                  HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,16,0" VerticalAlignment="Center">
+                    <ContentPresenter Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}" Margin="0,0,6,0" />
+                    <ContentPresenter Content="{Binding Playback}" ContentTemplate="{StaticResource SoundWave}"
+                                      Visibility="{Binding Playback, Converter={StaticResource NullToVisibility}}" />
+                </StackPanel>
             </Grid>
 
             <!-- Live activity pill: the winning activity, then a hint of the runner-up and privacy dots. -->
@@ -117,16 +129,23 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock x:Name="PageTitle" Text="{Binding Modules.CurrentTitle}" Style="{DynamicResource Island.HeaderPrimary}" />
-                        <!-- Active browser tab (only when a browser is in the foreground). -->
-                        <StackPanel Orientation="Horizontal" Margin="0,1,8,0"
-                                    Visibility="{Binding Status.BrowserTitle, Converter={StaticResource NullToVisibility}}">
-                            <c:Icon Glyph="Globe" Width="10" Height="10" Foreground="{DynamicResource Brush.TextSecondary}" Margin="0,0,4,0" />
-                            <c:MarqueeText Text="{Binding Status.BrowserTitle}" TextStyle="{DynamicResource Text.Secondary}" Width="150"
-                                           ToolTip="{Binding Status.BrowserTitle}" />
+                    <Grid Grid.Column="0" VerticalAlignment="Center">
+                        <!-- Page title in one line, the last word coloured as on the reference photos («Water Reminder»). -->
+                        <TextBlock x:Name="PageTitle" Style="{DynamicResource Island.PageTitle}" TextTrimming="CharacterEllipsis"
+                                   Visibility="{Binding Modules.CurrentShowsTitle, Converter={StaticResource Visible}}">
+                            <Run Text="{Binding Modules.CurrentTitleMain, Mode=OneWay}" /><Run Text="{Binding Modules.CurrentTitleAccent, Mode=OneWay}"
+                                 Foreground="{Binding Modules.CurrentTitleAccentBrush, Mode=OneWay}" />
+                        </TextBlock>
+                        <!-- Music page: no title; the active browser tab instead (only when a browser is in front). -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,8,0"
+                                    Visibility="{Binding Modules.CurrentShowsTitle, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                            <StackPanel Orientation="Horizontal" Visibility="{Binding Status.BrowserTitle, Converter={StaticResource NullToVisibility}}">
+                                <c:Icon Glyph="Globe" Width="11" Height="11" Foreground="{DynamicResource Brush.TextSecondary}" Margin="0,0,5,0" />
+                                <c:MarqueeText Text="{Binding Status.BrowserTitle}" TextStyle="{DynamicResource Text.Secondary}" Width="140"
+                                               ToolTip="{Binding Status.BrowserTitle}" />
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <c:BatteryIndicator Status="{Binding Status.BatteryStatus}" Height="16" Margin="0,0,5,0" />
                         <TextBlock Text="{Binding Status.BatteryText}" Style="{DynamicResource Island.HeaderSecondary}" Margin="0,0,10,0" />
@@ -136,7 +155,9 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <ContentPresenter Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}" />
                         <TextBlock Text="{Binding Status.PrivacyText}" Style="{DynamicResource Text.Secondary}" FontSize="11"
-                                   MaxWidth="150" Margin="6,0,0,0" ToolTip="{Binding Status.PrivacyText}" />
+                                   MaxWidth="130" Margin="6,0,0,0" ToolTip="{Binding Status.PrivacyText}" />
+                        <ContentPresenter Content="{Binding Playback}" ContentTemplate="{StaticResource SoundWave}" Margin="8,0,0,0"
+                                          Visibility="{Binding Playback, Converter={StaticResource NullToVisibility}}" />
                     </StackPanel>
                 </Grid>
                 <ContentPresenter x:Name="PageHost" Grid.Row="1" Margin="48,0,48,0" Content="{Binding Modules.CurrentPage}"
@@ -145,15 +166,15 @@
                         <TranslateTransform x:Name="PageOffset" />
                     </ContentPresenter.RenderTransform>
                 </ContentPresenter>
-                <Button Grid.Row="1" Style="{DynamicResource IconButton}" HorizontalAlignment="Left" Margin="10,0,0,0"
+                <Button Grid.Row="1" Style="{DynamicResource PageArrow}" HorizontalAlignment="Left" Margin="12,0,0,0"
                         Command="{Binding Modules.PreviousPageCommand}" AutomationProperties.Name="{loc:Tr Island.PreviousPage}"
                         Visibility="{Binding HasSeveralPages, Converter={StaticResource Visible}}">
-                    <c:Icon Glyph="ChevronLeft" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    <c:Icon Glyph="ChevronLeft" Width="12" Height="12" Foreground="{DynamicResource Brush.TextPrimary}" />
                 </Button>
-                <Button Grid.Row="1" Style="{DynamicResource IconButton}" HorizontalAlignment="Right" Margin="0,0,10,0"
+                <Button Grid.Row="1" Style="{DynamicResource PageArrow}" HorizontalAlignment="Right" Margin="0,0,12,0"
                         Command="{Binding Modules.NextPageCommand}" AutomationProperties.Name="{loc:Tr Island.NextPage}"
                         Visibility="{Binding HasSeveralPages, Converter={StaticResource Visible}}">
-                    <c:Icon Glyph="ChevronRight" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    <c:Icon Glyph="ChevronRight" Width="12" Height="12" Foreground="{DynamicResource Brush.TextPrimary}" />
                 </Button>
                 <c:PageDots Grid.Row="2" Count="{Binding Modules.Pages.Count}" SelectedIndex="{Binding Modules.CurrentIndex}"
                             HorizontalAlignment="Center" VerticalAlignment="Top" />

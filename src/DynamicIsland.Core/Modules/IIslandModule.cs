@@ -10,8 +10,20 @@ public interface IIslandModule
     /// <summary>Stable id, also used as the key for settings and data files (for example <c>media</c>).</summary>
     string Id { get; }
 
-    /// <summary>Localization key of the page title.</summary>
+    /// <summary>Localization key of the full page title (also used in settings lists).</summary>
     string TitleKey { get; }
+
+    /// <summary>
+    /// Localization key of the coloured last part of the title, as in «Water <b>Reminder</b>», or
+    /// <c>null</c> for a single-colour title. The full title must end with this text.
+    /// </summary>
+    string? TitleAccentKey => null;
+
+    /// <summary>Theme brush of <see cref="TitleAccentKey"/>.</summary>
+    string TitleAccentBrushKey => "Brush.Blue";
+
+    /// <summary>Whether the island header shows the title (the music page shows the artwork instead).</summary>
+    bool ShowsTitle => true;
 
     /// <summary>Icon key resolved by the UI icon provider.</summary>
     string IconKey { get; }
