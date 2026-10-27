@@ -61,8 +61,11 @@ internal sealed partial class IslandWindow : Window
     private bool _closed;
     private string? _rejectedHotkey;
 
-    public IslandWindow(IslandStateMachine stateMachine, ISettingsService settings, IslandViewModel viewModel, ILogger<IslandWindow> logger)
+    private readonly IslandRenderStats _renderStats;
+
+    public IslandWindow(IslandStateMachine stateMachine, ISettingsService settings, IslandViewModel viewModel, IslandRenderStats renderStats, ILogger<IslandWindow> logger)
     {
+        _renderStats = renderStats;
         _stateMachine = stateMachine;
         _settings = settings;
         _viewModel = viewModel;
@@ -80,6 +83,7 @@ internal sealed partial class IslandWindow : Window
         _clock.Finished += (_, _) =>
         {
             var (frames, duration, longest) = _clock.LastRun;
+            _renderStats.Report(frames, duration, longest);
             if (duration > TimeSpan.Zero)
             {
                 _logger.LogDebug("Animation: {Frames} frames in {Duration:N0} ms ({Fps:N1} fps), longest frame {Longest:N1} ms",

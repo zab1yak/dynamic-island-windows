@@ -9,6 +9,7 @@ using DynamicIsland.Modules.Water;
 using DynamicIsland.Modules.Shelf;
 using DynamicIsland.Modules.Todo;
 using DynamicIsland.Modules.Recorder;
+using DynamicIsland.Modules.Tools;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
@@ -50,6 +51,7 @@ internal static class AppHostBuilder
         services.AddSingleton<GlobalExceptionHandler>();
         services.AddSingleton<IUiDispatcher>(_ => new WpfUiDispatcher(System.Windows.Application.Current.Dispatcher));
         services.AddSingleton<IslandStateMachine>();
+        services.AddSingleton<IslandRenderStats>();
         services.AddSingleton<IBatteryService, BatteryService>();
         services.AddSingleton<PrivacyMonitor>();
         services.AddSingleton<IPrivacyMonitor>(sp => sp.GetRequiredService<PrivacyMonitor>());
@@ -74,6 +76,7 @@ internal static class AppHostBuilder
         services.AddShelfModule();
         services.AddTodoModule();
         services.AddRecorderModule();
+        services.AddToolsModule();
         services.AddSingleton<IslandWindow>();
 
         return builder.Build();

@@ -27,6 +27,7 @@
     <ProjectReference Include="..\..\src\DynamicIsland.Modules.Shelf\DynamicIsland.Modules.Shelf.csproj" />
     <ProjectReference Include="..\..\src\DynamicIsland.Modules.Todo\DynamicIsland.Modules.Todo.csproj" />
     <ProjectReference Include="..\..\src\DynamicIsland.Modules.Recorder\DynamicIsland.Modules.Recorder.csproj" />
+    <ProjectReference Include="..\..\src\DynamicIsland.Modules.Tools\DynamicIsland.Modules.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>

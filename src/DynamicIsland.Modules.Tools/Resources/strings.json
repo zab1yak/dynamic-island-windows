@@ -1,0 +1,11 @@
+{
+  "Tools.Title": { "en": "Tools", "ru": "Инструменты" },
+  "Tools.Settings": { "en": "Settings", "ru": "Настройки" },
+  "Tools.Folder": { "en": "Open the app's data folder", "ru": "Открыть папку приложения" },
+  "Tools.Fps": { "en": "Island FPS", "ru": "FPS острова" },
+  "Tools.Notifications": { "en": "Recent notifications", "ru": "Последние уведомления" },
+  "Tools.Refresh": { "en": "Load notifications", "ru": "Загрузить уведомления" },
+  "Tools.Clear": { "en": "Clear the list", "ru": "Очистить список" },
+  "Tools.NotificationsDenied": { "en": "Access is off: Windows Settings → Privacy → Notifications", "ru": "Доступ выключен: Параметры Windows → Конфиденциальность → Уведомления" },
+  "Tools.NotificationsUnavailable": { "en": "Windows gives notification history only to packaged (MSIX) apps; this installer is not one", "ru": "Windows даёт историю уведомлений только приложениям из MSIX-пакета; эта установка не такая" }
+}
