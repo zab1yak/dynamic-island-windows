@@ -66,7 +66,7 @@
                         <Rectangle Style="{DynamicResource Settings.Separator}" />
                         <DockPanel Style="{DynamicResource Settings.Row}">
                             <TextBlock Text="{loc:Tr Settings.Size}" Style="{DynamicResource Settings.Label}" />
-                            <c:NumberStepper DockPanel.Dock="Right" Value="{Binding IslandScalePercent}" Minimum="80" Maximum="130" Step="5" Suffix="%" />
+                            <c:NumberStepper DockPanel.Dock="Right" Value="{Binding IslandScalePercent}" Minimum="70" Maximum="130" Step="5" Suffix="%" />
                         </DockPanel>
                     </StackPanel>
                 </c:SquircleBorder>

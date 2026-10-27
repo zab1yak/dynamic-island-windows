@@ -84,7 +84,7 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.False(service.Current.LaunchAtStartup);
         var onDisk = await File.ReadAllTextAsync(Path.Combine(_temp.Path, SettingsService.FileName), ct);
-        Assert.Contains("\"schemaVersion\": 1", onDisk, StringComparison.Ordinal);
+        Assert.Contains($"\"schemaVersion\": {AppSettings.CurrentSchemaVersion}", onDisk, StringComparison.Ordinal);
         Assert.DoesNotContain("autostart", onDisk, StringComparison.Ordinal);
     }
 
@@ -128,5 +128,26 @@ public sealed class SettingsServiceTests : IDisposable
         await service.LoadAsync(ct);
 
         Assert.True(File.Exists(path + ".v99.bak"));
+    }
+
+    [Theory]
+    [InlineData(1.0, AppSettings.DefaultIslandScale)]
+    [InlineData(1.2, 1.2)]
+    public async Task Old_default_size_becomes_the_new_smaller_default(double stored, double expected)
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await File.WriteAllTextAsync(Path.Combine(_temp.Path, SettingsService.FileName),
+            $$"""{ "schemaVersion": 1, "islandScale": {{stored.ToString(System.Globalization.CultureInfo.InvariantCulture)}} }""", ct);
+
+        var service = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
+        await service.LoadAsync(ct);
+
+        Assert.Equal(expected, service.Current.IslandScale, 3);
+    }
+
+    [Fact]
+    public void New_island_is_about_17_percent_smaller()
+    {
+        Assert.InRange(new AppSettings().IslandScale, 0.80, 0.85);
     }
 }

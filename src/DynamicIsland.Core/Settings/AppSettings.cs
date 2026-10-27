@@ -7,7 +7,7 @@ namespace DynamicIsland.Core.Settings;
 public sealed class AppSettings
 {
     /// <summary>Current schema version; bump it and add a migration when the shape changes.</summary>
-    public const int CurrentSchemaVersion = 1;
+    public const int CurrentSchemaVersion = 2;
 
     /// <summary>Schema version the document was written with.</summary>
     public int SchemaVersion { get; set; } = CurrentSchemaVersion;
@@ -18,8 +18,11 @@ public sealed class AppSettings
     /// <summary>Device name of the monitor that hosts the island; <c>null</c> means the primary monitor.</summary>
     public string? MonitorDeviceName { get; set; }
 
-    /// <summary>Scale applied to the island size (0.8–1.3).</summary>
-    public double IslandScale { get; set; } = 1.0;
+    /// <summary>Default island scale: 17 % smaller than the 1.0 design size (feedback on v0.1.0).</summary>
+    public const double DefaultIslandScale = 0.83;
+
+    /// <summary>Scale applied to the whole island — shape, radii, text (0.7–1.3).</summary>
+    public double IslandScale { get; set; } = DefaultIslandScale;
 
     /// <summary>Delay before the island expands on hover, in milliseconds.</summary>
     public int HoverExpandDelayMs { get; set; } = 150;
