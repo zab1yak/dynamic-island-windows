@@ -1,0 +1,16 @@
+name: Feature request
+description: An idea for the island or a new page
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe the situation and why the island should help with it.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could it look or work?
+      description: Sketches and references (iPhone, macOS apps) are welcome.

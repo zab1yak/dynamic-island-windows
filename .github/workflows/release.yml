@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  PACK_ID: DynamicIslandForWindows
+  REPO_URL: https://github.com/${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet test --configuration Release
+
+  release:
+    needs: test
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 1 # both architectures publish into the same GitHub release
+      matrix:
+        include:
+          - rid: win-x64
+            channel: win
+          - rid: win-arm64
+            channel: win-arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Version from tag
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Publish (self-contained)
+        run: >
+          dotnet publish src/DynamicIsland.App -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:PublishReadyToRun=true -p:Version=${{ steps.version.outputs.version }}
+          -o artifacts/publish/${{ matrix.rid }}
+
+      - name: Restore vpk
+        run: dotnet tool restore
+
+      - name: Download previous release (for delta updates)
+        continue-on-error: true
+        run: >
+          dotnet vpk download github --repoUrl ${{ env.REPO_URL }} --channel ${{ matrix.channel }}
+          --outputDir artifacts/releases --token ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pack installer
+        run: >
+          dotnet vpk pack --packId ${{ env.PACK_ID }} --packVersion ${{ steps.version.outputs.version }}
+          --packDir artifacts/publish/${{ matrix.rid }} --mainExe DynamicIsland.exe
+          --packTitle "Dynamic Island" --packAuthors zab1yak
+          --icon src/DynamicIsland.App/Assets/island.ico
+          --channel ${{ matrix.channel }} --outputDir artifacts/releases
+
+      - name: Upload to GitHub Release
+        run: >
+          dotnet vpk upload github --repoUrl ${{ env.REPO_URL }} --channel ${{ matrix.channel }}
+          --outputDir artifacts/releases --publish --merge
+          --releaseName "Dynamic Island ${{ steps.version.outputs.version }}" --tag ${{ github.ref_name }}
+          --token ${{ secrets.GITHUB_TOKEN }}
