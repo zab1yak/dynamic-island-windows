@@ -129,6 +129,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
     internal static void Normalize(AppSettings s)
     {
         s.SchemaVersion = AppSettings.CurrentSchemaVersion;
+        s.Background = Enum.IsDefined(s.Background) ? s.Background : IslandBackground.Black;
         s.IslandScale = Math.Clamp(double.IsFinite(s.IslandScale) ? s.IslandScale : AppSettings.DefaultIslandScale, 0.7, 1.3);
         s.HoverExpandDelayMs = Math.Clamp(s.HoverExpandDelayMs, 0, 2000);
         s.HoverCollapseDelayMs = Math.Clamp(s.HoverCollapseDelayMs, 100, 5000);

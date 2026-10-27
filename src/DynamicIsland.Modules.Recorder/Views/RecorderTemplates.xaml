@@ -117,4 +117,29 @@
                               VerticalAlignment="Center" BarBrush="{DynamicResource Brush.Red}" />
         </Grid>
     </DataTemplate>
+    <!-- Settings section: recordings folder and format. -->
+    <DataTemplate DataType="{x:Type r:RecorderSettingsViewModel}">
+        <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+            <StackPanel>
+                <DockPanel Style="{DynamicResource Settings.Row}">
+                    <TextBlock Text="{loc:Tr Recorder.SaveMp3}" Style="{DynamicResource Settings.Label}" />
+                    <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding SaveAsMp3}" VerticalAlignment="Center"
+                                  AutomationProperties.Name="{loc:Tr Recorder.SaveMp3}" />
+                </DockPanel>
+                <Rectangle Style="{DynamicResource Settings.Separator}" />
+                <DockPanel Style="{DynamicResource Settings.Row}">
+                    <StackPanel VerticalAlignment="Center" DockPanel.Dock="Left" MaxWidth="300">
+                        <TextBlock Text="{loc:Tr Recorder.FolderSetting}" Style="{DynamicResource Text.Base}" />
+                        <TextBlock Text="{Binding Folder}" Style="{DynamicResource Text.Secondary}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Folder}" />
+                    </StackPanel>
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Content="{loc:Tr Recorder.ChooseFolder}" Command="{Binding ChooseFolderCommand}"
+                            VerticalAlignment="Center" AutomationProperties.Name="{loc:Tr Recorder.ChooseFolder}" />
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Background="Transparent" Content="{loc:Tr Recorder.DefaultFolder}"
+                            Command="{Binding ResetFolderCommand}" VerticalAlignment="Center" Margin="0,0,6,0" AutomationProperties.Name="{loc:Tr Recorder.DefaultFolder}" />
+                </DockPanel>
+                <TextBlock Text="{Binding FolderError}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.Orange}" TextWrapping="Wrap"
+                           Margin="0,0,0,8" Visibility="{Binding FolderError, Converter={StaticResource NullToVisibility}}" />
+            </StackPanel>
+        </c:SquircleBorder>
+    </DataTemplate>
 </ResourceDictionary>

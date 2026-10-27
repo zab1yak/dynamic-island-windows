@@ -354,7 +354,7 @@ public sealed class RecorderLiveViewModel(RecorderViewModel recorder)
 }
 
 /// <summary>Voice recorder module.</summary>
-public sealed class RecorderModule(RecorderViewModel viewModel) : IIslandModule
+public sealed class RecorderModule(RecorderViewModel viewModel, RecorderSettingsViewModel settings) : IIslandModule
 {
     private static readonly ResourceManager Strings = new("DynamicIsland.Modules.Recorder.Resources.Strings", typeof(RecorderModule).Assembly);
 
@@ -368,7 +368,14 @@ public sealed class RecorderModule(RecorderViewModel viewModel) : IIslandModule
 
     public object ExpandedViewModel => viewModel;
 
-    public object? SettingsViewModel => null;
+    public object? SettingsViewModel
+    {
+        get
+        {
+            settings.Reload();
+            return settings;
+        }
+    }
 
     public ILiveActivitySource? LiveActivities => viewModel;
 
@@ -391,6 +398,7 @@ public static class RecorderRegistration
     public static IServiceCollection AddRecorderModule(this IServiceCollection services)
     {
         services.AddSingleton<RecorderViewModel>();
+        services.AddSingleton<RecorderSettingsViewModel>();
         services.AddSingleton<RecorderModule>();
         services.AddSingleton<IIslandModule>(sp => sp.GetRequiredService<RecorderModule>());
         services.AddSingleton(new ModuleResources(new Uri("pack://application:,,,/DynamicIsland.Modules.Recorder;component/Views/RecorderTemplates.xaml")));

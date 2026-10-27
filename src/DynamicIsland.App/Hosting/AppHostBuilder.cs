@@ -80,6 +80,10 @@ internal static class AppHostBuilder
         services.AddTodoModule();
         services.AddRecorderModule();
         services.AddNotificationsModule();
+        services.AddSingleton<IslandSettingsViewModel>();
+        services.AddSingleton<SettingsPageModule>();
+        services.AddSingleton<IIslandModule>(sp => sp.GetRequiredService<SettingsPageModule>());
+        services.AddSingleton(new ModuleResources(new Uri("pack://application:,,,/DynamicIsland;component/Island/IslandSettingsTemplates.xaml")));
         services.AddToolsModule();
         services.AddSingleton<IslandWindow>();
 

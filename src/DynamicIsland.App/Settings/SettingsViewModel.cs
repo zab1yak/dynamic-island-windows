@@ -58,6 +58,9 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     private bool _checkForUpdates;
 
     [ObservableProperty]
+    private bool _islandLocked;
+
+    [ObservableProperty]
     private MonitorChoice? _monitor;
 
     [ObservableProperty]
@@ -101,6 +104,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
         HideInFullscreen = s.HideInFullscreen;
         DetectScreenRecording = s.DetectScreenRecording;
         CheckForUpdates = s.CheckForUpdates;
+        IslandLocked = s.IslandLocked;
         IslandScalePercent = (int)Math.Round(s.IslandScale * 100);
         ExpandDelayMs = s.HoverExpandDelayMs;
         CollapseDelayMs = s.HoverCollapseDelayMs;
@@ -162,6 +166,8 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
 
     partial void OnCheckForUpdatesChanged(bool value) => Save(s => s.CheckForUpdates = value);
 
+    partial void OnIslandLockedChanged(bool value) => Save(s => s.IslandLocked = value);
+
     partial void OnMonitorChanged(MonitorChoice? value) => Save(s => s.MonitorDeviceName = value?.DeviceName);
 
     partial void OnIslandScalePercentChanged(int value) => Save(s => s.IslandScale = value / 100.0);
@@ -221,7 +227,7 @@ internal sealed partial class ModulesSettingsViewModel : ObservableObject
         var ordered = _modules.AllModules
             .OrderBy(m => s.ModuleOrder.IndexOf(m.Id) is var i && i >= 0 ? i : int.MaxValue)
             .ThenBy(m => m.Order);
-        foreach (var module in ordered)
+        foreach (var module in ordered.Where(m => m.Id != ModuleHost.SettingsPageId))
         {
             var row = new ModuleRow(module.Id, module.TitleKey, module.IconKey, !s.DisabledModules.Contains(module.Id));
             row.PropertyChanged += (_, _) => Save();

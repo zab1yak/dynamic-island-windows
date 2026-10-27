@@ -54,6 +54,12 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>Current mode.</summary>
     public IslandMode Mode { get; private set; } = IslandMode.Compact;
 
+    /// <summary>
+    /// «Заблокировать остров»: only the compact island (and live pills) — no hover, clicks, hotkey
+    /// expansion or drop target. Unlocked from the settings or by the hotkey (handled by the window).
+    /// </summary>
+    public bool IsLocked { get; private set; }
+
     /// <summary>Hover phase; at most one delayed transition is pending at any time.</summary>
     public HoverPhase Phase { get; private set; } = HoverPhase.Idle;
 
@@ -69,6 +75,12 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The pointer entered the island.</summary>
     public void PointerEntered()
     {
+        if (IsLocked)
+        {
+            _pointerInside = true;
+            return;
+        }
+
         if (_pointerInside && Phase is HoverPhase.ExpandPending or HoverPhase.Expanded)
         {
             // Duplicate enter (child elements, re-hit after a frame): nothing to restart.
@@ -100,6 +112,28 @@ public sealed class IslandStateMachine : IDisposable
         }
     }
 
+    /// <summary>Locks or unlocks the island; locking collapses it at once.</summary>
+    public void SetLocked(bool locked)
+    {
+        if (IsLocked == locked)
+        {
+            return;
+        }
+
+        IsLocked = locked;
+        if (locked)
+        {
+            CancelTimer();
+            Phase = HoverPhase.Idle;
+            _pinned = false;
+            _expanded = false;
+            _dropping = false;
+            _editLock = false;
+        }
+
+        Update();
+    }
+
     /// <summary>The pointer left the island.</summary>
     public void PointerExited()
     {
@@ -117,6 +151,11 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The island background was clicked: pin, or unpin a pinned island.</summary>
     public void Clicked()
     {
+        if (IsLocked)
+        {
+            return;
+        }
+
         CancelTimer();
         if (_pinned)
         {
@@ -135,6 +174,11 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The global hotkey was pressed: toggle a pinned, expanded island.</summary>
     public void HotkeyPressed()
     {
+        if (IsLocked)
+        {
+            return;
+        }
+
         CancelTimer();
         _pinned = !_pinned;
         _expanded = _pinned;
@@ -184,7 +228,7 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>A drag with files approaches or enters the island.</summary>
     public void DragNear()
     {
-        if (!DropEnabled || _fullscreen)
+        if (!DropEnabled || _fullscreen || IsLocked)
         {
             return;
         }

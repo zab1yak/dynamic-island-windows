@@ -18,7 +18,7 @@ public sealed class AppSettings
     /// <summary>Device name of the monitor that hosts the island; <c>null</c> means the primary monitor.</summary>
     public string? MonitorDeviceName { get; set; }
 
-    /// <summary>Default island scale: 17 % smaller than the 1.0 design size (feedback on v0.1.0).</summary>
+    /// <summary>Default island scale: the v0.1.0 design size.</summary>
     public const double DefaultIslandScale = 1.0;
 
     /// <summary>Scale applied to the whole island — shape, radii, text (0.7–1.3).</summary>
@@ -50,4 +50,23 @@ public sealed class AppSettings
 
     /// <summary>Check GitHub Releases for updates on start.</summary>
     public bool CheckForUpdates { get; set; } = true;
+
+    /// <summary>Island background: black (default), translucent black or light grey with dark text.</summary>
+    public IslandBackground Background { get; set; } = IslandBackground.Black;
+
+    /// <summary>Locked island: compact only, no hover or clicks (unlock in settings or with the hotkey).</summary>
+    public bool IslandLocked { get; set; }
+}
+
+/// <summary>Island background colour (the settings page «Внешний вид»).</summary>
+public enum IslandBackground
+{
+    /// <summary>Pure black, as the reference.</summary>
+    Black,
+
+    /// <summary>Black at about 75 % opacity.</summary>
+    Translucent,
+
+    /// <summary>Light grey with dark text.</summary>
+    LightGray,
 }

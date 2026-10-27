@@ -213,7 +213,7 @@ internal sealed partial class IslandWindow : Window
         HwndSource.FromHwnd(_hwnd)?.AddHook(WndProc);
 
         _hotkey = new GlobalHotkey(_hwnd, HotkeyId);
-        _hotkey.Pressed += (_, _) => _stateMachine.HotkeyPressed();
+        _hotkey.Pressed += (_, _) => OnHotkeyPressed();
         _fullscreen = new FullscreenMonitor(_hwnd, () => _monitor);
         _fullscreen.Changed += (_, isFullscreen) =>
         {
@@ -306,6 +306,9 @@ internal sealed partial class IslandWindow : Window
         var s = _settings.Current;
         _stateMachine.ExpandDelay = TimeSpan.FromMilliseconds(s.HoverExpandDelayMs);
         _stateMachine.CollapseDelay = TimeSpan.FromMilliseconds(s.HoverCollapseDelayMs);
+        IslandTheme.Apply(s.Background);
+        _strokeBrush = null;
+        _stateMachine.SetLocked(s.IslandLocked);
         RootScale.ScaleX = RootScale.ScaleY = s.IslandScale;
         Width = IslandMetrics.WindowWidth * s.IslandScale;
         Height = IslandMetrics.WindowHeight * s.IslandScale;
@@ -320,6 +323,20 @@ internal sealed partial class IslandWindow : Window
             _fullscreen.Evaluate();
             _stateMachine.SetFullscreen(_fullscreen.IsFullscreen);
         }
+    }
+
+    /// <summary>The hotkey also unlocks a locked island («Заблокировать остров»).</summary>
+    private void OnHotkeyPressed()
+    {
+        if (_stateMachine.IsLocked)
+        {
+            _settings.Current.IslandLocked = false;
+            _ = _settings.SaveAsync();
+            _stateMachine.SetLocked(false);
+            _logger.LogInformation("Island unlocked with the hotkey");
+        }
+
+        _stateMachine.HotkeyPressed();
     }
 
     private void RegisterHotkey(string text)

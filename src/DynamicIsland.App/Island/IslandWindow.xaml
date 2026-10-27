@@ -34,7 +34,7 @@
         <Rectangle x:Name="HoverZone" Fill="{DynamicResource Island.DropCatcher}" HorizontalAlignment="Center" VerticalAlignment="Top" />
 
         <!-- Island body: pure black, top fused with the screen edge. -->
-        <Path x:Name="Body" Fill="{DynamicResource Island.Background}">
+        <Path x:Name="Body" Fill="{x:Static island:IslandTheme.BodyBrush}">
             <Path.Effect>
                 <DropShadowEffect x:Name="BodyShadow" Color="Black" Direction="270" ShadowDepth="3"
                                   BlurRadius="20" Opacity="0" RenderingBias="Performance" />

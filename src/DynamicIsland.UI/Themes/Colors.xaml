@@ -20,6 +20,21 @@
     <Color x:Key="Color.Yellow">#FFFFD60A</Color>
     <Color x:Key="Color.Blue">#FF0A84FF</Color>
 
+    <!-- «Полупрозрачный» island background (settings → Внешний вид). -->
+    <Color x:Key="Color.IslandTranslucent">#C0000000</Color>
+
+    <!-- «Светло-серый» island: iOS light palette, dark text. Swapped in by IslandTheme. -->
+    <Color x:Key="Color.Light.Island">#FFDCDCE1</Color>
+    <Color x:Key="Color.Light.Surface1">#FFF2F2F7</Color>
+    <Color x:Key="Color.Light.Surface2">#FFC9C9CF</Color>
+    <Color x:Key="Color.Light.Surface3">#FFB8B8BF</Color>
+    <Color x:Key="Color.Light.TextPrimary">#FF1C1C1E</Color>
+    <Color x:Key="Color.Light.TextSecondary">#993C3C43</Color>
+    <Color x:Key="Color.Light.TextTertiary">#4D3C3C43</Color>
+    <Color x:Key="Color.Light.Stroke">#14000000</Color>
+    <Color x:Key="Color.Light.Hover">#14000000</Color>
+    <Color x:Key="Color.Light.Pressed">#24000000</Color>
+
     <SolidColorBrush x:Key="Island.Background" Color="{StaticResource Color.Island}" />
     <SolidColorBrush x:Key="Island.Stroke" Color="{StaticResource Color.Stroke}" />
     <!-- Alpha 1/255: invisible, but hit-testable, so drags over the transparent window area are seen. -->

@@ -31,6 +31,12 @@
                 <c:SquircleBorder Style="{DynamicResource Settings.Group}">
                     <StackPanel>
                         <DockPanel Style="{DynamicResource Settings.Row}">
+                            <TextBlock Text="{loc:Tr Settings.Lock}" Style="{DynamicResource Settings.Label}" />
+                            <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding IslandLocked}" VerticalAlignment="Center"
+                                          AutomationProperties.Name="{loc:Tr Settings.Lock}" />
+                        </DockPanel>
+                        <Rectangle Style="{DynamicResource Settings.Separator}" />
+                        <DockPanel Style="{DynamicResource Settings.Row}">
                             <TextBlock Text="{loc:Tr Settings.HideFullscreen}" Style="{DynamicResource Settings.Label}" />
                             <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding HideInFullscreen}" VerticalAlignment="Center"
                                           AutomationProperties.Name="{loc:Tr Settings.HideFullscreen}" />

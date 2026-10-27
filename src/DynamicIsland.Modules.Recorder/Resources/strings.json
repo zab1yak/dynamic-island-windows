@@ -11,5 +11,10 @@
   "Recorder.DeviceLost": { "en": "The microphone was disconnected; the recording was saved", "ru": "Микрофон отключился, запись сохранена" },
   "Recorder.DeleteFailed": { "en": "The recording could not be deleted", "ru": "Не удалось удалить запись" },
   "Recorder.SaveFailed": { "en": "The recording could not be saved", "ru": "Не удалось сохранить запись" },
-  "Recorder.Mp3Unavailable": { "en": "MP3 is not available on this Windows; saved as WAV", "ru": "MP3 недоступен в этой Windows — сохранено в WAV" }
+  "Recorder.Mp3Unavailable": { "en": "MP3 is not available on this Windows; saved as WAV", "ru": "MP3 недоступен в этой Windows — сохранено в WAV" },
+  "Recorder.FolderSetting": { "en": "Recordings folder", "ru": "Папка записей" },
+  "Recorder.ChooseFolder": { "en": "Choose…", "ru": "Выбрать…" },
+  "Recorder.DefaultFolder": { "en": "Default", "ru": "По умолчанию" },
+  "Recorder.FolderRefused": { "en": "Choose a local folder (not a drive root, system or network folder).", "ru": "Выберите локальную папку (не корень диска, не системную и не сетевую)." },
+  "Recorder.SaveMp3": { "en": "Save as MP3 (otherwise WAV)", "ru": "Сохранять в MP3 (иначе WAV)" }
 }

@@ -13,11 +13,14 @@ public sealed class NumberStepper : Control
         nameof(Value), typeof(int), typeof(NumberStepper),
         new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, null, (d, v) => ((NumberStepper)d).Clamp((int)v)));
 
+    // Wide defaults on purpose: a binding may deliver Value before XAML sets Minimum/Maximum, and clamping
+    // against a narrow default would rewrite the user's setting (150 ms became 100 ms). The bounds
+    // re-coerce Value once they are set.
     public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register(
-        nameof(Minimum), typeof(int), typeof(NumberStepper), new PropertyMetadata(0));
+        nameof(Minimum), typeof(int), typeof(NumberStepper), new PropertyMetadata(int.MinValue, (d, _) => d.CoerceValue(ValueProperty)));
 
     public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register(
-        nameof(Maximum), typeof(int), typeof(NumberStepper), new PropertyMetadata(100));
+        nameof(Maximum), typeof(int), typeof(NumberStepper), new PropertyMetadata(int.MaxValue, (d, _) => d.CoerceValue(ValueProperty)));
 
     public static readonly DependencyProperty StepProperty = DependencyProperty.Register(
         nameof(Step), typeof(int), typeof(NumberStepper), new PropertyMetadata(1));
