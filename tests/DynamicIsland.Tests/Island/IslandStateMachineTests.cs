@@ -158,3 +158,64 @@ public sealed class IslandStateMachineTests : IDisposable
         Assert.Equal([IslandMode.LiveActivity, IslandMode.Compact], changes);
     }
 }
+
+public sealed class IslandHoverStressTests
+{
+    [Fact]
+    public void Rapid_enter_leave_never_leaves_the_island_stuck()
+    {
+        var time = new FakeTimeProvider();
+        using var sm = new IslandStateMachine(time, new InlineDispatcher());
+        var random = new Random(42);
+
+        for (var i = 0; i < 500; i++)
+        {
+            if (random.Next(2) == 0)
+            {
+                sm.PointerEntered();
+            }
+            else
+            {
+                sm.PointerExited();
+            }
+
+            time.Advance(TimeSpan.FromMilliseconds(random.Next(0, 300)));
+        }
+
+        sm.PointerExited();
+        time.Advance(TimeSpan.FromMilliseconds(450));
+        Assert.Equal(IslandMode.Compact, sm.Mode);
+        Assert.Equal(HoverPhase.Idle, sm.Phase);
+
+        sm.PointerEntered();
+        Assert.Equal(HoverPhase.ExpandPending, sm.Phase);
+        time.Advance(TimeSpan.FromMilliseconds(150));
+        Assert.Equal(IslandMode.Expanded, sm.Mode);
+        Assert.Equal(HoverPhase.Expanded, sm.Phase);
+    }
+
+    [Fact]
+    public void Duplicate_enter_does_not_restart_the_hover_delay()
+    {
+        var time = new FakeTimeProvider();
+        using var sm = new IslandStateMachine(time, new InlineDispatcher());
+
+        sm.PointerEntered();
+        time.Advance(TimeSpan.FromMilliseconds(100));
+        sm.PointerEntered(); // child element / re-hit: must not push the expansion back
+        time.Advance(TimeSpan.FromMilliseconds(50));
+
+        Assert.Equal(IslandMode.Expanded, sm.Mode);
+    }
+
+    [Fact]
+    public void Drag_left_after_a_cancelled_drag_returns_to_rest()
+    {
+        var time = new FakeTimeProvider();
+        using var sm = new IslandStateMachine(time, new InlineDispatcher());
+        sm.DragNear();
+        sm.DragLeft();
+        time.Advance(TimeSpan.FromSeconds(1));
+        Assert.Equal(IslandMode.Compact, sm.Mode);
+    }
+}

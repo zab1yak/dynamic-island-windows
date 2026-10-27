@@ -50,6 +50,7 @@ internal sealed partial class IslandWindow : Window
     private bool _textInput;
     private readonly System.Windows.Threading.DispatcherTimer _dragWatch;
     private bool _catcherOn;
+    private DateTime _lastDragOver;
     private int _lastPageIndex;
     private bool _exiting;
     private bool _closed;
@@ -79,8 +80,11 @@ internal sealed partial class IslandWindow : Window
         Width = IslandMetrics.WindowWidth;
         Height = IslandMetrics.WindowHeight;
 
+        // Hover is tracked on the whole visible island (zone + body + content) via the root, but the
+        // zone keeps a stable target-sized area, so a shrinking shape never "loses" the pointer mid-animation.
         Root.MouseEnter += (_, _) => _stateMachine.PointerEntered();
         Root.MouseLeave += (_, _) => _stateMachine.PointerExited();
+        Body.IsHitTestVisible = true;
         Root.MouseLeftButtonUp += OnRootClicked;
         Root.AllowDrop = true;
         Root.DragEnter += OnDragEnter;
@@ -101,6 +105,7 @@ internal sealed partial class IslandWindow : Window
         SystemEvents.SessionSwitch += OnSessionSwitch;
 
         Loaded += (_, _) => Reposition();
+        UpdateHoverZone(IslandMetrics.Compact);
         _lastPageIndex = viewModel.Modules.CurrentIndex;
         viewModel.Modules.PropertyChanged += (_, e) =>
         {
@@ -358,11 +363,22 @@ internal sealed partial class IslandWindow : Window
         _logger.LogDebug("Island placed on {Monitor} at {X},{Y} {Width}x{Height} (scale {Scale})", _monitor.DeviceName, x, _monitor.Bounds.Top, width, height, scale);
     }
 
+    /// <summary>Hover zone = target island rectangle plus a small margin (shoulders included).</summary>
+    private void UpdateHoverZone(IslandSize size)
+    {
+        const double Margin = 4;
+        // Hidden over a fullscreen app: no zone at all, not even a strip that would catch clicks.
+        HoverZone.Visibility = size.Height <= 0 ? Visibility.Collapsed : Visibility.Visible;
+        HoverZone.Width = size.Width + (2 * size.Shoulder) + (2 * Margin);
+        HoverZone.Height = Math.Max(0, size.Height + Margin);
+    }
+
     private void ApplyMode(IslandMode mode)
     {
         _logger.LogDebug("Island mode {Mode}", mode);
         _viewModel.Mode = mode;
         var size = IslandMetrics.For(mode);
+        UpdateHoverZone(size);
         _width.Target = size.Width;
         _height.Target = size.Height;
         _radius.Target = size.BottomRadius;
@@ -458,6 +474,12 @@ internal sealed partial class IslandWindow : Window
         }
 
         var (x, y, down) = WindowInterop.GetCursor();
+        if (_stateMachine.Mode == IslandMode.DropTarget && !down && DateTime.UtcNow - _lastDragOver > TimeSpan.FromMilliseconds(500))
+        {
+            // The drag ended outside (Esc, dropped elsewhere) without a DragLeave inside our bounds.
+            _stateMachine.DragLeft();
+        }
+
         var zoneHeight = 140 * _monitor.Scale;
         var zoneHalfWidth = IslandMetrics.WindowWidth / 2 * _monitor.Scale;
         var centerX = _monitor.Bounds.Left + (_monitor.Bounds.Width / 2.0);
@@ -496,6 +518,7 @@ internal sealed partial class IslandWindow : Window
 
     private void OnDragOver(object sender, DragEventArgs e)
     {
+        _lastDragOver = DateTime.UtcNow;
         e.Effects = DropEnabled && DropPayloadReader.HasSupportedData(e.Data) ? DragDropEffects.Copy : DragDropEffects.None;
         e.Handled = true;
     }
@@ -524,10 +547,29 @@ internal sealed partial class IslandWindow : Window
 
     private void OnRootClicked(object sender, MouseButtonEventArgs e)
     {
-        if (!e.Handled)
+        // Only the island chrome (pill, header) pins it. Clicks on page content (text, artwork,
+        // empty space in a page) used to pin the island by accident, which looked like a freeze.
+        if (e.Handled || IsInside(e.OriginalSource as DependencyObject, PageHost))
         {
-            _stateMachine.Clicked();
+            return;
         }
+
+        _stateMachine.Clicked();
+    }
+
+    private static bool IsInside(DependencyObject? element, DependencyObject container)
+    {
+        while (element is not null)
+        {
+            if (ReferenceEquals(element, container))
+            {
+                return true;
+            }
+
+            element = element is System.Windows.Media.Visual ? System.Windows.Media.VisualTreeHelper.GetParent(element) : LogicalTreeHelper.GetParent(element);
+        }
+
+        return false;
     }
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)

@@ -27,6 +27,9 @@
             <ScaleTransform x:Name="RootScale" ScaleX="1" ScaleY="1" />
         </Grid.RenderTransform>
 
+        <!-- Hover zone: sized to the TARGET island, not the animating shape, so hover cannot flicker at the edge. -->
+        <Rectangle x:Name="HoverZone" Fill="{DynamicResource Island.DropCatcher}" HorizontalAlignment="Center" VerticalAlignment="Top" />
+
         <!-- Island body: pure black, top fused with the screen edge. -->
         <Path x:Name="Body" Fill="{DynamicResource Island.Background}">
             <Path.Effect>

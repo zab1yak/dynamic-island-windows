@@ -2,6 +2,22 @@ using DynamicIsland.Core.Threading;
 
 namespace DynamicIsland.Core.Island;
 
+/// <summary>Hover phase of the island (one explicit state instead of scattered flags).</summary>
+public enum HoverPhase
+{
+    /// <summary>Resting; the pointer is away.</summary>
+    Idle,
+
+    /// <summary>The pointer arrived; expanding after the hover delay unless it leaves first.</summary>
+    ExpandPending,
+
+    /// <summary>Expanded by hover.</summary>
+    Expanded,
+
+    /// <summary>The pointer left; collapsing after the delay unless it comes back.</summary>
+    CollapsePending,
+}
+
 /// <summary>
 /// Decides the island's <see cref="IslandMode"/> from pointer, keyboard, fullscreen, drag and
 /// live-activity inputs. All methods must be called on the UI thread; delayed transitions use
@@ -38,6 +54,9 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>Current mode.</summary>
     public IslandMode Mode { get; private set; } = IslandMode.Compact;
 
+    /// <summary>Hover phase; at most one delayed transition is pending at any time.</summary>
+    public HoverPhase Phase { get; private set; } = HoverPhase.Idle;
+
     /// <summary>Hover time before the island expands.</summary>
     public TimeSpan ExpandDelay { get; set; } = TimeSpan.FromMilliseconds(150);
 
@@ -50,15 +69,27 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The pointer entered the island.</summary>
     public void PointerEntered()
     {
+        if (_pointerInside && Phase is HoverPhase.ExpandPending or HoverPhase.Expanded)
+        {
+            // Duplicate enter (child elements, re-hit after a frame): nothing to restart.
+            return;
+        }
+
         _pointerInside = true;
         CancelTimer();
-        if (!_expanded && !_fullscreen)
+        if (_expanded)
         {
+            Phase = HoverPhase.Expanded;
+        }
+        else if (!_fullscreen)
+        {
+            Phase = HoverPhase.ExpandPending;
             StartTimer(ExpandDelay, () =>
             {
                 if (_pointerInside && !_fullscreen)
                 {
                     _expanded = true;
+                    Phase = HoverPhase.Expanded;
                 }
             });
         }
@@ -67,8 +98,14 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The pointer left the island.</summary>
     public void PointerExited()
     {
+        if (!_pointerInside && Phase is HoverPhase.Idle or HoverPhase.CollapsePending)
+        {
+            return;
+        }
+
         _pointerInside = false;
         CancelTimer();
+        Phase = HoverPhase.Idle;
         ScheduleCollapse();
     }
 
@@ -103,6 +140,7 @@ public sealed class IslandStateMachine : IDisposable
     public void Dismiss()
     {
         CancelTimer();
+        Phase = HoverPhase.Idle;
         _pinned = false;
         _expanded = false;
         _dropping = false;
@@ -194,11 +232,13 @@ public sealed class IslandStateMachine : IDisposable
             return;
         }
 
+        Phase = HoverPhase.CollapsePending;
         StartTimer(CollapseDelay, () =>
         {
             if (!_pointerInside && !_pinned && !_editLock && !_dropping)
             {
                 _expanded = false;
+                Phase = HoverPhase.Idle;
             }
         });
     }
