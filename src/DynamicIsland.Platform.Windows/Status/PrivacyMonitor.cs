@@ -31,6 +31,11 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
     private readonly Lock _gate = new();
     private Timer? _debounce;
     private Timer? _recorderTimer;
+    private Timer? _activeTimer;
+    private Timer? _sharingTimer;
+    private IReadOnlyList<string> _sharing = [];
+    private static readonly TimeSpan ActiveRecheckInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan SharingCheckInterval = TimeSpan.FromSeconds(3);
     private bool _detectRecording;
     private IReadOnlyList<string> _recorders = [];
     private volatile bool _disposed;
@@ -77,6 +82,8 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         }
 
         SafeScan();
+        // Sharing windows (browser "sharing your screen" bar, Zoom/Teams toolbars) and Game Bar capture.
+        _sharingTimer = new Timer(_ => SafeCheckSharing(), null, TimeSpan.FromSeconds(2), SharingCheckInterval);
     }
 
     /// <summary>Turns the screen-recording heuristic on or off.</summary>
@@ -101,6 +108,8 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
     {
         _disposed = true;
         _recorderTimer?.Dispose();
+        _activeTimer?.Dispose();
+        _sharingTimer?.Dispose();
         _debounce?.Dispose();
         foreach (var watch in _watches)
         {
@@ -215,10 +224,12 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         PrivacyStatus status;
         try
         {
+            var consentMicrophone = ConsentStoreParser.AppsInUse(ReadEntries("microphone"), IsProcessRunning, NameOf);
             status = new PrivacyStatus(
                 ConsentStoreParser.AppsInUse(ReadEntries("webcam"), IsProcessRunning, NameOf),
-                ConsentStoreParser.AppsInUse(ReadEntries("microphone"), IsProcessRunning, NameOf),
-                _recorders);
+                // An open capture stream is the truth for the microphone; it ends the moment the app closes it.
+                MicrophoneSignal.Merge(LiveCaptureSignals.MicrophoneSessions(NameOfProcess), consentMicrophone),
+                [.. _sharing.Concat(_recorders).Distinct()]);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
@@ -228,6 +239,7 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
 
         lock (_gate)
         {
+            UpdateActiveTimer(status.CameraInUse || status.MicrophoneInUse);
             if (status.SameAs(Current))
             {
                 return;
@@ -237,6 +249,76 @@ public sealed partial class PrivacyMonitor : IPrivacyMonitor, IDisposable
         }
 
         _dispatcher.Post(() => Changed?.Invoke(this, EventArgs.Empty));
+    }
+
+    /// <summary>
+    /// While a camera or microphone dot is lit, re-check every second so it goes out as soon as the
+    /// device is released (ConsentStore may write the stop time late or never). Off when nothing is used.
+    /// </summary>
+    private void UpdateActiveTimer(bool active)
+    {
+        if (active && _activeTimer is null)
+        {
+            _activeTimer = new Timer(_ => SafeScan(), null, ActiveRecheckInterval, ActiveRecheckInterval);
+        }
+        else if (!active && _activeTimer is not null)
+        {
+            _activeTimer.Dispose();
+            _activeTimer = null;
+        }
+    }
+
+    private void SafeCheckSharing()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        try
+        {
+            var sharing = LiveCaptureSignals.ScreenSharing();
+            if (!sharing.SequenceEqual(_sharing))
+            {
+                _sharing = sharing;
+                SafeScan();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Screen sharing check failed");
+        }
+    }
+
+    /// <summary>Readable name of the process owning a capture session.</summary>
+    private string NameOfProcess(uint pid)
+    {
+        if (pid == 0)
+        {
+            return AppNames.SystemApp;
+        }
+
+        try
+        {
+            using var process = Process.GetProcessById((int)pid);
+            string? path = null;
+            try
+            {
+                path = process.MainModule?.FileName;
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+            {
+                // Elevated or protected process: fall back to the name.
+            }
+
+            var entry = new ConsentEntry((path ?? process.ProcessName + ".exe").Replace('\\', '#'), IsNonPackaged: true, 1, 0);
+            // With a path the product name is read (cached); without one the known-apps list or the process name is used.
+            return path is null ? AppNames.Resolve(entry) : NameOf(entry);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return AppNames.SystemApp;
+        }
     }
 
     private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);

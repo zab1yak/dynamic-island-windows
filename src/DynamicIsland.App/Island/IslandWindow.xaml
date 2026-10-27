@@ -42,17 +42,17 @@
         <Grid x:Name="ContentHost">
             <Grid.Resources>
                 <BooleanToVisibilityConverter x:Key="Visible" />
-                <!-- iOS-style privacy dots: camera red, microphone orange, screen recording red ring. -->
+                <!-- iOS-style privacy dots, most important first: screen sharing (red ring), camera (red), microphone (orange). -->
                 <DataTemplate x:Key="PrivacyDots">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Red}" Margin="3,0,0,0"
-                                 Visibility="{Binding CameraInUse, Converter={StaticResource Visible}}" />
-                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Orange}" Margin="3,0,0,0"
-                                 Visibility="{Binding MicrophoneInUse, Converter={StaticResource Visible}}" />
                         <Grid Width="11" Height="11" Margin="3,0,0,0" Visibility="{Binding Recording, Converter={StaticResource Visible}}">
                             <Ellipse Stroke="{DynamicResource Brush.Red}" StrokeThickness="1.5" />
                             <Ellipse Width="5" Height="5" Fill="{DynamicResource Brush.Red}" />
                         </Grid>
+                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Red}" Margin="3,0,0,0"
+                                 Visibility="{Binding CameraInUse, Converter={StaticResource Visible}}" />
+                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Orange}" Margin="3,0,0,0"
+                                 Visibility="{Binding MicrophoneInUse, Converter={StaticResource Visible}}" />
                     </StackPanel>
                 </DataTemplate>
             </Grid.Resources>
