@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Resources;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DynamicIsland.Core;
 using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Core.Threading;
@@ -58,18 +57,18 @@ public sealed partial class ToolsViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenSettings() => _host.OpenSettings();
 
+    /// <summary>Opens File Explorer at its usual start location.</summary>
     [RelayCommand]
-    private static void OpenDataFolder()
+    private static void OpenExplorer()
     {
         try
         {
-            Directory.CreateDirectory(AppPaths.DataRoot);
             var explorer = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
-            using var _ = Process.Start(new ProcessStartInfo(explorer) { UseShellExecute = false, ArgumentList = { AppPaths.DataRoot } });
+            using var _ = Process.Start(new ProcessStartInfo(explorer) { UseShellExecute = false });
         }
         catch (Exception ex) when (ex is Win32Exception or IOException or UnauthorizedAccessException)
         {
-            // Nothing to show: the folder path is in Settings → About.
+            // Nothing else to try.
         }
     }
 

@@ -180,18 +180,13 @@ internal sealed partial class ModuleHost : ObservableObject
     }
 
     /// <summary>Saved order first, then new modules by their default order; disabled ones removed.</summary>
-    /// <remarks>The «Настройки» page is always present and always last, whatever the settings say.</remarks>
     internal static IReadOnlyList<IIslandModule> Order(IEnumerable<IIslandModule> modules, AppSettings settings)
     {
         var order = settings.ModuleOrder;
         return modules
-            .Where(m => m.Id == SettingsPageId || !settings.DisabledModules.Contains(m.Id))
-            .OrderBy(m => m.Id == SettingsPageId ? 1 : 0)
-            .ThenBy(m => order.IndexOf(m.Id) is var i && i >= 0 ? i : int.MaxValue)
+            .Where(m => !settings.DisabledModules.Contains(m.Id))
+            .OrderBy(m => order.IndexOf(m.Id) is var i && i >= 0 ? i : int.MaxValue)
             .ThenBy(m => m.Order)
             .ToList();
     }
-
-    /// <summary>Id of the settings page inside the island; it cannot be hidden or moved.</summary>
-    public const string SettingsPageId = "settings";
 }

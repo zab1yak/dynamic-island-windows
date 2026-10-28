@@ -1,0 +1,7 @@
+<!-- Dynamic Island for Windows app icon, vector. Same geometry as tools/gen_icon.py (256 × 256):
+     a black capsule with a grey outline and the green activity dot. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect x="10.24" y="74.24" width="235.52" height="107.52" rx="53.76" fill="#48484A"/>
+  <rect x="18.24" y="82.24" width="219.52" height="91.52" rx="45.76" fill="#000000"/>
+  <circle cx="192" cy="128" r="22.58" fill="#30D158"/>
+</svg>

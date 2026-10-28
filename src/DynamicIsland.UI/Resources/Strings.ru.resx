@@ -17,14 +17,11 @@
   <data name="Privacy.Recording" xml:space="preserve"><value>Запись экрана</value></data>
   <data name="Privacy.SystemApp" xml:space="preserve"><value>Системное приложение</value></data>
   <data name="Settings.About" xml:space="preserve"><value>О программе</value></data>
-  <data name="Settings.AlwaysLast" xml:space="preserve"><value>всегда последняя</value></data>
-  <data name="Settings.Appearance" xml:space="preserve"><value>Внешний вид</value></data>
   <data name="Settings.Autostart" xml:space="preserve"><value>Запускать вместе с Windows</value></data>
   <data name="Settings.Background" xml:space="preserve"><value>Фон острова</value></data>
   <data name="Settings.BgBlack" xml:space="preserve"><value>Чёрный</value></data>
   <data name="Settings.BgLight" xml:space="preserve"><value>Светло-серый</value></data>
   <data name="Settings.BgTranslucent" xml:space="preserve"><value>Полупрозрачный</value></data>
-  <data name="Settings.Change" xml:space="preserve"><value>Изменить…</value></data>
   <data name="Settings.CheckNow" xml:space="preserve"><value>Проверить обновления</value></data>
   <data name="Settings.CheckUpdates" xml:space="preserve"><value>Проверять обновления автоматически</value></data>
   <data name="Settings.CollapseDelay" xml:space="preserve"><value>Сворачивать после ухода курсора через</value></data>
@@ -41,7 +38,6 @@
   <data name="Settings.LanguageSystem" xml:space="preserve"><value>Как в Windows</value></data>
   <data name="Settings.Licenses" xml:space="preserve"><value>Лицензии сторонних компонентов</value></data>
   <data name="Settings.Lock" xml:space="preserve"><value>Заблокировать остров</value></data>
-  <data name="Settings.LockHint" xml:space="preserve"><value>Только компакт: без раскрытия и кликов. Разблокировать — здесь или клавишами</value></data>
   <data name="Settings.Modules" xml:space="preserve"><value>Страницы</value></data>
   <data name="Settings.ModulesHint" xml:space="preserve"><value>Включайте страницы и меняйте их порядок</value></data>
   <data name="Settings.Monitor" xml:space="preserve"><value>Монитор</value></data>
@@ -50,10 +46,7 @@
   <data name="Settings.MoveUp" xml:space="preserve"><value>Выше</value></data>
   <data name="Settings.Ms" xml:space="preserve"><value>мс</value></data>
   <data name="Settings.Open" xml:space="preserve"><value>Открыть</value></data>
-  <data name="Settings.PageTitle" xml:space="preserve"><value>Настройки</value></data>
   <data name="Settings.Primary" xml:space="preserve"><value>основной</value></data>
-  <data name="Settings.Quit" xml:space="preserve"><value>Выйти из программы</value></data>
-  <data name="Settings.QuitConfirm" xml:space="preserve"><value>Нажмите ещё раз, чтобы выйти</value></data>
   <data name="Settings.Recording" xml:space="preserve"><value>Индикатор записи экрана</value></data>
   <data name="Settings.RecordingHint" xml:space="preserve"><value>Эвристика: красная точка, пока запущена известная программа записи (OBS, ShareX…), даже если запись не идёт.</value></data>
   <data name="Settings.Size" xml:space="preserve"><value>Размер острова</value></data>

@@ -1,7 +1,4 @@
-using DynamicIsland.App.Island;
-using DynamicIsland.Core.Input;
 using DynamicIsland.Core.Island;
-using DynamicIsland.Core.Modules;
 using DynamicIsland.Core.Settings;
 using DynamicIsland.Core.Storage;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -24,27 +21,6 @@ public sealed class SettingsPageTests : IDisposable
     {
         _island.Dispose();
         _temp.Dispose();
-    }
-
-    private sealed class FakeModule(string id, int order) : IIslandModule
-    {
-        public string Id => id;
-
-        public string TitleKey => id;
-
-        public string IconKey => "Circle";
-
-        public int Order => order;
-
-        public object ExpandedViewModel => this;
-
-        public object? SettingsViewModel => null;
-
-        public ILiveActivitySource? LiveActivities => null;
-
-        public Task InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        public Task ShutdownAsync() => Task.CompletedTask;
     }
 
     [Fact]
@@ -75,35 +51,6 @@ public sealed class SettingsPageTests : IDisposable
         _island.PointerEntered();
         _time.Advance(TimeSpan.FromMilliseconds(150));
         Assert.Equal(IslandMode.Expanded, _island.Mode);
-    }
-
-    [Fact]
-    public void Settings_page_is_always_last_and_cannot_be_hidden()
-    {
-        IIslandModule[] modules = [new FakeModule(ModuleHost.SettingsPageId, int.MaxValue), new FakeModule("media", 0), new FakeModule("water", 2)];
-        var settings = new AppSettings
-        {
-            ModuleOrder = [ModuleHost.SettingsPageId, "water", "media"],
-            DisabledModules = [ModuleHost.SettingsPageId],
-        };
-
-        var pages = ModuleHost.Order(modules, settings);
-
-        Assert.Equal(["water", "media", ModuleHost.SettingsPageId], pages.Select(m => m.Id));
-    }
-
-    [Fact]
-    public void Quit_needs_a_second_press_within_four_seconds()
-    {
-        var gate = new ConfirmGate(_time);
-        Assert.False(gate.Press());
-        Assert.True(gate.IsArmed);
-        Assert.True(gate.Press());
-
-        Assert.False(gate.Press());
-        _time.Advance(ConfirmGate.Window);
-        Assert.False(gate.IsArmed);
-        Assert.False(gate.Press());
     }
 
     [Fact]

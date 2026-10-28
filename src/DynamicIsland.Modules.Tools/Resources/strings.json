@@ -1,7 +1,7 @@
 {
   "Tools.Title": {"en": "Tools", "ru": "Инструменты"},
   "Tools.Settings": {"en": "Settings", "ru": "Настройки"},
-  "Tools.Folder": {"en": "Open the app's data folder", "ru": "Открыть папку приложения"},
+  "Tools.Folder": {"en": "Open File Explorer", "ru": "Открыть Проводник"},
   "Tools.Fps": {"en": "Island FPS", "ru": "FPS острова"},
-  "Tools.FolderShort": {"en": "App folder", "ru": "Папка приложения"}
+  "Tools.FolderShort": {"en": "File Explorer", "ru": "Проводник"}
 }

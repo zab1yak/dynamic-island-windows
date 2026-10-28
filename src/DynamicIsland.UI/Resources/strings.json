@@ -219,10 +219,6 @@
     "en": "System app",
     "ru": "Системное приложение"
   },
-  "Settings.Appearance": {
-    "en": "Appearance",
-    "ru": "Внешний вид"
-  },
   "Settings.Background": {
     "en": "Island background",
     "ru": "Фон острова"
@@ -242,29 +238,5 @@
   "Settings.Lock": {
     "en": "Lock the island",
     "ru": "Заблокировать остров"
-  },
-  "Settings.LockHint": {
-    "en": "Compact only: no hover or clicks. Unlock here or with",
-    "ru": "Только компакт: без раскрытия и кликов. Разблокировать — здесь или клавишами"
-  },
-  "Settings.AlwaysLast": {
-    "en": "always last",
-    "ru": "всегда последняя"
-  },
-  "Settings.Change": {
-    "en": "Change…",
-    "ru": "Изменить…"
-  },
-  "Settings.Quit": {
-    "en": "Quit Dynamic Island",
-    "ru": "Выйти из программы"
-  },
-  "Settings.QuitConfirm": {
-    "en": "Press again to quit",
-    "ru": "Нажмите ещё раз, чтобы выйти"
-  },
-  "Settings.PageTitle": {
-    "en": "Settings",
-    "ru": "Настройки"
   }
 }

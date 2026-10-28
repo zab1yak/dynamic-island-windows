@@ -60,6 +60,17 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _islandLocked;
 
+    /// <summary>Island background: translucent, black or light grey (applied at once, animated).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsBlack), nameof(IsTranslucent), nameof(IsLightGray))]
+    private IslandBackground _background;
+
+    public bool IsBlack => Background == IslandBackground.Black;
+
+    public bool IsTranslucent => Background == IslandBackground.Translucent;
+
+    public bool IsLightGray => Background == IslandBackground.LightGray;
+
     [ObservableProperty]
     private MonitorChoice? _monitor;
 
@@ -105,6 +116,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
         DetectScreenRecording = s.DetectScreenRecording;
         CheckForUpdates = s.CheckForUpdates;
         IslandLocked = s.IslandLocked;
+        Background = s.Background;
         IslandScalePercent = (int)Math.Round(s.IslandScale * 100);
         ExpandDelayMs = s.HoverExpandDelayMs;
         CollapseDelayMs = s.HoverCollapseDelayMs;
@@ -168,6 +180,11 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
 
     partial void OnIslandLockedChanged(bool value) => Save(s => s.IslandLocked = value);
 
+    partial void OnBackgroundChanged(IslandBackground value) => Save(s => s.Background = value);
+
+    [RelayCommand]
+    private void SetBackground(IslandBackground value) => Background = value;
+
     partial void OnMonitorChanged(MonitorChoice? value) => Save(s => s.MonitorDeviceName = value?.DeviceName);
 
     partial void OnIslandScalePercentChanged(int value) => Save(s => s.IslandScale = value / 100.0);
@@ -227,7 +244,7 @@ internal sealed partial class ModulesSettingsViewModel : ObservableObject
         var ordered = _modules.AllModules
             .OrderBy(m => s.ModuleOrder.IndexOf(m.Id) is var i && i >= 0 ? i : int.MaxValue)
             .ThenBy(m => m.Order);
-        foreach (var module in ordered.Where(m => m.Id != ModuleHost.SettingsPageId))
+        foreach (var module in ordered)
         {
             var row = new ModuleRow(module.Id, module.TitleKey, module.IconKey, !s.DisabledModules.Contains(module.Id));
             row.PropertyChanged += (_, _) => Save();
