@@ -12,12 +12,15 @@ public sealed class WaterState
     public const int MinPortionMl = 50;
 
     /// <summary>Largest portion the user can pick.</summary>
-    public const int MaxPortionMl = 1000;
+    public const int MaxPortionMl = 700;
+
+    /// <summary>Fixed increment for the next portion; old configurable increments migrate to 50 ml.</summary>
+    public const int PortionIncrementMl = 50;
 
     /// <summary>The portion the user picked with − / +; "Drink" adds it (250 ml by default).</summary>
     public int StepMl { get; set; } = 250;
 
-    /// <summary>How much − and + change the picked portion (50 ml by default).</summary>
+    /// <summary>Legacy serialized setting, normalized to the fixed 50 ml increment.</summary>
     public int FineStepMl { get; set; } = 50;
 
     /// <summary>Remind to drink.</summary>
@@ -48,8 +51,10 @@ public sealed class WaterState
     public void Normalize()
     {
         GoalMl = Math.Clamp(GoalMl, 250, 10_000);
-        StepMl = Math.Clamp(StepMl, MinPortionMl, MaxPortionMl);
-        FineStepMl = Math.Clamp(FineStepMl == 0 ? 50 : FineStepMl, 10, 500);
+        // Only the NEXT serving changes. Existing drinks (including 1000 ml) and history remain intact.
+        var portion = Math.Clamp(StepMl, MinPortionMl, MaxPortionMl);
+        StepMl = ((portion + (PortionIncrementMl / 2)) / PortionIncrementMl) * PortionIncrementMl;
+        FineStepMl = PortionIncrementMl;
         ReminderIntervalMinutes = Math.Clamp(ReminderIntervalMinutes, 15, 480);
         ActiveFromHour = Math.Clamp(ActiveFromHour, 0, 23);
         ActiveToHour = Math.Clamp(ActiveToHour, ActiveFromHour + 1, 24);
@@ -106,7 +111,7 @@ public sealed class WaterTracker(WaterState state, TimeProvider time)
     /// </summary>
     public void ChangePortion(int steps)
     {
-        State.StepMl = Math.Clamp(State.StepMl + (steps * State.FineStepMl), WaterState.MinPortionMl, WaterState.MaxPortionMl);
+        State.StepMl = (int)Math.Clamp(State.StepMl + ((long)steps * WaterState.PortionIncrementMl), WaterState.MinPortionMl, WaterState.MaxPortionMl);
     }
 
     /// <summary>Share of the goal in whole percent, never above 100.</summary>

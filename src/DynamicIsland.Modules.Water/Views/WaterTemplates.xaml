@@ -35,7 +35,7 @@
                 <ProgressBar Style="{DynamicResource ProgressBar.Pill}" Margin="0,6,0,0" Height="4" Width="210" HorizontalAlignment="Left"
                              Minimum="0" Maximum="1" Value="{Binding Progress, Mode=OneWay}" />
                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <!-- Portion picker: − 250 ml + (step from the settings, 50–1000 ml). -->
+                    <!-- Portion picker: − 250 ml + (fixed step 50 ml, range 50–700 ml). -->
                     <c:SquircleBorder CornerRadius="999" Background="{DynamicResource Brush.Surface2}" Height="28">
                         <StackPanel Orientation="Horizontal">
                             <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Command="{Binding DecreaseCommand}"
@@ -107,12 +107,7 @@
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Water.Portion}" Style="{DynamicResource Settings.Label}" />
-                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding StepMl}" Minimum="50" Maximum="1000" Step="50" Suffix="{loc:Tr Water.Ml}" />
-                    </DockPanel>
-                    <Rectangle Style="{DynamicResource Settings.Separator}" />
-                    <DockPanel Style="{DynamicResource Settings.Row}">
-                        <TextBlock Text="{loc:Tr Water.FineStepSetting}" Style="{DynamicResource Settings.Label}" />
-                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding FineStepMl}" Minimum="10" Maximum="500" Step="10" Suffix="{loc:Tr Water.Ml}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding StepMl}" Minimum="50" Maximum="700" Step="50" Suffix="{loc:Tr Water.Ml}" />
                     </DockPanel>
                 </StackPanel>
             </c:SquircleBorder>

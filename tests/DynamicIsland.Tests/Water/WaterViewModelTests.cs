@@ -70,4 +70,41 @@ public sealed class WaterViewModelTests : IDisposable
 
         Assert.Empty(_notifications.Shown);
     }
+    [Fact]
+    public async Task Legacy_serving_migrates_and_saved_portion_survives_restart_without_truncating_drinks()
+    {
+        var state = new DynamicIsland.Modules.Water.Services.WaterState
+        {
+            Day = new DateOnly(2026, 10, 27),
+            StepMl = 1000,
+            FineStepMl = 100,
+        };
+        state.Today.Add(new DynamicIsland.Modules.Water.Services.WaterEntry(_time.GetUtcNow(), 1000));
+        await _storage.SaveAsync(WaterViewModel.FileName, state, TestContext.Current.CancellationToken);
+        using var vm = NewVm();
+        await vm.LoadAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(700, vm.State.StepMl);
+        Assert.False(vm.CanIncreasePortion);
+        Assert.True(vm.CanDecreasePortion);
+        Assert.Equal(1000, Assert.Single(vm.State.Today).Ml);
+
+        await vm.DecreaseCommand.ExecuteAsync(null);
+        Assert.Equal(650, vm.State.StepMl);
+        await vm.DrinkCommand.ExecuteAsync(null);
+        Assert.Equal(1650, vm.State.Today.Sum(e => e.Ml));
+        await vm.UndoCommand.ExecuteAsync(null);
+        Assert.Equal(1000, Assert.Single(vm.State.Today).Ml);
+
+        using var reopened = NewVm();
+        await reopened.LoadAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(650, reopened.State.StepMl);
+        for (var i = 0; i < 20; i++)
+        {
+            await reopened.DecreaseCommand.ExecuteAsync(null);
+        }
+
+        Assert.Equal(50, reopened.State.StepMl);
+        Assert.False(reopened.CanDecreasePortion);
+    }
+
 }

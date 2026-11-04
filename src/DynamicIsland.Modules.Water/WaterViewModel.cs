@@ -164,7 +164,9 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
     private void OpenSettings() => _host?.OpenSettings("water");
 
     /// <summary>Label of the − / + buttons, e.g. "50 ml".</summary>
-    public string FineStepText => Loc.Instance.Format("Water.FineStep", _tracker.State.FineStepMl);
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "WPF binds this localized label through the view model instance.")]
+    public string FineStepText => Loc.Instance.Format("Water.FineStep", WaterState.PortionIncrementMl);
 
     [RelayCommand]
     private Task UndoAsync()

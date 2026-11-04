@@ -148,7 +148,7 @@ public sealed class WaterTrackerTests
         var state = new WaterState { GoalMl = 1, StepMl = 99999, ReminderIntervalMinutes = 1, ActiveFromHour = 22, ActiveToHour = 3 };
         state.Normalize();
         Assert.Equal(250, state.GoalMl);
-        Assert.Equal(1000, state.StepMl);
+        Assert.Equal(700, state.StepMl);
         Assert.Equal(15, state.ReminderIntervalMinutes);
         Assert.Equal(23, state.ActiveToHour);
     }
@@ -187,8 +187,8 @@ public sealed class WaterPortionTests
 
     [Theory]
     [InlineData(-100, 50)]
-    [InlineData(100, 1000)]
-    public void Portion_stays_between_50_and_1000_ml(int steps, int expected)
+    [InlineData(100, 700)]
+    public void Portion_stays_between_50_and_700_ml(int steps, int expected)
     {
         var tracker = NewTracker(out var state);
         for (var i = 0; i < Math.Abs(steps); i++)
@@ -264,13 +264,46 @@ public sealed class WaterPortionTests
     }
 
     [Fact]
-    public void Fine_step_is_clamped_and_defaults_to_50()
+    public void Legacy_fine_step_always_normalizes_to_50()
     {
         var state = new WaterState { FineStepMl = 0 };
         state.Normalize();
         Assert.Equal(50, state.FineStepMl);
         state.FineStepMl = 99999;
         state.Normalize();
-        Assert.Equal(500, state.FineStepMl);
+        Assert.Equal(50, state.FineStepMl);
     }
+    [Theory]
+    [InlineData(1000, 700)]
+    [InlineData(701, 700)]
+    [InlineData(274, 250)]
+    [InlineData(275, 300)]
+    [InlineData(1, 50)]
+    public void Legacy_portion_migration_preserves_recorded_drinks_and_history(int portion, int expected)
+    {
+        var day = new DateOnly(2026, 10, 26);
+        var state = new WaterState { StepMl = portion, FineStepMl = 100 };
+        state.Today.Add(new WaterEntry(_time.GetUtcNow(), 1000));
+        state.History[day] = 3000;
+
+        state.Normalize();
+        state.Normalize(); // Migration is idempotent.
+
+        Assert.Equal(expected, state.StepMl);
+        Assert.Equal(50, state.FineStepMl);
+        Assert.Equal(1000, Assert.Single(state.Today).Ml);
+        Assert.Equal(3000, state.History[day]);
+    }
+
+    [Theory]
+    [InlineData(int.MaxValue, 700)]
+    [InlineData(int.MinValue, 50)]
+    public void Large_portion_step_counts_do_not_overflow(int steps, int expected)
+    {
+        var tracker = NewTracker(out var state);
+        tracker.ChangePortion(steps);
+        Assert.Equal(expected, state.StepMl);
+        Assert.Equal(0, tracker.TotalMl);
+    }
+
 }
