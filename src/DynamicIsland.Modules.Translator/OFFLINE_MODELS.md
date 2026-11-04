@@ -115,14 +115,33 @@ short-input smoke observations on this container, not Windows benchmarks or idle
 RAM measurements. Model loading is deliberately repeated to release native session
 memory between user requests. Peak memory during translation exceeds the app's
 normal idle-memory target; native Windows memory/startup/idle CPU measurements
-remain required. No interactive WPF, Windows x64 native inference, or Windows ARM64
-native inference was executed in this environment. Presence of matching native DLLs
-and cross-compilation does not establish those execution checks.
+remain required. No interactive WPF or native Windows execution took place in this Linux
+container. Separately, GitHub Actions on Windows x64 passed the real production
+downloader and both native greeting translations, then repeated them with HTTP
+forbidden (run 41886785921). Observed x64 times were 1.31/0.94s after install
+and 1.13/0.95s without HTTP; peak process working set was 629 MiB. Windows ARM64 native execution also passed in run 41888295814, with the
+smoke explicitly checking ProcessArchitecture=Arm64. Both the clean downloader
+and strict no-network path returned the expected greetings. No-network wall
+times were 1.64s / 1.10s, CPU times 1.89s / 1.30s, cumulative peak 602 MiB.
+Both Windows architectures passed 454 tests each, including 70 actual WPF page
+layout/render scenarios; these do not substitute for interactive DPI, focus
+or audible-device acceptance. Native DLL presence alone was not used as proof.
 
 The Windows x64 ONNX Runtime DLL import table was inspected: it imports
 `MSVCP140.dll`, `MSVCP140_1.dll`, `VCRUNTIME140.dll` and `VCRUNTIME140_1.dll`.
 The ONNX NuGet package does not bundle those VC++ runtime DLLs. A self-contained
 .NET publish alone is not proof that the required C++ runtime is present on a clean
 user machine. The release must bundle the correct officially redistributable
-runtime components for each architecture or prove the prerequisite packaging;
-this check remains a clean-machine release gate until verified.
+runtime components for each architecture or declare official prerequisite packaging.
+Both candidate installers now declare `vcredist143-x64` / `vcredist143-arm64`;
+Velopack packaging logs verified the matching dependency and generated the setups.
+The installer offers Microsoft runtime installation if missing. An actual clean
+Windows installation without VC++ installed remains a manual release check.
+
+Final run 41890805217 (source 2333ed9) passed 455 .NET tests and 12 icon fixtures
+on each of Windows x64 and Windows ARM64, including contrast/glyph bounds and 70
+WPF render cases. Strict no-network inference returned the same greetings.
+Cumulative peak working sets were 615 MiB (x64) /603 MiB (ARM64), with no-network
+wall times 1.76/1.33s and 1.78/1.16s respectively. These are short synthetic CI
+observations, not full-app idle benchmarks. Four final PNGs were visually checked;
+this still does not establish interactive monitor/DPI or audible playback.

@@ -50,14 +50,19 @@ The model is loaded only while translating, then released. Active translation
 uses substantially more memory than the idle island; the Linux smoke test reached
 approximately 780 MiB peak working set. Windows x64/ARM64 package and native
 execution checks are tracked separately from interactive WPF visual acceptance.
-This candidate is not a published stable 0.3.1 release.
+The installer uses a `0.3.1-preview.N` version so it can later update to stable
+0.3.1. This candidate is not a published stable 0.3.1 release.
+
+The candidate installer checks the official Microsoft Visual C++ runtime and
+offers to install it if missing; that Microsoft prerequisite may require
+administrator approval. Installing Python or Visual Studio is not required.
 
 ## Install
 
 1. Download **`DynamicIslandForWindows-win-Setup.exe`** from the latest
    [release](https://github.com/zab1yak/dynamic-island-windows/releases/latest)
    (ARM64 PCs: the `win-arm64` setup).
-2. Run it. No administrator rights are needed; the app installs into your user profile and starts with
+2. Run it. The app installs into your user profile and starts with
    Windows (you can turn that off in Settings).
 
 ### "Windows protected your PC" (SmartScreen)
@@ -200,6 +205,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and ideas are welcome in
 последние 50 переводов только на компьютере. Во время перевода расход памяти
 выше, чем у свёрнутого острова. Стабильный релиз 0.3.1 ещё не опубликован:
 состояние проверок приведено в [отчёте](docs/IMPLEMENTATION_STATUS_2026-11-04.md).
+
+Установщик кандидата проверяет Microsoft Visual C++ runtime и предлагает его
+штатную установку, если он отсутствует. Для этого компонента могут потребоваться
+права администратора; Python и Visual Studio пользователю не нужны.
 
 **Dynamic Island for Windows** — чёрный анимированный «остров» по центру верхнего края экрана, как Dynamic
 Island на iPhone. Внутри: музыка (любой плеер Windows, обложка, перемотка, визуализатор по реальному уровню
