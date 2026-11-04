@@ -22,15 +22,18 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       publish: ${{ steps.version.outputs.publish }}
+      tag_exists: ${{ steps.version.outputs.tag_exists }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Resolve version without recreating existing releases
         id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: python
         run: |
-          import os, re, subprocess, xml.etree.ElementTree as ET
+          import json, os, re, subprocess, xml.etree.ElementTree as ET
           version = ET.parse("Directory.Build.props").findtext(".//Version")
           if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version or ""):
               raise SystemExit("Release version must be major.minor.patch")
@@ -39,9 +42,16 @@ jobs:
           if tagged and os.environ["GITHUB_REF_NAME"] != tag:
               raise SystemExit("Tag and project version differ")
           exists = subprocess.run(["git", "rev-parse", "--verify", "refs/tags/" + tag], capture_output=True).returncode == 0
-          publish = tagged or not exists
+          release = subprocess.run(["gh", "api", f"repos/{os.environ['GITHUB_REPOSITORY']}/releases/tags/{tag}"], capture_output=True, text=True)
+          if release.returncode == 0:
+              unpublished = json.loads(release.stdout)["draft"]
+          elif "404" in release.stderr:
+              unpublished = True
+          else:
+              raise SystemExit("Could not verify existing GitHub release: " + release.stderr)
+          publish = tagged or not exists or unpublished
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-              output.write(f"version={version}\ntag={tag}\npublish={str(publish).lower()}\n")
+              output.write(f"version={version}\ntag={tag}\npublish={str(publish).lower()}\ntag_exists={str(exists).lower()}\n")
 
   test:
     needs: version
@@ -60,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Tag the tested version
-        if: github.ref_type != 'tag'
+        if: github.ref_type != 'tag' && needs.version.outputs.tag_exists != 'true'
         env:
           RELEASE_TAG: ${{ needs.version.outputs.tag }}
         run: |
@@ -80,6 +90,8 @@ jobs:
             channel: win-arm64
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -113,14 +125,22 @@ jobs:
           --packDir artifacts/publish/${{ matrix.rid }} --mainExe DynamicIsland.exe
           --packTitle "Dynamic Island" --packAuthors zab1yak
           --icon src/DynamicIsland.App/Assets/island.ico
-          --channel ${{ matrix.channel }} --outputDir artifacts/releases
+          --channel ${{ matrix.channel }} --runtime ${{ matrix.rid }} --outputDir artifacts/releases
 
       - name: Upload to GitHub Release
-        run: >
-          dotnet vpk upload github --repoUrl ${{ env.REPO_URL }} --channel ${{ matrix.channel }}
-          --outputDir artifacts/releases --publish --merge
-          --releaseName "Dynamic Island ${{ steps.version.outputs.version }}" --tag ${{ needs.version.outputs.tag }}
-          --token ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            dotnet vpk upload github --repoUrl $env:REPO_URL --channel ${{ matrix.channel }} `
+              --outputDir artifacts/releases --publish --merge `
+              --releaseName "Dynamic Island ${{ steps.version.outputs.version }}" --tag ${{ needs.version.outputs.tag }} `
+              --token $env:GH_TOKEN
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            if ($attempt -eq 3) { exit $LASTEXITCODE }
+            Start-Sleep -Seconds (3 * $attempt)
+          }
 
       - name: Attach release notes
         env:
