@@ -4,6 +4,7 @@ using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Core.Threading;
 using DynamicIsland.Modules.Media.Services;
+using DynamicIsland.UI.Localization;
 
 namespace DynamicIsland.Modules.Media.ViewModels;
 
@@ -142,8 +143,15 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         _island = island;
         _computeAccent = accent;
         Live = new MediaLiveViewModel(this);
+        Loc.Instance.CultureChanged += OnCultureChanged;
         source.Changed += (_, _) => OnSessionsChanged();
         island.ModeChanged += (_, _) => UpdateTimers();
+    }
+
+    private void OnCultureChanged(object? sender, EventArgs args)
+    {
+        OnPropertyChanged(nameof(RepeatLabel));
+        OnPropertyChanged(nameof(ShuffleLabel));
     }
 
     /// <inheritdoc />
@@ -188,6 +196,7 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         _progressTimer?.Dispose();
         _visualizerTimer?.Dispose();
         _pauseExpiry?.Dispose();
+        Loc.Instance.CultureChanged -= OnCultureChanged;
     }
 
     /// <summary>Re-reads sessions and selection (call after start-up and resume).</summary>
@@ -257,7 +266,12 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         }
 
         // Never paint the requested mode as active: wait for the player's snapshot.
-        var mode = current.RepeatMode == MediaRepeatMode.Track ? MediaRepeatMode.None : MediaRepeatMode.Track;
+        var mode = current.RepeatMode switch
+        {
+            MediaRepeatMode.None => MediaRepeatMode.List,
+            MediaRepeatMode.List => MediaRepeatMode.Track,
+            _ => MediaRepeatMode.None,
+        };
         if (!await _source.SetRepeatAsync(current.AppId, mode) && _current?.AppId == current.AppId)
         {
             await OnCommandFailedAsync();

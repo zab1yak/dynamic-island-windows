@@ -339,7 +339,7 @@ public sealed class MediaViewModelTests : IDisposable
         await _vm.ToggleRepeatCommand.ExecuteAsync(null);
         await _vm.ToggleShuffleCommand.ExecuteAsync(null);
 
-        Assert.Equal(["repeat Spotify.exe Track", "shuffle Spotify.exe True"], _source.Commands);
+        Assert.Equal(["repeat Spotify.exe List", "shuffle Spotify.exe True"], _source.Commands);
         Assert.False(_vm.IsRepeatActive);
         Assert.False(_vm.IsShuffleActive);
         if (reject)
@@ -352,6 +352,19 @@ public sealed class MediaViewModelTests : IDisposable
         Assert.True(_vm.IsRepeatActive);
         Assert.True(_vm.IsShuffleActive);
         Assert.Equal("Repeat1", _vm.RepeatGlyph);
+    }
+
+    [Theory]
+    [InlineData(MediaRepeatMode.None, MediaRepeatMode.List)]
+    [InlineData(MediaRepeatMode.List, MediaRepeatMode.Track)]
+    [InlineData(MediaRepeatMode.Track, MediaRepeatMode.None)]
+    public async Task Repeat_cycles_through_all_player_modes(MediaRepeatMode current, MediaRepeatMode requested)
+    {
+        _source.List.Add(Snapshots.Track() with { CanRepeat = true, RepeatMode = current });
+        _source.Raise();
+        await _vm.ToggleRepeatCommand.ExecuteAsync(null);
+        Assert.Equal($"repeat Spotify.exe {requested}", Assert.Single(_source.Commands));
+        Assert.Equal(current, _vm.RepeatMode); // Only the player's next snapshot confirms the change.
     }
 
     [Fact]

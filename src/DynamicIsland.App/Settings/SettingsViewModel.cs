@@ -363,6 +363,12 @@ internal sealed partial class AboutViewModel : ObservableObject
     private static void OpenRepository() => OpenUrl(RepositoryUrl);
 
     [RelayCommand]
+    private static void OpenSupportEmail() => OpenUrl("mailto:denic8871@gmail.com");
+
+    [RelayCommand]
+    private static void OpenSupportTelegram() => OpenUrl("https://t.me/incdenis");
+
+    [RelayCommand]
     private static void OpenNotices() => OpenUrl(RepositoryUrl + "/blob/main/THIRD_PARTY_NOTICES.md");
 
     [RelayCommand]
@@ -374,7 +380,7 @@ internal sealed partial class AboutViewModel : ObservableObject
 
     private static void OpenUrl(string url)
     {
-        // Only our own constant https URLs are opened here.
+        // Only constant project/support URLs are opened; mailto opens a draft in the default client.
         try
         {
             using var _ = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });

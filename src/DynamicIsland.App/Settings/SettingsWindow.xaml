@@ -9,7 +9,7 @@
         Title="{loc:Tr Settings.Title}" Width="780" Height="560" MinWidth="640" MinHeight="420"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource Brush.Surface1}"
         Icon="pack://application:,,,/Assets/island.ico"
-        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True">
+        TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType" UseLayoutRounding="True">
     <Window.Resources>
         <!-- The app icon as a vector (same geometry as Assets/island.svg): sharp at any size, unlike the .ico. -->
         <DrawingImage x:Key="AppIconVector">
@@ -247,6 +247,26 @@
                             <TextBlock Text="{loc:Tr Settings.Licenses}" Style="{DynamicResource Settings.Label}" />
                             <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Content="{loc:Tr Settings.Open}" Command="{Binding OpenNoticesCommand}" VerticalAlignment="Center" />
                         </DockPanel>
+                    </StackPanel>
+                </c:SquircleBorder>
+                <TextBlock Text="{loc:Tr Settings.Support}" Style="{DynamicResource Settings.Header}" />
+                <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+                    <StackPanel>
+                        <Grid MinHeight="44">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <c:Icon Glyph="Mail" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <TextBlock Grid.Column="1" Text="{loc:Tr Settings.SupportEmail}" Style="{DynamicResource Settings.Label}" />
+                            <Button Grid.Column="2" Style="{DynamicResource PillButton}" Focusable="True" Content="denic8871@gmail.com"
+                                    Command="{Binding OpenSupportEmailCommand}" AutomationProperties.Name="{loc:Tr Settings.SupportEmail}" VerticalAlignment="Center" />
+                        </Grid>
+                        <Rectangle Style="{DynamicResource Settings.Separator}" />
+                        <Grid MinHeight="44">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <c:Icon Glyph="Telegram" Filled="True" StrokeThickness="0" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <TextBlock Grid.Column="1" Text="Telegram" Style="{DynamicResource Settings.Label}" />
+                            <Button Grid.Column="2" Style="{DynamicResource PillButton}" Focusable="True" Content="@incdenis"
+                                    Command="{Binding OpenSupportTelegramCommand}" AutomationProperties.Name="{loc:Tr Settings.SupportTelegram}" VerticalAlignment="Center" />
+                        </Grid>
                     </StackPanel>
                 </c:SquircleBorder>
                 <TextBlock Text="{loc:Tr Settings.IconsCredit}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" />

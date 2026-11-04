@@ -30,6 +30,7 @@
   <data name="Settings.General" xml:space="preserve"><value>General</value></data>
   <data name="Settings.HideFullscreen" xml:space="preserve"><value>Hide over fullscreen apps and games</value></data>
   <data name="Settings.Hotkey" xml:space="preserve"><value>Expand / pin hotkey</value></data>
+  <data name="Settings.HotkeyDuplicate" xml:space="preserve"><value>Choose a different combination for each shortcut</value></data>
   <data name="Settings.HotkeyInvalid" xml:space="preserve"><value>Use at least one modifier (Ctrl, Alt, Shift or Win) and a key</value></data>
   <data name="Settings.HotkeyPress" xml:space="preserve"><value>Press a combination</value></data>
   <data name="Settings.IconsCredit" xml:space="preserve"><value>Icons: Lucide (ISC licence), lucide.dev. Fonts: SF Pro if installed, otherwise Segoe UI Variable.</value></data>
@@ -46,17 +47,26 @@
   <data name="Settings.MoveUp" xml:space="preserve"><value>Move up</value></data>
   <data name="Settings.Ms" xml:space="preserve"><value>ms</value></data>
   <data name="Settings.Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Settings.Position" xml:space="preserve"><value>Position</value></data>
+  <data name="Settings.PositionCenter" xml:space="preserve"><value>Center</value></data>
+  <data name="Settings.PositionLeft" xml:space="preserve"><value>Left</value></data>
+  <data name="Settings.PositionRight" xml:space="preserve"><value>Right</value></data>
   <data name="Settings.Primary" xml:space="preserve"><value>primary</value></data>
   <data name="Settings.Recording" xml:space="preserve"><value>Screen recording indicator</value></data>
   <data name="Settings.RecordingHint" xml:space="preserve"><value>Heuristic: shows a red dot while a known recorder (OBS, ShareX…) is running, even if it is not recording.</value></data>
   <data name="Settings.Size" xml:space="preserve"><value>Island size</value></data>
+  <data name="Settings.Support" xml:space="preserve"><value>Contact support</value></data>
+  <data name="Settings.SupportEmail" xml:space="preserve"><value>Email</value></data>
+  <data name="Settings.SupportTelegram" xml:space="preserve"><value>Open Telegram support</value></data>
   <data name="Settings.Title" xml:space="preserve"><value>Dynamic Island Settings</value></data>
   <data name="Settings.UpdatesChecking" xml:space="preserve"><value>Checking…</value></data>
   <data name="Settings.UpdatesUnavailable" xml:space="preserve"><value>Updates work in the installed version</value></data>
   <data name="Settings.Version" xml:space="preserve"><value>Version</value></data>
+  <data name="Settings.VisibilityHotkey" xml:space="preserve"><value>Hide / show island</value></data>
   <data name="Tray.Exit" xml:space="preserve"><value>Exit</value></data>
   <data name="Tray.Restart" xml:space="preserve"><value>Restart</value></data>
   <data name="Tray.Settings" xml:space="preserve"><value>Settings…</value></data>
+  <data name="Tray.ShowIsland" xml:space="preserve"><value>Show island</value></data>
   <data name="Tray.Showcase" xml:space="preserve"><value>Component gallery (Debug)</value></data>
   <data name="Tray.Tooltip" xml:space="preserve"><value>Dynamic Island</value></data>
   <data name="Update.Body" xml:space="preserve"><value>Version {0} will be installed when you exit Dynamic Island.</value></data>
@@ -64,11 +74,4 @@
   <data name="Update.Ready" xml:space="preserve"><value>An update is ready and will be installed on exit</value></data>
   <data name="Update.Title" xml:space="preserve"><value>Update downloaded</value></data>
   <data name="Update.UpToDate" xml:space="preserve"><value>You have the latest version ({0})</value></data>
-  <data name="Settings.Position" xml:space="preserve"><value>Position</value></data>
-  <data name="Settings.PositionLeft" xml:space="preserve"><value>Left</value></data>
-  <data name="Settings.PositionCenter" xml:space="preserve"><value>Center</value></data>
-  <data name="Settings.PositionRight" xml:space="preserve"><value>Right</value></data>
-  <data name="Settings.VisibilityHotkey" xml:space="preserve"><value>Hide / show island</value></data>
-  <data name="Settings.HotkeyDuplicate" xml:space="preserve"><value>Choose a different combination for each shortcut</value></data>
-  <data name="Tray.ShowIsland" xml:space="preserve"><value>Show island</value></data>
 </root>

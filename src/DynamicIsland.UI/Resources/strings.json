@@ -266,5 +266,17 @@
   "Tray.ShowIsland": {
     "en": "Show island",
     "ru": "Показать остров"
+  },
+  "Settings.Support": {
+    "en": "Contact support",
+    "ru": "Связаться с поддержкой"
+  },
+  "Settings.SupportEmail": {
+    "en": "Email",
+    "ru": "Электронная почта"
+  },
+  "Settings.SupportTelegram": {
+    "en": "Open Telegram support",
+    "ru": "Открыть поддержку в Telegram"
   }
 }

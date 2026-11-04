@@ -14,7 +14,7 @@
             <StackPanel VerticalAlignment="Center">
                 <Button Style="{DynamicResource PillButton}" Height="36" Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="{loc:Tr Tools.Settings}" ToolTip="{loc:Tr Tools.Settings}">
                     <StackPanel Orientation="Horizontal">
-                        <c:Icon Glyph="Settings" Width="16" Height="16" Margin="0,0,6,0" />
+                        <c:Icon Glyph="Settings" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextPrimary}" />
                         <TextBlock Text="{loc:Tr Tools.Settings}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>

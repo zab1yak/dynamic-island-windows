@@ -46,3 +46,15 @@ Some Lucide icons are derived from [Feather](https://github.com/feathericons/fea
 - **SF Pro** fonts are not distributed. If you have them installed, the app uses them; otherwise it
   falls back to Segoe UI Variable. Apple's font licence forbids redistribution.
 - **SF Symbols** are not used: Apple licenses them only for apps on Apple platforms.
+
+## Telegram support icon — Simple Icons 16.0.0
+
+The Telegram path in `src/DynamicIsland.UI/Icons/Support.xaml` comes from
+https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/telegram.svg.
+Simple Icons dedicates its icons to the public domain under
+[CC0 1.0](https://github.com/simple-icons/simple-icons/blob/16.0.0/LICENSE.md).
+CC0 does not grant trademark rights. This unmodified mark labels a Telegram
+support link only; it does not imply endorsement by Telegram.
+
+The Mail path in the same support dictionary comes from lucide-static 1.61.0
+(`icons/mail.svg`), under the Lucide ISC license reproduced above.
