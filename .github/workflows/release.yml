@@ -115,6 +115,10 @@ jobs:
       - name: Restore vpk
         run: dotnet tool restore
 
+      - name: Verify native architecture and bundled sounds
+        shell: pwsh
+        run: ./scripts/Verify-CandidatePackage.ps1 -PublishDirectory artifacts/publish/${{ matrix.rid }} -RuntimeIdentifier ${{ matrix.rid }}
+
       - name: Download previous release (for delta updates)
         continue-on-error: true
         run: >

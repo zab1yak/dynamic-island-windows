@@ -37,7 +37,7 @@ a Pomodoro timer, water reminders, a file shelf and a to-do list one glance away
   pages on/off and order, per-page options, Russian / English.
 - Auto-updates from GitHub Releases.
 
-### 0.3.1 candidate: offline translation
+### 0.3.1: offline translation
 
 The Translator page offers local English ↔ Russian translation without accounts,
 Python, subscriptions or API keys. Choose a direction, open the package manager
@@ -50,10 +50,10 @@ The model is loaded only while translating, then released. Active translation
 uses substantially more memory than the idle island; the Linux smoke test reached
 approximately 780 MiB peak working set. Windows x64/ARM64 package and native
 execution checks are tracked separately from interactive WPF visual acceptance.
-The installer uses a `0.3.1-preview.N` version so it can later update to stable
-0.3.1. This candidate is not a published stable 0.3.1 release.
+Download the stable `.exe` installer from [release 0.3.1](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.1),
+or check for updates in Settings → About, then exit through the tray and relaunch.
 
-The candidate installer checks the official Microsoft Visual C++ runtime and
+The installer checks the official Microsoft Visual C++ runtime and
 offers to install it if missing; that Microsoft prerequisite may require
 administrator approval. Installing Python or Visual Studio is not required.
 
@@ -198,15 +198,16 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and ideas are welcome in
 
 ## На русском
 
-**Кандидат 0.3.1:** встроенный перевод английский ↔ русский без ключей и платных
+**Версия 0.3.1:** встроенный перевод английский ↔ русский без ключей и платных
 аккаунтов. В переводчике нажмите «Скачать», проверьте размер и источник в менеджере
 и установите нужное направление (около 243 МБ каждое). После этого интернет для
 перевода не нужен. История выключена по умолчанию; при включении сохраняются
 последние 50 переводов только на компьютере. Во время перевода расход памяти
-выше, чем у свёрнутого острова. Стабильный релиз 0.3.1 ещё не опубликован:
-состояние проверок приведено в [отчёте](docs/IMPLEMENTATION_STATUS_2026-11-04.md).
+выше, чем у свёрнутого острова. Установщик `.exe` доступен в [релизе 0.3.1](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.1).
+Для установленной версии: «О программе» → проверка обновлений, затем выход
+через трей и повторный запуск. Состояние проверок — в [отчёте](docs/IMPLEMENTATION_STATUS_2026-11-04.md).
 
-Установщик кандидата проверяет Microsoft Visual C++ runtime и предлагает его
+Установщик проверяет Microsoft Visual C++ runtime и предлагает его
 штатную установку, если он отсутствует. Для этого компонента могут потребоваться
 права администратора; Python и Visual Studio пользователю не нужны.
 

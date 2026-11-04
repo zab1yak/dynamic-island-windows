@@ -1,6 +1,8 @@
 ## 🇷🇺 Версия 0.3.1 — исправления и удобство
 
-**Проект описания для проверочной сборки. Стабильный релиз ещё не опубликован.**
+Обновление для Windows x64 и ARM64. **455 Windows-тестов прошли на каждой
+архитектуре**; реальный офлайн-перевод и 70 вариантов WPF-компоновки также
+проверены на обеих архитектурах.
 
 ### Что нового
 
@@ -28,10 +30,15 @@
 
 ### Установка и обновление
 
-Проверочные x64/ARM64 пакеты формирует workflow **Candidate packages**.
-Они не публикуются в стабильный канал автообновления. Установленная 0.3.0 не
-обновляется этим описанием; установщики и feeds 0.3.1 появятся только после
-выполнения условий выпуска. Пользовательские задачи, записи и настройки сохраняются.
+- **Обычный ПК Intel/AMD:** скачайте `DynamicIslandForWindows-win-Setup.exe`
+  из файлов этого релиза и запустите.
+- **Windows ARM64:** используйте `DynamicIslandForWindows-win-arm64-Setup.exe`.
+- **Обновление установленной версии:** Настройки → О программе → Проверить
+  обновления. Дождитесь загрузки, выйдите через трей и запустите приложение снова.
+- ZIP не нужен. Установщик сам проверяет Visual C++ runtime и при необходимости
+  предлагает штатную установку Microsoft; могут потребоваться права администратора.
+- Для перевода откройте менеджер языковых пакетов и скачайте нужное направление.
+  Пользовательские задачи, записи и настройки сохраняются.
 
 ### Известные ограничения
 
@@ -47,20 +54,24 @@
 
 ## 🇬🇧 Version 0.3.1 — fixes and usability improvements
 
-**Draft candidate notes; a stable release has not been published.**
+Windows x64 and ARM64 update. All 455 Windows tests passed on each architecture,
+including real native offline translation and 70 WPF layout/render scenarios.
 
 Local English ↔ Russian translation uses separately downloaded models (~243 MB
 per direction) without API keys, Python or accounts. Translation stays offline;
 optional local history is disabled by default and capped at 50 entries.
 
-The candidate fixes selected ComboBox labels, translator layout, the repeat-mode
+This release fixes selected ComboBox labels, translator layout, the repeat-mode
 cycle, Pomodoro completion after sleep and notification access diagnostics. It
 adds independent reminder sounds with preview, thin settings scrollbars and
 support links. Shutdown drains translation/download work; interrupted downloads
 are safely recovered on the next installation attempt.
 
-Candidate x64/ARM64 packages are separate from stable auto-updates. Interactive
-Windows layout/DPI, audible playback and real-player acceptance remain necessary.
+Download the matching `.exe` installer from this release, or check for updates
+in Settings → About, wait for the download, exit through the tray and relaunch.
+The installer checks the official Visual C++ prerequisite; Python is not required.
+Interactive Windows layout/DPI, audible playback and real-player acceptance
+remain unverified; these automated checks do not replace them.
 Models support short text (2000 characters / 255 input tokens), require substantial
 memory during inference and are released between requests. See the dated
 implementation report for actual build, test and native-execution evidence.
