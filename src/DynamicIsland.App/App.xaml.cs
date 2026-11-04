@@ -96,6 +96,16 @@ public partial class App : Application
             settings.Changed += (_, _) => Loc.Instance.SetLanguage(settings.Current.Language);
             var tray = services.GetRequiredService<TrayIconService>();
             tray.SettingsRequested += (_, _) => OpenSettings(null);
+            tray.ShowIslandRequested += (_, _) =>
+            {
+                var state = services.GetRequiredService<IslandStateMachine>();
+                state.SetManuallyHidden(false);
+                if (state.Mode == IslandMode.Hidden)
+                {
+                    // An explicit tray action may reveal the island over fullscreen just like the expansion hotkey.
+                    state.HotkeyPressed();
+                }
+            };
             services.GetRequiredService<IslandHostService>().SettingsRequested += (_, section) => OpenSettings(section);
             tray.Show();
 

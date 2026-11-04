@@ -8,7 +8,7 @@
   <data name="Error.Fatal" xml:space="preserve"><value>Dynamic Island несколько раз подряд столкнулся с ошибкой и будет закрыт. Логи: {0}</value></data>
   <data name="Error.Recovered" xml:space="preserve"><value>Ошибка записана в лог, остров продолжает работать.</value></data>
   <data name="Error.Title" xml:space="preserve"><value>Что-то пошло не так</value></data>
-  <data name="Hotkey.Taken" xml:space="preserve"><value>{0} уже использует другое приложение. Остров по-прежнему раскрывается при наведении.</value></data>
+  <data name="Hotkey.Taken" xml:space="preserve"><value>{0} уже использует другое приложение. Восстановить остров можно через меню в трее.</value></data>
   <data name="Hotkey.TakenTitle" xml:space="preserve"><value>Горячая клавиша занята</value></data>
   <data name="Island.NextPage" xml:space="preserve"><value>Следующая страница</value></data>
   <data name="Island.PreviousPage" xml:space="preserve"><value>Предыдущая страница</value></data>
@@ -29,7 +29,7 @@
   <data name="Settings.ExpandDelay" xml:space="preserve"><value>Раскрывать при наведении через</value></data>
   <data name="Settings.General" xml:space="preserve"><value>Основные</value></data>
   <data name="Settings.HideFullscreen" xml:space="preserve"><value>Прятать поверх полноэкранных приложений и игр</value></data>
-  <data name="Settings.Hotkey" xml:space="preserve"><value>Горячая клавиша</value></data>
+  <data name="Settings.Hotkey" xml:space="preserve"><value>Раскрыть / закрепить остров</value></data>
   <data name="Settings.HotkeyInvalid" xml:space="preserve"><value>Нужен хотя бы один модификатор (Ctrl, Alt, Shift или Win) и клавиша</value></data>
   <data name="Settings.HotkeyPress" xml:space="preserve"><value>Нажмите сочетание</value></data>
   <data name="Settings.IconsCredit" xml:space="preserve"><value>Иконки: Lucide (лицензия ISC), lucide.dev. Шрифты: SF Pro, если установлен, иначе Segoe UI Variable.</value></data>
@@ -64,4 +64,11 @@
   <data name="Update.Ready" xml:space="preserve"><value>Обновление готово и установится при выходе</value></data>
   <data name="Update.Title" xml:space="preserve"><value>Обновление загружено</value></data>
   <data name="Update.UpToDate" xml:space="preserve"><value>Установлена последняя версия ({0})</value></data>
+  <data name="Settings.Position" xml:space="preserve"><value>Положение</value></data>
+  <data name="Settings.PositionLeft" xml:space="preserve"><value>Слева</value></data>
+  <data name="Settings.PositionCenter" xml:space="preserve"><value>По центру</value></data>
+  <data name="Settings.PositionRight" xml:space="preserve"><value>Справа</value></data>
+  <data name="Settings.VisibilityHotkey" xml:space="preserve"><value>Скрыть / показать остров</value></data>
+  <data name="Settings.HotkeyDuplicate" xml:space="preserve"><value>Выберите разные сочетания для двух горячих клавиш</value></data>
+  <data name="Tray.ShowIsland" xml:space="preserve"><value>Показать остров</value></data>
 </root>

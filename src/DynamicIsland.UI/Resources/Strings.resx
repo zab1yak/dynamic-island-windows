@@ -8,7 +8,7 @@
   <data name="Error.Fatal" xml:space="preserve"><value>Dynamic Island hit repeated errors and will close. Logs: {0}</value></data>
   <data name="Error.Recovered" xml:space="preserve"><value>The error was logged; the island keeps working.</value></data>
   <data name="Error.Title" xml:space="preserve"><value>Something went wrong</value></data>
-  <data name="Hotkey.Taken" xml:space="preserve"><value>{0} is already used by another app. The island still opens on hover.</value></data>
+  <data name="Hotkey.Taken" xml:space="preserve"><value>{0} is already used by another app. You can restore the island from the tray menu.</value></data>
   <data name="Hotkey.TakenTitle" xml:space="preserve"><value>Hotkey unavailable</value></data>
   <data name="Island.NextPage" xml:space="preserve"><value>Next page</value></data>
   <data name="Island.PreviousPage" xml:space="preserve"><value>Previous page</value></data>
@@ -29,7 +29,7 @@
   <data name="Settings.ExpandDelay" xml:space="preserve"><value>Open on hover after</value></data>
   <data name="Settings.General" xml:space="preserve"><value>General</value></data>
   <data name="Settings.HideFullscreen" xml:space="preserve"><value>Hide over fullscreen apps and games</value></data>
-  <data name="Settings.Hotkey" xml:space="preserve"><value>Show or hide hotkey</value></data>
+  <data name="Settings.Hotkey" xml:space="preserve"><value>Expand / pin hotkey</value></data>
   <data name="Settings.HotkeyInvalid" xml:space="preserve"><value>Use at least one modifier (Ctrl, Alt, Shift or Win) and a key</value></data>
   <data name="Settings.HotkeyPress" xml:space="preserve"><value>Press a combination</value></data>
   <data name="Settings.IconsCredit" xml:space="preserve"><value>Icons: Lucide (ISC licence), lucide.dev. Fonts: SF Pro if installed, otherwise Segoe UI Variable.</value></data>
@@ -64,4 +64,11 @@
   <data name="Update.Ready" xml:space="preserve"><value>An update is ready and will be installed on exit</value></data>
   <data name="Update.Title" xml:space="preserve"><value>Update downloaded</value></data>
   <data name="Update.UpToDate" xml:space="preserve"><value>You have the latest version ({0})</value></data>
+  <data name="Settings.Position" xml:space="preserve"><value>Position</value></data>
+  <data name="Settings.PositionLeft" xml:space="preserve"><value>Left</value></data>
+  <data name="Settings.PositionCenter" xml:space="preserve"><value>Center</value></data>
+  <data name="Settings.PositionRight" xml:space="preserve"><value>Right</value></data>
+  <data name="Settings.VisibilityHotkey" xml:space="preserve"><value>Hide / show island</value></data>
+  <data name="Settings.HotkeyDuplicate" xml:space="preserve"><value>Choose a different combination for each shortcut</value></data>
+  <data name="Tray.ShowIsland" xml:space="preserve"><value>Show island</value></data>
 </root>

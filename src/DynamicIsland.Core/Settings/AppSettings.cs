@@ -7,7 +7,7 @@ namespace DynamicIsland.Core.Settings;
 public sealed class AppSettings
 {
     /// <summary>Current schema version; bump it and add a migration when the shape changes.</summary>
-    public const int CurrentSchemaVersion = 3;
+    public const int CurrentSchemaVersion = 4;
 
     /// <summary>Schema version the document was written with.</summary>
     public int SchemaVersion { get; set; } = CurrentSchemaVersion;
@@ -17,6 +17,9 @@ public sealed class AppSettings
 
     /// <summary>Device name of the monitor that hosts the island; <c>null</c> means the primary monitor.</summary>
     public string? MonitorDeviceName { get; set; }
+
+    /// <summary>Horizontal placement on the selected monitor; existing installs stay centred.</summary>
+    public IslandPosition Position { get; set; } = IslandPosition.Center;
 
     /// <summary>Default island scale: the v0.1.0 design size.</summary>
     public const double DefaultIslandScale = 1.0;
@@ -32,6 +35,9 @@ public sealed class AppSettings
 
     /// <summary>Global hotkey that toggles the island, for example <c>Ctrl+Alt+Space</c>.</summary>
     public string ToggleHotkey { get; set; } = "Ctrl+Alt+Space";
+
+    /// <summary>Independent global hotkey for manually hiding or restoring the entire overlay.</summary>
+    public string VisibilityHotkey { get; set; } = "Ctrl+Alt+H";
 
     /// <summary>Hide the island while a fullscreen app, game or presentation is in the foreground.</summary>
     public bool HideInFullscreen { get; set; } = true;

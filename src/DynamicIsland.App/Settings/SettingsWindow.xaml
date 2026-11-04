@@ -139,6 +139,12 @@
                         </DockPanel>
                         <Rectangle Style="{DynamicResource Settings.Separator}" />
                         <DockPanel Style="{DynamicResource Settings.Row}">
+                            <TextBlock Text="{loc:Tr Settings.Position}" Style="{DynamicResource Settings.Label}" />
+                            <ComboBox DockPanel.Dock="Right" Width="260" VerticalAlignment="Center" ItemsSource="{Binding Positions}"
+                                      SelectedItem="{Binding Position}" DisplayMemberPath="Label" AutomationProperties.Name="{loc:Tr Settings.Position}" />
+                        </DockPanel>
+                        <Rectangle Style="{DynamicResource Settings.Separator}" />
+                        <DockPanel Style="{DynamicResource Settings.Row}">
                             <TextBlock Text="{loc:Tr Settings.Size}" Style="{DynamicResource Settings.Label}" />
                             <c:NumberStepper DockPanel.Dock="Right" Value="{Binding IslandScalePercent}" Minimum="70" Maximum="130" Step="5" Suffix="%" />
                         </DockPanel>
@@ -164,6 +170,15 @@
                         </DockPanel>
                         <TextBlock Text="{Binding HotkeyError}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.Orange}"
                                    Visibility="{Binding HotkeyError, Converter={StaticResource NullToVisibility}}" Margin="0,0,0,8" />
+                        <Rectangle Style="{DynamicResource Settings.Separator}" />
+                        <DockPanel Style="{DynamicResource Settings.Row}">
+                            <TextBlock Text="{loc:Tr Settings.VisibilityHotkey}" Style="{DynamicResource Settings.Label}" />
+                            <TextBox x:Name="VisibilityHotkeyBox" DockPanel.Dock="Right" Width="200" Style="{DynamicResource TextField}" IsReadOnly="True"
+                                     Text="{Binding VisibilityHotkey, Mode=OneWay}" Tag="{loc:Tr Settings.HotkeyPress}" VerticalAlignment="Center"
+                                     AutomationProperties.Name="{loc:Tr Settings.VisibilityHotkey}" PreviewKeyDown="OnHotkeyKeyDown" />
+                        </DockPanel>
+                        <TextBlock Text="{Binding VisibilityHotkeyError}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.Orange}"
+                                   Visibility="{Binding VisibilityHotkeyError, Converter={StaticResource NullToVisibility}}" Margin="0,0,0,8" />
                     </StackPanel>
                 </c:SquircleBorder>
             </StackPanel>

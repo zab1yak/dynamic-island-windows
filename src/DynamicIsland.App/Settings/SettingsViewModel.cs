@@ -35,6 +35,9 @@ internal sealed record LanguageChoice(string? Code, string Label)
     public override string ToString() => Label;
 }
 
+/// <summary>A horizontal anchor in the island placement picker.</summary>
+internal sealed record PositionChoice(IslandPosition Value, string Label);
+
 /// <summary>General and island behaviour settings; every change is saved at once.</summary>
 internal sealed partial class GeneralSettingsViewModel : ObservableObject
 {
@@ -75,6 +78,9 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     private MonitorChoice? _monitor;
 
     [ObservableProperty]
+    private PositionChoice? _position;
+
+    [ObservableProperty]
     private int _islandScalePercent;
 
     [ObservableProperty]
@@ -89,6 +95,12 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     [ObservableProperty]
     private string? _hotkeyError;
 
+    [ObservableProperty]
+    private string _visibilityHotkey = string.Empty;
+
+    [ObservableProperty]
+    private string? _visibilityHotkeyError;
+
     public GeneralSettingsViewModel(ISettingsService settings, AutostartService autostart)
     {
         _settings = settings;
@@ -97,6 +109,8 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     }
 
     public ObservableCollection<MonitorChoice> Monitors { get; } = [];
+
+    public IReadOnlyList<PositionChoice> Positions { get; private set; } = [];
 
     public IReadOnlyList<LanguageChoice> Languages { get; } =
     [
@@ -122,6 +136,16 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
         CollapseDelayMs = s.HoverCollapseDelayMs;
         Hotkey = s.ToggleHotkey;
         HotkeyError = null;
+        VisibilityHotkey = s.VisibilityHotkey;
+        VisibilityHotkeyError = null;
+        Positions =
+        [
+            new(IslandPosition.Left, Loc.Instance["Settings.PositionLeft"]),
+            new(IslandPosition.Center, Loc.Instance["Settings.PositionCenter"]),
+            new(IslandPosition.Right, Loc.Instance["Settings.PositionRight"]),
+        ];
+        OnPropertyChanged(nameof(Positions));
+        Position = Positions.First(p => p.Value == s.Position);
 
         Monitors.Clear();
         Monitors.Add(new MonitorChoice(null, Loc.Instance["Settings.MonitorPrimary"]));
@@ -141,6 +165,12 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     {
         if (HotkeyGesture.TryParse(text, out var gesture))
         {
+            if (HotkeyGesture.TryParse(VisibilityHotkey, out var visibility) && gesture == visibility)
+            {
+                HotkeyError = Loc.Instance["Settings.HotkeyDuplicate"];
+                return;
+            }
+
             HotkeyError = null;
             Hotkey = gesture.Value.ToString();
         }
@@ -148,6 +178,25 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
         {
             HotkeyError = Loc.Instance["Settings.HotkeyInvalid"];
         }
+    }
+
+    /// <summary>Validates the independent visibility hotkey without changing the expansion shortcut.</summary>
+    public void TrySetVisibilityHotkey(string text)
+    {
+        if (!HotkeyGesture.TryParse(text, out var gesture))
+        {
+            VisibilityHotkeyError = Loc.Instance["Settings.HotkeyInvalid"];
+            return;
+        }
+
+        if (HotkeyGesture.TryParse(Hotkey, out var expansion) && gesture == expansion)
+        {
+            VisibilityHotkeyError = Loc.Instance["Settings.HotkeyDuplicate"];
+            return;
+        }
+
+        VisibilityHotkeyError = null;
+        VisibilityHotkey = gesture.Value.ToString();
     }
 
     partial void OnLaunchAtStartupChanged(bool value)
@@ -187,6 +236,8 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
 
     partial void OnMonitorChanged(MonitorChoice? value) => Save(s => s.MonitorDeviceName = value?.DeviceName);
 
+    partial void OnPositionChanged(PositionChoice? value) => Save(s => s.Position = value?.Value ?? IslandPosition.Center);
+
     partial void OnIslandScalePercentChanged(int value) => Save(s => s.IslandScale = value / 100.0);
 
     partial void OnExpandDelayMsChanged(int value) => Save(s => s.HoverExpandDelayMs = value);
@@ -194,6 +245,8 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject
     partial void OnCollapseDelayMsChanged(int value) => Save(s => s.HoverCollapseDelayMs = value);
 
     partial void OnHotkeyChanged(string value) => Save(s => s.ToggleHotkey = value);
+
+    partial void OnVisibilityHotkeyChanged(string value) => Save(s => s.VisibilityHotkey = value);
 
     private void Save(Action<AppSettings>? change = null)
     {

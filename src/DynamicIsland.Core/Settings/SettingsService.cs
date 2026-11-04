@@ -130,6 +130,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
     {
         s.SchemaVersion = AppSettings.CurrentSchemaVersion;
         s.Background = Enum.IsDefined(s.Background) ? s.Background : IslandBackground.Black;
+        s.Position = Enum.IsDefined(s.Position) ? s.Position : IslandPosition.Center;
         s.IslandScale = Math.Clamp(double.IsFinite(s.IslandScale) ? s.IslandScale : AppSettings.DefaultIslandScale, 0.7, 1.3);
         s.HoverExpandDelayMs = Math.Clamp(s.HoverExpandDelayMs, 0, 2000);
         s.HoverCollapseDelayMs = Math.Clamp(s.HoverCollapseDelayMs, 100, 5000);
@@ -138,6 +139,11 @@ public sealed class SettingsService : ISettingsService, IDisposable
         if (string.IsNullOrWhiteSpace(s.ToggleHotkey))
         {
             s.ToggleHotkey = "Ctrl+Alt+Space";
+        }
+
+        if (!Input.HotkeyGesture.TryParse(s.VisibilityHotkey, out _))
+        {
+            s.VisibilityHotkey = "Ctrl+Alt+H";
         }
 
         if (s.Language is not null and not "ru" and not "en")

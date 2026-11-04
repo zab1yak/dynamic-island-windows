@@ -60,6 +60,28 @@ public sealed class IslandStateMachine : IDisposable
     /// </summary>
     public bool IsLocked { get; private set; }
 
+    /// <summary>User suppression, independent of fullscreen, pinning and ordinary compact mode.</summary>
+    public bool IsManuallyHidden { get; private set; }
+
+    /// <summary>Hides the entire island until explicitly restored, cancelling pending hover/drop input.</summary>
+    public void SetManuallyHidden(bool hidden)
+    {
+        if (IsManuallyHidden == hidden)
+        {
+            return;
+        }
+
+        IsManuallyHidden = hidden;
+        CancelTimer();
+        Phase = HoverPhase.Idle;
+        _pointerInside = false;
+        _expanded = false;
+        _pinned = false;
+        _dropping = false;
+        _editLock = false;
+        Update();
+    }
+
     /// <summary>Hover phase; at most one delayed transition is pending at any time.</summary>
     public HoverPhase Phase { get; private set; } = HoverPhase.Idle;
 
@@ -75,6 +97,11 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The pointer entered the island.</summary>
     public void PointerEntered()
     {
+        if (IsManuallyHidden)
+        {
+            return;
+        }
+
         if (IsLocked)
         {
             _pointerInside = true;
@@ -151,7 +178,7 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The island background was clicked: pin, or unpin a pinned island.</summary>
     public void Clicked()
     {
-        if (IsLocked)
+        if (IsLocked || IsManuallyHidden)
         {
             return;
         }
@@ -174,7 +201,7 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>The global hotkey was pressed: toggle a pinned, expanded island.</summary>
     public void HotkeyPressed()
     {
-        if (IsLocked)
+        if (IsLocked || IsManuallyHidden)
         {
             return;
         }
@@ -228,7 +255,7 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>A drag with files approaches or enters the island.</summary>
     public void DragNear()
     {
-        if (!DropEnabled || _fullscreen || IsLocked)
+        if (!DropEnabled || _fullscreen || IsLocked || IsManuallyHidden)
         {
             return;
         }
@@ -254,6 +281,11 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>Files were dropped.</summary>
     public void Dropped()
     {
+        if (IsManuallyHidden || IsLocked || _fullscreen || !DropEnabled)
+        {
+            return;
+        }
+
         _dropping = false;
         _expanded = true;
         Update();
@@ -264,6 +296,11 @@ public sealed class IslandStateMachine : IDisposable
     /// <summary>A text box got keyboard focus: keep the island open while typing.</summary>
     public void TextEditStarted()
     {
+        if (IsManuallyHidden)
+        {
+            return;
+        }
+
         _editLock = true;
         CancelTimer();
     }
@@ -337,6 +374,11 @@ public sealed class IslandStateMachine : IDisposable
 
     private IslandMode Compute()
     {
+        if (IsManuallyHidden)
+        {
+            return IslandMode.Hidden;
+        }
+
         if (_dropping)
         {
             return IslandMode.DropTarget;

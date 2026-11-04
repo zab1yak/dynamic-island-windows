@@ -19,10 +19,14 @@ internal sealed class TrayIconService(AppLifetime lifetime) : IDisposable
     /// </summary>
     public event EventHandler? SettingsRequested;
 
+    /// <summary>Explicit recovery action, available even if the visibility hotkey cannot be registered.</summary>
+    public event EventHandler? ShowIslandRequested;
+
     /// <summary>Creates the icon. Call on the UI thread.</summary>
     public void Show()
     {
         var menu = new ContextMenu();
+        menu.Items.Add(CreateItem("Tray.ShowIsland", () => ShowIslandRequested?.Invoke(this, EventArgs.Empty)));
         if (SettingsRequested is not null)
         {
             menu.Items.Add(CreateItem("Tray.Settings", () => SettingsRequested?.Invoke(this, EventArgs.Empty)));

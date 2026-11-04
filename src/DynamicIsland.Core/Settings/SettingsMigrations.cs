@@ -24,5 +24,8 @@ internal static class SettingsMigrations
                 json["islandScale"] = AppSettings.DefaultIslandScale;
             }
         },
+
+        // Additive placement and visibility shortcut defaults; do not touch any existing preference.
+        [3] = _ => { },
     };
 }

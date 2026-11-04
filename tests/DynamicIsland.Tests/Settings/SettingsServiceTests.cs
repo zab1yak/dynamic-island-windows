@@ -153,4 +153,28 @@ public sealed class SettingsServiceTests : IDisposable
     {
         Assert.Equal(1.0, new AppSettings().IslandScale);
     }
+
+    [Fact]
+    public async Task Placement_and_visibility_shortcut_survive_restart_without_changing_existing_preferences()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await File.WriteAllTextAsync(Path.Combine(_temp.Path, SettingsService.FileName),
+            """{ "schemaVersion": 3, "islandScale": 0.8, "hoverExpandDelayMs": 100, "hoverCollapseDelayMs": 100, "toggleHotkey": "Ctrl+Shift+G" }""", ct);
+        using var service = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
+        await service.LoadAsync(ct);
+        Assert.Equal(IslandPosition.Center, service.Current.Position);
+        Assert.Equal("Ctrl+Alt+H", service.Current.VisibilityHotkey);
+        service.Current.Position = IslandPosition.Right;
+        service.Current.VisibilityHotkey = "Ctrl+Shift+H";
+        await service.SaveAsync(ct);
+
+        using var reloaded = new SettingsService(_storage, NullLogger<SettingsService>.Instance);
+        await reloaded.LoadAsync(ct);
+        Assert.Equal(IslandPosition.Right, reloaded.Current.Position);
+        Assert.Equal("Ctrl+Shift+H", reloaded.Current.VisibilityHotkey);
+        Assert.Equal("Ctrl+Shift+G", reloaded.Current.ToggleHotkey);
+        Assert.Equal(0.8, reloaded.Current.IslandScale);
+        Assert.Equal(100, reloaded.Current.HoverExpandDelayMs);
+        Assert.Equal(100, reloaded.Current.HoverCollapseDelayMs);
+    }
 }

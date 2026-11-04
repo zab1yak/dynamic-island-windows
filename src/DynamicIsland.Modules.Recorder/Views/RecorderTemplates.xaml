@@ -8,7 +8,7 @@
     <DataTemplate DataType="{x:Type r:RecorderViewModel}">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -87,7 +87,7 @@
                                                 Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibility}}" />
                                     </Grid>
                                 </Button>
-                                <TextBlock Grid.Column="1" Text="{Binding Name}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.TextPrimary}"
+                                <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.TextPrimary}"
                                            VerticalAlignment="Center" Margin="4,0" />
                                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                                     <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0" />

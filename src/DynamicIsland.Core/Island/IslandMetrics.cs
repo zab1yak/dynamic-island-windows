@@ -38,7 +38,9 @@ public static class IslandMetrics
     public static IslandSize Expanded { get; } = new(580, 160, 30, 14);
 
     /// <summary>Drop zone.</summary>
-    public static IslandSize Drop { get; } = new(580, 140, 30, 14);
+    // The drop target hosts the same page and pager as Expanded. A shorter body clips the
+    // pager (y=144) and the shelf controls even before any user/DPI scaling is applied.
+    public static IslandSize Drop { get; } = Expanded;
 
     /// <summary>Hidden: the pill shrinks into the screen edge.</summary>
     public static IslandSize Hidden { get; } = new(120, 0, 0, 0);

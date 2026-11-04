@@ -25,6 +25,7 @@ namespace DynamicIsland.App.Island;
 internal sealed partial class IslandWindow : Window
 {
     private const int HotkeyId = 0x1D1;
+    private const int VisibilityHotkeyId = 0x1D2;
     private const int WM_MOUSEHWHEEL = 0x020E;
     private const double HorizontalScrollThreshold = 120;
 
@@ -45,9 +46,13 @@ internal sealed partial class IslandWindow : Window
     private System.Windows.Media.Brush? _dropBrush;
     private bool _settled = true;
     private readonly Spring _expandedOpacity = Spring.Smooth(0);
+    private readonly Spring _shadowOpacity = Spring.Smooth(0);
 
     private nint _hwnd;
     private GlobalHotkey? _hotkey;
+    private GlobalHotkey? _visibilityHotkey;
+    private string? _rejectedVisibilityHotkey;
+    private int _windowLeftPhysical;
     private FullscreenMonitor? _fullscreen;
     private MonitorInfo? _monitor;
     private double _horizontalScroll;
@@ -74,10 +79,12 @@ internal sealed partial class IslandWindow : Window
         DataContext = viewModel;
 
         var compact = IslandMetrics.Compact;
-        _width = Spring.Bouncy(compact.Width);
-        _height = Spring.Bouncy(compact.Height);
-        _radius = Spring.Bouncy(compact.BottomRadius);
-        _shoulder = Spring.Bouncy(compact.Shoulder);
+        // Equal relative tolerances keep corners, shoulders and size moving together.
+        // Critical damping avoids flattening the compact pill on a collapse undershoot.
+        _width = Spring.Smooth(compact.Width, 0.04);
+        _height = Spring.Smooth(compact.Height, 0.014);
+        _radius = Spring.Smooth(compact.BottomRadius, 0.0015);
+        _shoulder = Spring.Smooth(compact.Shoulder, 0.0007);
         _clock = new AnimationClock(Tick);
         _fades = [_compactOpacity, _liveOpacity, _expandedOpacity];
         _clock.Finished += (_, _) =>
@@ -156,7 +163,7 @@ internal sealed partial class IslandWindow : Window
     /// </summary>
     public void BeginTextInput()
     {
-        if (_textInput || _hwnd == 0)
+        if (_textInput || _hwnd == 0 || _stateMachine.IsManuallyHidden)
         {
             return;
         }
@@ -214,6 +221,13 @@ internal sealed partial class IslandWindow : Window
 
         _hotkey = new GlobalHotkey(_hwnd, HotkeyId);
         _hotkey.Pressed += (_, _) => OnHotkeyPressed();
+        _visibilityHotkey = new GlobalHotkey(_hwnd, VisibilityHotkeyId);
+        _visibilityHotkey.Pressed += (_, _) =>
+        {
+            _stateMachine.SetManuallyHidden(!_stateMachine.IsManuallyHidden);
+            // A fullscreen-hidden island may keep the same mode; still clear pending visuals.
+            ApplyMode(_stateMachine.Mode);
+        };
         _fullscreen = new FullscreenMonitor(_hwnd, () => _monitor);
         _fullscreen.Changed += (_, isFullscreen) =>
         {
@@ -280,6 +294,7 @@ internal sealed partial class IslandWindow : Window
         _clock.Stop();
         _dragWatch.Stop();
         _hotkey?.Dispose();
+        _visibilityHotkey?.Dispose();
         _fullscreen?.Dispose();
         _viewModel.Dispose();
         base.OnClosed(e);
@@ -316,6 +331,7 @@ internal sealed partial class IslandWindow : Window
         Height = IslandMetrics.WindowHeight * s.IslandScale;
         Reposition();
         RegisterHotkey(s.ToggleHotkey);
+        RegisterVisibilityHotkey(s.VisibilityHotkey);
         if (!s.HideInFullscreen)
         {
             _stateMachine.SetFullscreen(false);
@@ -330,6 +346,11 @@ internal sealed partial class IslandWindow : Window
     /// <summary>The hotkey also unlocks a locked island («Заблокировать остров»).</summary>
     private void OnHotkeyPressed()
     {
+        if (_stateMachine.IsManuallyHidden)
+        {
+            return;
+        }
+
         if (_stateMachine.IsLocked)
         {
             _settings.Current.IslandLocked = false;
@@ -354,6 +375,12 @@ internal sealed partial class IslandWindow : Window
             return;
         }
 
+        if (_visibilityHotkey?.Gesture == gesture)
+        {
+            HotkeyUnavailable?.Invoke(this, text);
+            return;
+        }
+
         var previous = _hotkey.Gesture;
         if (_hotkey.Register(gesture.Value))
         {
@@ -375,7 +402,31 @@ internal sealed partial class IslandWindow : Window
         }
     }
 
-    /// <summary>Places the window at the top centre of the chosen monitor, in physical pixels.</summary>
+    private void RegisterVisibilityHotkey(string text)
+    {
+        if (_visibilityHotkey is null || !Core.Input.HotkeyGesture.TryParse(text, out var gesture)
+            || _visibilityHotkey.Gesture == gesture || _rejectedVisibilityHotkey == text)
+        {
+            return;
+        }
+
+        var previous = _visibilityHotkey.Gesture;
+        if (_hotkey?.Gesture != gesture && _visibilityHotkey.Register(gesture.Value))
+        {
+            _rejectedVisibilityHotkey = null;
+            return;
+        }
+
+        if (previous is { } old && _visibilityHotkey.Gesture != old)
+        {
+            _visibilityHotkey.Register(old);
+        }
+
+        _rejectedVisibilityHotkey = text;
+        HotkeyUnavailable?.Invoke(this, text);
+    }
+
+    /// <summary>Places the window at the chosen monitor-relative position, in physical pixels.</summary>
     private void Reposition()
     {
         if (_hwnd == 0)
@@ -396,7 +447,9 @@ internal sealed partial class IslandWindow : Window
         var islandScale = _settings.Current.IslandScale;
         var width = (int)Math.Round(IslandMetrics.WindowWidth * islandScale * scale);
         var height = (int)Math.Round(IslandMetrics.WindowHeight * islandScale * scale);
-        var x = _monitor.Bounds.Left + ((_monitor.Bounds.Width - width) / 2);
+        var x = IslandPlacement.Left(_monitor.Bounds.Left, _monitor.Bounds.Width, width,
+            _settings.Current.Position, (int)Math.Round(12 * scale));
+        _windowLeftPhysical = x;
         WindowInterop.Place(_hwnd, x, _monitor.Bounds.Top, width, height);
         _logger.LogDebug("Island placed on {Monitor} at {X},{Y} {Width}x{Height} (scale {Scale})", _monitor.DeviceName, x, _monitor.Bounds.Top, width, height, scale);
     }
@@ -433,6 +486,29 @@ internal sealed partial class IslandWindow : Window
     {
         _logger.LogDebug("Island mode {Mode}", mode);
         _viewModel.Mode = mode;
+        Root.IsHitTestVisible = !_stateMachine.IsManuallyHidden;
+        Root.AllowDrop = !_stateMachine.IsManuallyHidden;
+        Root.Visibility = _stateMachine.IsManuallyHidden ? Visibility.Hidden : Visibility.Visible;
+        if (_stateMachine.IsManuallyHidden)
+        {
+            EndTextInput();
+            SetCatcher(false);
+            _clock.Stop();
+            _width.SnapTo(IslandMetrics.Hidden.Width);
+            _height.SnapTo(0);
+            _radius.SnapTo(0);
+            _shoulder.SnapTo(0);
+            foreach (var fade in _fades)
+            {
+                fade.SnapTo(0);
+            }
+
+            _shadowOpacity.SnapTo(0);
+            UpdateHoverZone(IslandMetrics.Hidden);
+            Render();
+            return;
+        }
+
         var size = IslandMetrics.For(mode);
         UpdateHoverZone(size);
         _width.Target = size.Width;
@@ -463,6 +539,7 @@ internal sealed partial class IslandWindow : Window
         moving |= _height.Step(dt);
         moving |= _radius.Step(dt);
         moving |= _shoulder.Step(dt);
+        _settled = !moving;
         // Content of the old state fades fast, the new one appears a bit slower.
         foreach (var fade in _fades)
         {
@@ -471,7 +548,10 @@ internal sealed partial class IslandWindow : Window
             moving |= fade.Step(dt);
         }
 
-        _settled = !moving;
+        // Fade in the shadow on the settled geometry, without rasterising a changing blur
+        // on every morph frame or attaching a fully opaque shadow in one frame.
+        _shadowOpacity.Target = _settled && _expandedOpacity.Target > 0 ? 1 : 0;
+        moving |= _shadowOpacity.Step(dt);
         Render();
         return moving;
     }
@@ -488,9 +568,14 @@ internal sealed partial class IslandWindow : Window
             ? OutlineGeometry.ToGeometry(IslandShapeMath.Build(parameters, includeTopEdge: false), closed: false)
             : null;
         // The blurred shadow is re-rendered for every new geometry; draw it only once the island rests.
-        Body.Effect = _settled && expanded > 0.99 ? BodyShadow : null;
+        Body.Effect = _settled && _shadowOpacity.Value > 0.005 ? BodyShadow : null;
         var compact = Math.Clamp(_compactOpacity.Value, 0, 1);
-        ExpandedLayer.Opacity = expanded;
+        // Keep full-sized page content out of the compact mask during the early morph.
+        var openness = Math.Clamp((_height.Value - IslandMetrics.Compact.Height) /
+            (IslandMetrics.Expanded.Height - IslandMetrics.Compact.Height), 0, 1);
+        var reveal = Math.Clamp((openness - 0.65) / 0.35, 0, 1);
+        reveal = reveal * reveal * (3 - (2 * reveal));
+        ExpandedLayer.Opacity = expanded * reveal;
         ExpandedScale.ScaleX = ExpandedScale.ScaleY = 0.96 + (0.04 * expanded);
         CompactLayer.Opacity = compact;
         CompactScale.ScaleX = CompactScale.ScaleY = 0.96 + (0.04 * compact);
@@ -505,7 +590,7 @@ internal sealed partial class IslandWindow : Window
         ExpandedLayer.Visibility = expanded < 0.005 ? Visibility.Hidden : Visibility.Visible;
         CompactLayer.Visibility = compact < 0.005 ? Visibility.Hidden : Visibility.Visible;
         LiveLayer.Visibility = live < 0.005 ? Visibility.Hidden : Visibility.Visible;
-        BodyShadow.Opacity = 0.45 * expanded;
+        BodyShadow.Opacity = 0.45 * Math.Clamp(_shadowOpacity.Value, 0, 1);
         Body.Visibility = _height.Value < 0.5 ? Visibility.Hidden : Visibility.Visible;
     }
 
@@ -531,6 +616,7 @@ internal sealed partial class IslandWindow : Window
         if (_monitor is null || _hwnd == 0 || _stateMachine.Mode == IslandMode.Hidden)
         {
             // Hidden over a fullscreen app: dropping onto the island is impossible anyway.
+            SetCatcher(false);
             return;
         }
 
@@ -543,8 +629,8 @@ internal sealed partial class IslandWindow : Window
 
         var zoneHeight = 140 * _monitor.Scale;
         var zoneHalfWidth = IslandMetrics.WindowWidth / 2 * _settings.Current.IslandScale * _monitor.Scale;
-        var centerX = _monitor.Bounds.Left + (_monitor.Bounds.Width / 2.0);
-        var near = down && y - _monitor.Bounds.Top < zoneHeight && Math.Abs(x - centerX) < zoneHalfWidth;
+        var centerX = _windowLeftPhysical + zoneHalfWidth;
+        var near = down && y >= _monitor.Bounds.Top && y - _monitor.Bounds.Top < zoneHeight && Math.Abs(x - centerX) < zoneHalfWidth;
         SetCatcher(near || _stateMachine.Mode == IslandMode.DropTarget);
     }
 
@@ -561,7 +647,7 @@ internal sealed partial class IslandWindow : Window
 
     private void OnDragEnter(object sender, DragEventArgs e)
     {
-        if (!DropEnabled || !DropPayloadReader.HasSupportedData(e.Data))
+        if (!DropEnabled || _stateMachine.Mode == IslandMode.Hidden || !DropPayloadReader.HasSupportedData(e.Data))
         {
             e.Effects = DragDropEffects.None;
             e.Handled = true;
@@ -580,7 +666,7 @@ internal sealed partial class IslandWindow : Window
     private void OnDragOver(object sender, DragEventArgs e)
     {
         _lastDragOver = DateTime.UtcNow;
-        e.Effects = DropEnabled && DropPayloadReader.HasSupportedData(e.Data) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Effects = DropEnabled && _stateMachine.Mode != IslandMode.Hidden && DropPayloadReader.HasSupportedData(e.Data) ? DragDropEffects.Copy : DragDropEffects.None;
         e.Handled = true;
     }
 
@@ -597,6 +683,13 @@ internal sealed partial class IslandWindow : Window
     private void OnDrop(object sender, DragEventArgs e)
     {
         e.Handled = true;
+        if (!DropEnabled || _stateMachine.Mode == IslandMode.Hidden)
+        {
+            e.Effects = DragDropEffects.None;
+            SetCatcher(false);
+            return;
+        }
+
         var payload = DropPayloadReader.Read(e.Data);
         _stateMachine.Dropped();
         SetCatcher(false);
@@ -635,7 +728,7 @@ internal sealed partial class IslandWindow : Window
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
-        if (_hotkey?.HandleMessage(msg, wParam) == true || _fullscreen?.HandleMessage(msg, wParam) == true)
+        if (_hotkey?.HandleMessage(msg, wParam) == true || _visibilityHotkey?.HandleMessage(msg, wParam) == true || _fullscreen?.HandleMessage(msg, wParam) == true)
         {
             handled = true;
             return 0;

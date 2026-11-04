@@ -62,6 +62,12 @@ internal sealed partial class SettingsWindow : Window
     {
         e.Handled = true;
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (key == Key.Escape)
+        {
+            Keyboard.ClearFocus();
+            return;
+        }
+
         if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin)
         {
             return;
@@ -94,6 +100,14 @@ internal sealed partial class SettingsWindow : Window
             >= Key.D0 and <= Key.D9 => ((char)('0' + (key - Key.D0))).ToString(),
             _ => key.ToString(),
         });
-        ViewModel.General.TrySetHotkey(string.Join('+', parts));
+        var text = string.Join('+', parts);
+        if (sender is System.Windows.Controls.TextBox { Name: "VisibilityHotkeyBox" })
+        {
+            ViewModel.General.TrySetVisibilityHotkey(text);
+        }
+        else
+        {
+            ViewModel.General.TrySetHotkey(text);
+        }
     }
 }

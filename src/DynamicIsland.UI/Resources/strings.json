@@ -36,8 +36,8 @@
     "ru": "Горячая клавиша занята"
   },
   "Hotkey.Taken": {
-    "en": "{0} is already used by another app. The island still opens on hover.",
-    "ru": "{0} уже использует другое приложение. Остров по-прежнему раскрывается при наведении."
+    "en": "{0} is already used by another app. You can restore the island from the tray menu.",
+    "ru": "{0} уже использует другое приложение. Восстановить остров можно через меню в трее."
   },
   "Tray.Showcase": {
     "en": "Component gallery (Debug)",
@@ -144,8 +144,8 @@
     "ru": "мс"
   },
   "Settings.Hotkey": {
-    "en": "Show or hide hotkey",
-    "ru": "Горячая клавиша"
+    "en": "Expand / pin hotkey",
+    "ru": "Раскрыть / закрепить остров"
   },
   "Settings.HotkeyPress": {
     "en": "Press a combination",
@@ -238,5 +238,33 @@
   "Settings.Lock": {
     "en": "Lock the island",
     "ru": "Заблокировать остров"
+  },
+  "Settings.Position": {
+    "en": "Position",
+    "ru": "Положение"
+  },
+  "Settings.PositionLeft": {
+    "en": "Left",
+    "ru": "Слева"
+  },
+  "Settings.PositionCenter": {
+    "en": "Center",
+    "ru": "По центру"
+  },
+  "Settings.PositionRight": {
+    "en": "Right",
+    "ru": "Справа"
+  },
+  "Settings.VisibilityHotkey": {
+    "en": "Hide / show island",
+    "ru": "Скрыть / показать остров"
+  },
+  "Settings.HotkeyDuplicate": {
+    "en": "Choose a different combination for each shortcut",
+    "ru": "Выберите разные сочетания для двух горячих клавиш"
+  },
+  "Tray.ShowIsland": {
+    "en": "Show island",
+    "ru": "Показать остров"
   }
 }

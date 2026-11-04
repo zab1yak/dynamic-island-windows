@@ -69,6 +69,47 @@ public sealed class SpringTests
 
 public sealed class IslandShapeMathTests
 {
+    [Fact]
+    public void Drop_target_fits_the_expanded_page_and_pager()
+    {
+        Assert.True(IslandMetrics.Drop.Height >= IslandMetrics.Expanded.Height);
+        Assert.True(IslandMetrics.Drop.Width >= IslandMetrics.Expanded.Width);
+    }
+
+    [Theory]
+    [InlineData(0.70)]
+    [InlineData(0.75)]
+    [InlineData(0.80)]
+    [InlineData(0.83)]
+    [InlineData(0.90)]
+    [InlineData(0.95)]
+    [InlineData(1.00)]
+    [InlineData(1.10)]
+    [InlineData(1.30)]
+    public void Every_mode_keeps_its_outline_inside_the_scaled_host(double scale)
+    {
+        // Geometry bounds only: this does not replace a WPF layout/render test on Windows.
+        foreach (var dpi in new[] { 1.0, 1.25, 1.5, 2.0 })
+        {
+            foreach (var mode in Enum.GetValues<IslandMode>())
+            {
+                var p = For(mode, IslandMetrics.WindowWidth / 2);
+                var outline = IslandShapeMath.Build(p);
+                foreach (var point in AllPoints(outline))
+                {
+                    Assert.InRange(point.X * scale * dpi, 0, IslandMetrics.WindowWidth * scale * dpi);
+                    Assert.InRange(point.Y * scale * dpi, 0, IslandMetrics.WindowHeight * scale * dpi);
+                }
+
+                if (mode != IslandMode.Hidden)
+                {
+                    Assert.True(p.BottomRadius * scale * dpi > 0);
+                    Assert.True(p.Shoulder * scale * dpi > 0);
+                }
+            }
+        }
+    }
+
     public static TheoryData<IslandMode> Modes() => [IslandMode.Compact, IslandMode.LiveActivity, IslandMode.Expanded, IslandMode.DropTarget];
 
     private static IslandShapeParams For(IslandMode mode, double cx = 400)
