@@ -98,7 +98,13 @@ Local implementation commits: `7d9be0b`, `d0ec65f`, `8176a02`, `b009e28`,
 **Push did not happen.** Automatic approval review rejected publication to public
 `main` because it did not accept authorization inside the attached Markdown as
 trusted approval. Do not retry through a different transport or bypass that rejection.
-The owner must explicitly authorize the push in chat before a new attempt.
+The owner subsequently explicitly authorized both push and a new GitHub release
+in chat. Version 0.2.1 and the release workflow are now prepared locally. The new
+attempt was blocked by credentials, not approval: terminal Git has no HTTPS login,
+and the connected GitHub integration returned HTTP 403, `Resource not accessible
+by integration`, when creating a Git tree. No remote branch, tag or release was
+changed. Continue after the GitHub connection has write access to this repository;
+do not ask for the already-granted push/release authorization again.
 
 No release is ready for publication while Windows visual/native acceptance is pending.
 For code rollback, inspect and revert the relevant commits on a clean branch in reverse
