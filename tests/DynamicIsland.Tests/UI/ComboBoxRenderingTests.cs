@@ -57,6 +57,34 @@ public sealed class ComboBoxRenderingTests
         });
     }
 
+    [Fact]
+    public void Every_lucide_geometry_stays_inside_its_design_grid()
+    {
+        OnSta(() =>
+        {
+            var icons = (ResourceDictionary)Application.LoadComponent(
+                new Uri("/DynamicIsland.UI;component/Icons/Lucide.xaml", UriKind.Relative));
+            foreach (var key in icons.Keys.OfType<string>())
+            {
+                var geometry = Assert.IsAssignableFrom<Geometry>(icons[key]);
+                var bounds = geometry.Bounds;
+                Assert.False(bounds.IsEmpty);
+                Assert.True(bounds.Left >= -0.05 && bounds.Top >= -0.05 && bounds.Right <= 24.05 && bounds.Bottom <= 24.05,
+                    $"{key} escapes the 24x24 grid: {bounds}");
+            }
+
+            // Bounds alone cannot catch the distortion caused by making ALL implicit
+            // moveto pairs absolute: the second stroke must go from(6,6) to(18,18).
+            var cross = ((Geometry)icons["Icon.Close"]).GetFlattenedPathGeometry();
+            Assert.Equal(2, cross.Figures.Count);
+            Assert.Equal(new Point(6, 6), cross.Figures[1].StartPoint);
+            var stroke = new PathGeometry();
+            stroke.Figures.Add(cross.Figures[1]);
+            stroke.GetPointAtFractionLength(1, out var end, out _);
+            Assert.Equal(new Point(18, 18), end);
+        });
+    }
+
     private static IEnumerable<T> Descendants<T>(DependencyObject parent) where T : DependencyObject
     {
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
