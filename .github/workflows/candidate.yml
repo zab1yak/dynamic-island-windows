@@ -10,17 +10,38 @@ permissions:
 
 jobs:
   verify:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: X64
+          - os: windows-11-arm
+            arch: Arm64
+    runs-on: ${{ matrix.os }}
+    env:
+      DI_EXPECTED_ARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-      - run: dotnet test --configuration Release
+      - name: Windows tests and WPF layout renders
+        shell: pwsh
+        run: |
+          $env:DI_LAYOUT_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'layout-screenshots'
+          dotnet test --configuration Release
       - name: Install pinned model data and run native Windows translation
         run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release -- "${{ runner.temp }}/offline-models" --install
       - name: Repeat with downloads disabled
         run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release --no-build -- "${{ runner.temp }}/offline-models"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: WPF-layout-renders-${{ matrix.arch }}
+          path: ${{ runner.temp }}/layout-screenshots/
+          if-no-files-found: warn
+          retention-days: 14
 
   package:
     needs: verify

@@ -14,7 +14,7 @@ using DynamicIsland.UI.Localization;
 namespace DynamicIsland.Tests.UI;
 
 [CollectionDefinition("Translator WPF localization", DisableParallelization = true)]
-public sealed class TranslatorLayoutCollection;
+public sealed class TranslatorLayoutIsolation;
 
 /// <summary>Real WPF layout/render checks with isolated, network-free services. These are not interactive GUI acceptance.</summary>
 [Collection("Translator WPF localization")]

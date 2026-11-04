@@ -1,5 +1,15 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using DynamicIsland.Modules.Translator.Services;
+
+var architecture = RuntimeInformation.ProcessArchitecture.ToString();
+Console.WriteLine($"Native smoke process architecture: {architecture}");
+var expectedArchitecture = Environment.GetEnvironmentVariable("DI_EXPECTED_ARCH");
+if (!string.IsNullOrEmpty(expectedArchitecture) && !string.Equals(architecture, expectedArchitecture, StringComparison.OrdinalIgnoreCase))
+{
+    Console.Error.WriteLine("Unexpected process architecture; emulation does not count as native acceptance.");
+    return 1;
+}
 
 if (args.Length is < 1 or > 2)
 {
