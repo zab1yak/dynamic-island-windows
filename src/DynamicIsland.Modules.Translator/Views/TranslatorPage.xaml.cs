@@ -25,6 +25,11 @@ public partial class TranslatorPage : UserControl
         }
     }
 
+    private void OnHistory(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is TranslatorViewModel vm) { TranslationHistoryWindow.ShowFor(vm, Window.GetWindow(this)); }
+    }
+
     private void OnCopy(object sender, RoutedEventArgs e)
     {
         if (DataContext is TranslatorViewModel { Output.Length: > 0 } vm)

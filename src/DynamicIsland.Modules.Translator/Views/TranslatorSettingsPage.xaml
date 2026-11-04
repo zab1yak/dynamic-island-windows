@@ -3,38 +3,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
              xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
-    <c:SquircleBorder Style="{DynamicResource Settings.Group}">
-        <StackPanel Margin="16">
-            <TextBlock Text="{loc:Tr Translator.SetupHelp}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" />
-            <TextBlock Text="{loc:Tr Translator.ApiKey}" Style="{DynamicResource Settings.Label}" Margin="0,14,0,5" />
-            <PasswordBox x:Name="ApiKey" MaxLength="2048" Padding="10,7" Background="{DynamicResource Brush.Surface2}"
-                         Foreground="{DynamicResource Brush.TextPrimary}" BorderBrush="{DynamicResource Island.Stroke}"
-                         FontFamily="{DynamicResource Font.Text}" FontSize="13"
-                         AutomationProperties.Name="{loc:Tr Translator.ApiKey}">
-                <PasswordBox.Template>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Grid>
-                            <c:SquircleBorder Background="{TemplateBinding Background}" CornerRadius="10" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" />
-                            <c:SquircleBorder x:Name="Focus" CornerRadius="10" BorderBrush="{DynamicResource Brush.Blue}" BorderThickness="1.5" Opacity="0" />
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False" />
+    <UserControl.Resources><BooleanToVisibilityConverter x:Key="BoolVisible" /></UserControl.Resources>
+    <StackPanel>
+        <c:SquircleBorder Style="{DynamicResource Settings.Group}">
+            <StackPanel Margin="16">
+                <TextBlock Text="{loc:Tr Translator.Packages}" Style="{DynamicResource Settings.Label}" />
+                <TextBlock Text="{loc:Tr Translator.OfflinePrivacy}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,12" />
+                <ItemsControl ItemsSource="{Binding Packages.Packages}">
+                    <ItemsControl.ItemTemplate><DataTemplate>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" Style="{DynamicResource Settings.Label}" />
+                                <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" FontSize="11" />
+                                <TextBlock Text="{Binding State}" Style="{DynamicResource Text.Secondary}" FontSize="11" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Download}" Command="{Binding DataContext.Packages.DownloadCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Padding="8,5" />
+                                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Remove}" Command="{Binding DataContext.Packages.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Padding="8,5" Margin="5,0,0,0" />
+                            </StackPanel>
                         </Grid>
-                        <ControlTemplate.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Focus" Property="Opacity" Value="1" /></Trigger></ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </PasswordBox.Template>
-            </PasswordBox>
-            <CheckBox IsChecked="{Binding Consent}" Margin="0,12,0,8"><TextBlock Text="{loc:Tr Translator.Consent}" TextWrapping="Wrap" MaxWidth="480" /></CheckBox>
-            <TextBlock Text="{loc:Tr Translator.Privacy}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" />
-            <WrapPanel Margin="0,12,0,8">
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Save}" Padding="12,6" Click="OnSave" />
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Disconnect}" Padding="12,6" Command="{Binding DisconnectCommand}" Margin="8,0,0,0" />
-            </WrapPanel>
-            <TextBlock Text="{Binding Status}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" />
-            <WrapPanel Margin="0,10,0,0">
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.ApiHelp}" Padding="8,6" Click="OnDocumentation" />
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Pricing}" Padding="8,6" Click="OnPricing" Margin="6,0,0,0" />
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Terms}" Padding="8,6" Click="OnTerms" Margin="6,0,0,0" />
-                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Web}" Padding="8,6" Click="OnWeb" Margin="6,0,0,0" />
-            </WrapPanel>
-        </StackPanel>
-    </c:SquircleBorder>
+                    </DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding Packages.Status}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" />
+                <StackPanel Visibility="{Binding Packages.IsBusy, Converter={StaticResource BoolVisible}}" Margin="0,8,0,0">
+                    <ProgressBar Value="{Binding Packages.Progress}" Maximum="100" Height="4" />
+                    <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Cancel}" Command="{Binding Packages.CancelCommand}" HorizontalAlignment="Left" Padding="10,5" Margin="0,5,0,0" />
+                </StackPanel>
+            </StackPanel>
+        </c:SquircleBorder>
+        <c:SquircleBorder Style="{DynamicResource Settings.Group}" Margin="0,12,0,0">
+            <StackPanel Margin="16">
+                <CheckBox IsChecked="{Binding Translator.SaveHistory}" Content="{loc:Tr Translator.SaveHistory}" />
+                <TextBlock Text="{loc:Tr Translator.HistoryPrivacy}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" Margin="0,6,0,8" />
+                <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.History}" HorizontalAlignment="Left" Padding="10,5" Click="OnHistory" />
+            </StackPanel>
+        </c:SquircleBorder>
+    </StackPanel>
 </UserControl>

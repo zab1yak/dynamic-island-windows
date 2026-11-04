@@ -64,36 +64,36 @@
     "ru": "Копировать перевод"
   },
   "Translator.Settings": {
-    "en": "Configure translation API",
-    "ru": "Настроить API перевода"
+    "en": "Language packages and history",
+    "ru": "Языковые пакеты и история"
   },
   "Translator.Configure": {
-    "en": "Configure API access in Settings → Translator.",
-    "ru": "Настройте API-доступ: Настройки → Переводчик."
+    "en": "Download a free language package to translate offline.",
+    "ru": "Скачайте бесплатный языковой пакет для офлайн-перевода."
   },
   "Translator.Working": {
     "en": "Translating…",
     "ru": "Перевод…"
   },
   "Translator.Ready": {
-    "en": "Translated by Yandex Cloud",
-    "ru": "Переведено Yandex Cloud"
+    "en": "Translated offline",
+    "ru": "Переведено офлайн"
   },
   "Translator.Cancelled": {
     "en": "Cancelled",
     "ru": "Отменено"
   },
   "Translator.Manual": {
-    "en": "Text is sent only when you click Translate.",
-    "ru": "Текст отправляется только по кнопке «Перевести»."
+    "en": "Offline · translate when you are ready",
+    "ru": "Офлайн · нажмите «Перевести»"
   },
   "Translator.NotConfigured": {
-    "en": "Configure API access and consent in Settings → Translator.",
-    "ru": "Настройте API-доступ и согласие: Настройки → Переводчик."
+    "en": "Language package is not installed.",
+    "ru": "Языковой пакет не установлен."
   },
   "Translator.InvalidInput": {
-    "en": "Enter 1–10,000 characters and select languages.",
-    "ru": "Введите от 1 до 10 000 символов и выберите языки."
+    "en": "Select languages and split long text into shorter parts (up to 2,000 characters).",
+    "ru": "Выберите языки и разделите длинный текст на части (до 2000 знаков)."
   },
   "Translator.Authentication": {
     "en": "API access denied. Check your key and service account role.",
@@ -104,8 +104,8 @@
     "ru": "Достигнут лимит Yandex Cloud. Проверьте квоты и оплату."
   },
   "Translator.Unavailable": {
-    "en": "Translation unavailable. Check your connection and try again.",
-    "ru": "Перевод недоступен. Проверьте соединение и повторите попытку."
+    "en": "Translation failed. Try again or reinstall the package.",
+    "ru": "Ошибка перевода. Повторите или переустановите пакет."
   },
   "Translator.InvalidResponse": {
     "en": "The translation service returned an unexpected response.",
@@ -162,5 +162,97 @@
   "Translator.Web": {
     "en": "Open Yandex Translate",
     "ru": "Открыть Яндекс Переводчик"
+  },
+  "Translator.InputLimit": {
+    "en": "Up to 2,000 characters; very long sentences may exceed the model limit.",
+    "ru": "До 2000 знаков; очень длинные предложения могут превышать предел модели."
+  },
+  "Translator.PackageHelp": {
+    "en": "Install the language pairs you need. Downloads require internet.",
+    "ru": "Установите нужные языковые пары. Для загрузки нужен интернет."
+  },
+  "Translator.PackageMissing": {
+    "en": "Download a free language package",
+    "ru": "Скачайте бесплатный языковой пакет"
+  },
+  "Translator.PackageReady": {
+    "en": "Package installed. Translation now works offline.",
+    "ru": "Пакет установлен. Теперь перевод работает без интернета."
+  },
+  "Translator.PackageRemoved": {
+    "en": "Language package removed.",
+    "ru": "Языковой пакет удалён."
+  },
+  "Translator.PackageError": {
+    "en": "Could not remove the package. Try again.",
+    "ru": "Не удалось удалить пакет. Повторите попытку."
+  },
+  "Translator.Packages": {
+    "en": "Language packages",
+    "ru": "Языковые пакеты"
+  },
+  "Translator.Installed": {
+    "en": "Installed",
+    "ru": "Установлен"
+  },
+  "Translator.NotInstalled": {
+    "en": "Not installed",
+    "ru": "Не установлен"
+  },
+  "Translator.Download": {
+    "en": "Download",
+    "ru": "Скачать"
+  },
+  "Translator.Downloading": {
+    "en": "Downloading language package…",
+    "ru": "Загрузка языкового пакета…"
+  },
+  "Translator.DownloadError": {
+    "en": "Download failed. Check your internet and free disk space, then try again.",
+    "ru": "Ошибка загрузки. Проверьте интернет и свободное место, затем повторите."
+  },
+  "Translator.Remove": {
+    "en": "Delete",
+    "ru": "Удалить"
+  },
+  "Translator.Clear": {
+    "en": "Clear text",
+    "ru": "Очистить текст"
+  },
+  "Translator.History": {
+    "en": "Translation history",
+    "ru": "История переводов"
+  },
+  "Translator.Restore": {
+    "en": "Restore",
+    "ru": "Восстановить"
+  },
+  "Translator.ClearHistory": {
+    "en": "Clear history",
+    "ru": "Очистить историю"
+  },
+  "Translator.ConfirmClearHistory": {
+    "en": "Click again to delete all history",
+    "ru": "Нажмите ещё раз, чтобы удалить всё"
+  },
+  "Translator.EmptyHistory": {
+    "en": "No saved translations",
+    "ru": "Сохранённых переводов нет"
+  },
+  "Translator.SaveHistory": {
+    "en": "Save translation history on this computer",
+    "ru": "Сохранять историю переводов на этом компьютере"
+  },
+  "Translator.HistoryPrivacy": {
+    "en": "Optional local history: up to 50 translations. Text is never sent to a server or written to logs. Turning this off stops new saves; delete existing entries separately.",
+    "ru": "Необязательная локальная история: до 50 переводов. Текст не отправляется на сервер и не попадает в журналы. Отключение останавливает сохранение; прежние записи можно удалить отдельно."
+  },
+  "Translator.HistoryError": {
+    "en": "Translation is available, but history could not be saved.",
+    "ru": "Перевод доступен, но не удалось сохранить историю."
+  },
+  "Translator.OfflinePrivacy": {
+    "en": "Free offline translation, without accounts or API keys. Only language-package downloads need internet. Your text stays on this computer.",
+    "ru": "Бесплатный офлайн-перевод без аккаунтов и API-ключей. Интернет нужен только для загрузки языковых пакетов. Ваш текст остаётся на этом компьютере."
   }
 }

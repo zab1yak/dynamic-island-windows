@@ -1,49 +1,36 @@
-# Translator module
+# Offline translator / Офлайн-переводчик
 
-Optional manual translation through the official Yandex Cloud Translate v2 API. No shared key,
-scraping, automatic translation while typing, or network request at startup. Text and results live
-only in the view model; this module neither saves nor logs them. Opening the website sends no text.
+Откройте «Переводчик», выберите направление и нажмите «Скачать». В коротком менеджере
+пакетов показаны языки, точный размер, источник и лицензия. Подтвердите загрузку нужного
+направления; обратное направление устанавливается отдельно. После установки перевод
+работает без интернета, аккаунта и API-ключа. Кнопка отмены доступна во время загрузки
+или перевода. Длинные предложения разделяйте на части: предел модели — 255 входных
+токенов; дополнительный предел ввода — 2000 знаков. Превышение отклоняется, текст не
+обрезается молча.
 
-## User setup
+История выключена по умолчанию. Её можно включить в настройках или окне истории;
+сохраняются только последние 50 переводов в локальном `translator-history.json`.
+Запись атомарна, доступно восстановление, копирование, удаление записи и очистка с
+повторным подтверждением в течение четырёх секунд. Отключение прекращает новые
+записи, существующие удаляются отдельно. Тексты не отправляются в сеть и не пишутся
+в журналы. Существующие ключи прежней облачной интеграции не читаются и не удаляются;
+облачный адаптер сохранён для совместимости тестов, но не зарегистрирован в приложении.
 
-Settings → Translator accepts a **service-account API key**, with `yc.ai.translate.execute` scope
-and `ai.translate.user` role. IAM/user tokens are not supported by this adapter. The service account's
-own folder is used, so the request deliberately omits `folderId`. Enable consent and Save. Blank key
-input retains the saved key; Disconnect cancels requests and removes the credential. Usage may incur
-charges on the user's Yandex Cloud account. The UI links to setup, pricing, and the Cloud agreement.
-No resource, account, subscription, or paid operation is created by the app.
+The translator uses local ONNX/Marian inference and downloadable RU→EN / EN→RU model
+packages. Windows users do not need Python, a separate runtime, accounts, or paid keys.
+The dedicated HTTP client only downloads explicitly requested model files. Package
+size and pinned SHA-256 are checked before atomic installation; models live separately
+under the app data directory. Native inference sessions are scoped to each translation,
+so no model remains resident between requests. See the model catalog and third-party
+notices for pinned sources and licences.
 
-The secret and consent live in the current user's Windows Credential Manager under
-`DynamicIsland/YandexTranslate/v1`, using a non-roaming generic credential. They are absent from
-`settings.json` and Git. The settings view uses a PasswordBox and never reloads the saved key into it.
-Every API request checks saved consent again. Editing text or languages cancels a pending request;
-generation checks discard late responses even from providers that ignore cancellation.
+Local history is opt-in and bounded to 50 entries. The existing atomic storage service
+persists the preference and history together; failed writes do not update in-memory
+saved state. Per-entry deletion and confirmed clearing are explicit user actions.
+Shutdown cancels and drains translation, package and history operations before DI
+services are disposed. The shared ComboBox fix and localized display names apply to
+both dropdown and selected items.
 
-## API behavior
-
-- Fixed HTTPS endpoint; redirects disabled to prevent forwarding credentials.
-- 10,000 UTF-16 code-unit input cap (conservative for non-BMP text); plain text format.
-- RU, EN, DE, FR, ES, ZH, plus automatic source detection.
-- Manual Translate action, 15-second cancellation timeout, bounded 1 MiB response buffer.
-- Sanitized authentication/quota/network/protocol errors; server error payloads are not surfaced.
-- No retry that could silently duplicate billable requests. Clipboard copy is explicit.
-
-## Official references verified 2026-11-03
-
-- REST request/response and limits: https://aistudio.yandex.ru/en/docs/translate/api-ref/Translation/translate
-- Authentication and service-account folder handling: https://aistudio.yandex.ru/en/docs/translate/api-ref/authentication
-- Key scope/setup: https://aistudio.yandex.ru/en/docs/translate/quickstart
-- Usage is metered by submitted characters; auto-detection in a translation request is included:
-  https://aistudio.yandex.ru/en/docs/translate/pricing
-- Cloud agreements depend on the customer's contracting entity:
-  https://yandex.cloud/en/docs/billing/concepts/contract
-
-No legal terms from the free consumer website are assumed to authorize API access. The module does
-not embed a price because tariffs and customer currencies can change.
-
-## Verification and remaining manual checks
-
-Provider tests use a fake HTTP handler only. View-model tests cover manual-send behavior, stale
-responses, swap, credential removal, and both localization resources. Windows Credential Manager,
-live paid API access, focus behavior, scrollbars, clipboard, and 70–130%/DPI visual checks require
-Windows and have not been validated by a Linux cross-build.
+Cross-compilation and automated logic tests do not validate interactive WPF focus,
+clipboard availability, typography, scale/DPI layout, or Windows x64/ARM64 native
+execution. Those require the Windows candidate verification and visual matrix.

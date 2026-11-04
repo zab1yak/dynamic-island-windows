@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Resources;
 using DynamicIsland.Core.Modules;
-using DynamicIsland.Modules.Translator.Interop;
+using DynamicIsland.Core.Storage;
 using DynamicIsland.Modules.Translator.Services;
 using DynamicIsland.UI.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,29 +30,23 @@ public sealed class TranslatorModule(TranslatorViewModel viewModel, TranslatorSe
     public Task InitializeAsync(CancellationToken cancellationToken)
     {
         Loc.Instance.Register(Strings);
-        settings.Load();
-        return Task.CompletedTask;
+        return viewModel.InitializeAsync(cancellationToken);
     }
 
-    public Task ShutdownAsync()
-    {
-        viewModel.Dispose();
-        settings.Dispose();
-        return Task.CompletedTask;
-    }
+    public Task ShutdownAsync() => viewModel.ShutdownAsync();
 }
 
 public static class TranslatorRegistration
 {
     public static IServiceCollection AddTranslatorModule(this IServiceCollection services)
     {
-        services.AddSingleton<ITranslationCredentialStore, WindowsTranslationCredentialStore>();
-        services.AddSingleton<ITranslationService>(sp => new YandexTranslationService(sp.GetRequiredService<HttpClient>(), sp.GetRequiredService<ITranslationCredentialStore>()));
-        services.AddSingleton(_ => new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
-        {
-            MaxResponseContentBufferSize = 1024 * 1024,
-            Timeout = TimeSpan.FromSeconds(20),
-        });
+        // The package client downloads only user-requested model files; text never goes through HTTP.
+        services.AddSingleton<ITranslationPackageManager>(sp => new TranslationPackageManager(
+            new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromMinutes(30) },
+            Path.Combine(sp.GetRequiredService<IStorageService>().RootPath, "translator-models")));
+        services.AddSingleton<ITranslationService, OfflineTranslationService>();
+        services.AddSingleton<TranslationHistoryService>();
+        services.AddSingleton<TranslationPackagesViewModel>();
         services.AddSingleton<TranslatorViewModel>();
         services.AddSingleton<TranslatorSettingsViewModel>();
         services.AddSingleton<TranslatorModule>();
