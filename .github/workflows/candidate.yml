@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      - name: Validate icon conversion fixtures
+        run: python tools/test_import_lucide.py
       - name: Windows tests and WPF layout renders
         shell: pwsh
         run: |
@@ -60,8 +62,15 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      - name: Derive preview version from the target version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$props = Get-Content Directory.Build.props
+          $version = "$($props.Project.PropertyGroup.Version)-preview.$env:GITHUB_RUN_NUMBER"
+          "version=$version" >> $env:GITHUB_OUTPUT
       - name: Publish candidate without releasing
-        run: dotnet publish src/DynamicIsland.App -c Release -r ${{ matrix.rid }} --self-contained true -o artifacts/${{ matrix.rid }}
+        run: dotnet publish src/DynamicIsland.App -c Release -r ${{ matrix.rid }} --self-contained true -p:Version=${{ steps.version.outputs.version }} -o artifacts/${{ matrix.rid }}
       - name: Verify audio and native architecture
         shell: pwsh
         run: ./scripts/Verify-CandidatePackage.ps1 -PublishDirectory artifacts/${{ matrix.rid }} -RuntimeIdentifier ${{ matrix.rid }}
@@ -69,7 +78,7 @@ jobs:
         run: dotnet tool restore
       - name: Pack candidate with official Visual C++ prerequisite
         run: >
-          dotnet vpk pack --packId DynamicIslandForWindows --packVersion 0.3.1
+          dotnet vpk pack --packId DynamicIslandForWindows --packVersion ${{ steps.version.outputs.version }}
           --packDir artifacts/${{ matrix.rid }} --mainExe DynamicIsland.exe
           --packTitle "Dynamic Island" --packAuthors zab1yak
           --icon src/DynamicIsland.App/Assets/island.ico

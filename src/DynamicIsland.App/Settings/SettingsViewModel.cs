@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicIsland.App.Island;
@@ -350,7 +351,8 @@ internal sealed partial class AboutViewModel : ObservableObject
 {
     public const string RepositoryUrl = "https://github.com/zab1yak/dynamic-island-windows";
 
-    public string Version { get; } = typeof(AboutViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+    public string Version { get; } = typeof(AboutViewModel).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
+        ?? typeof(AboutViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
 
     /// <summary>Set by the update service (task: installer and updates).</summary>
     [ObservableProperty]
