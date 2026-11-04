@@ -91,4 +91,45 @@ public sealed class PomodoroViewModelTests : IDisposable
     {
         Assert.Equal(expected, PomodoroViewModel.Format(TimeSpan.FromSeconds(seconds)));
     }
+    [Fact]
+    public async Task Island_duration_picker_applies_to_next_session_and_survives_restart()
+    {
+        await _vm.LoadAsync(TestContext.Current.CancellationToken);
+        _vm.DurationMinutes = 37;
+        // The property starts persistence asynchronously; await an explicit flush for this test.
+        await _vm.SaveAsync();
+        Assert.Equal(37, _vm.Settings.FocusMinutes);
+        Assert.Equal("37:00", _vm.RemainingText);
+        await _vm.StartPauseCommand.ExecuteAsync(null);
+        _time.Advance(TimeSpan.FromMinutes(5));
+        _vm.DurationMinutes = 42;
+        await _vm.SaveAsync();
+        Assert.Equal("32:00", _vm.RemainingText);
+        Assert.Equal(5.0 / 37, _vm.Progress, 6);
+
+        using var reopened = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications);
+        await reopened.LoadAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(42, reopened.DurationMinutes);
+        Assert.Equal("32:00", reopened.RemainingText);
+        Assert.Equal(_vm.Progress, reopened.Progress);
+        await reopened.ResetCommand.ExecuteAsync(null);
+        Assert.Equal("42:00", reopened.RemainingText);
+    }
+
+    [Theory]
+    [InlineData(PomodoroPhase.Focus, 180)]
+    [InlineData(PomodoroPhase.ShortBreak, 60)]
+    [InlineData(PomodoroPhase.LongBreak, 120)]
+    public async Task Island_duration_picker_uses_phase_limits(PomodoroPhase phase, int maximum)
+    {
+        await _vm.LoadAsync(TestContext.Current.CancellationToken);
+        await _vm.SelectPhaseCommand.ExecuteAsync(phase);
+        Assert.Equal(maximum, _vm.MaximumDurationMinutes);
+        _vm.DurationMinutes = int.MaxValue;
+        Assert.Equal(maximum, _vm.DurationMinutes);
+        _vm.DurationMinutes = 0;
+        Assert.Equal(1, _vm.DurationMinutes);
+        await _vm.SaveAsync();
+    }
+
 }

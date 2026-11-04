@@ -33,6 +33,7 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
     private ITimer? _alertTimer;
     private DateTimeOffset _startedAt;
     private PhaseCompleted? _alert;
+    private bool _refreshingDuration;
 
     [ObservableProperty]
     private string _remainingText = "25:00";
@@ -57,6 +58,14 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
 
     [ObservableProperty]
     private int _longBreakEvery = 4;
+
+    /// <summary>Duration picked for this phase; while active it applies to its next session.</summary>
+    [ObservableProperty]
+    private int _durationMinutes = 25;
+
+    /// <summary>The existing phase-specific duration limit, in minutes.</summary>
+    [ObservableProperty]
+    private int _maximumDurationMinutes = 180;
 
     public PomodoroViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, IslandStateMachine island, INotificationService notifications)
     {
@@ -119,6 +128,8 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
     internal static void Sanitize(PomodoroState state, DateTimeOffset now)
     {
         state.RemainingSeconds = double.IsFinite(state.RemainingSeconds) ? Math.Clamp(state.RemainingSeconds, 0, 3 * 3600) : 0;
+        state.ActiveDurationSeconds = double.IsFinite(state.ActiveDurationSeconds)
+            ? Math.Clamp(state.ActiveDurationSeconds, 0, 3 * 3600) : 0;
         state.CompletedFocus = Math.Clamp(state.CompletedFocus, 0, 1000);
         state.CompletedToday = Math.Clamp(state.CompletedToday, 0, 1000);
         if (state.Status == PomodoroStatus.Running && (state.EndsAtUtc is not { } end || end > now + TimeSpan.FromHours(3)))
@@ -147,11 +158,42 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
     /// <summary>Applies new settings (from the settings window) and saves them.</summary>
     public async Task ApplySettingsAsync(PomodoroSettings settings)
     {
-        settings.Normalize();
-        _timer.State.Settings = settings;
+        _timer.ApplySettings(settings);
         Refresh();
         ScheduleCompletion();
         await SaveAsync();
+    }
+
+    partial void OnDurationMinutesChanged(int value)
+    {
+        if (_refreshingDuration)
+        {
+            return;
+        }
+
+        var current = Settings;
+        var settings = new PomodoroSettings
+        {
+            FocusMinutes = current.FocusMinutes,
+            ShortBreakMinutes = current.ShortBreakMinutes,
+            LongBreakMinutes = current.LongBreakMinutes,
+            LongBreakEvery = current.LongBreakEvery,
+            Sound = current.Sound,
+        };
+        switch (_timer.State.Phase)
+        {
+            case PomodoroPhase.ShortBreak:
+                settings.ShortBreakMinutes = value;
+                break;
+            case PomodoroPhase.LongBreak:
+                settings.LongBreakMinutes = value;
+                break;
+            default:
+                settings.FocusMinutes = value;
+                break;
+        }
+
+        _ = ApplySettingsAsync(settings);
     }
 
     /// <inheritdoc />
@@ -208,6 +250,15 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
         Progress = _timer.Progress;
         IsRunning = state.Status == PomodoroStatus.Running;
         Phase = state.Phase;
+        _refreshingDuration = true;
+        MaximumDurationMinutes = state.Phase switch
+        {
+            PomodoroPhase.ShortBreak => 60,
+            PomodoroPhase.LongBreak => 120,
+            _ => 180,
+        };
+        DurationMinutes = (int)state.Settings.Duration(state.Phase).TotalMinutes;
+        _refreshingDuration = false;
         PhaseText = Loc.Instance[state.Phase switch
         {
             PomodoroPhase.ShortBreak => "Pomodoro.ShortBreak",

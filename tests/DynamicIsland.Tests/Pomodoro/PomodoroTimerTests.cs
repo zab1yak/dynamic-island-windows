@@ -125,4 +125,61 @@ public sealed class PomodoroTimerTests
         Assert.Equal(60, settings.ShortBreakMinutes);
         Assert.Equal(2, settings.LongBreakEvery);
     }
+    [Theory]
+    [InlineData(1)]
+    [InlineData(37)]
+    [InlineData(180)]
+    public void Custom_duration_counts_down_pauses_and_completes(int minutes)
+    {
+        var timer = NewTimer();
+        timer.ApplySettings(new PomodoroSettings { FocusMinutes = minutes });
+        timer.Start();
+        _time.Advance(TimeSpan.FromSeconds(30));
+        timer.Pause();
+        Assert.Equal(TimeSpan.FromMinutes(minutes) - TimeSpan.FromSeconds(30), timer.Remaining);
+        _time.Advance(TimeSpan.FromMinutes(10));
+        timer.Start();
+        _time.Advance(timer.Remaining);
+        Assert.Equal(new PhaseCompleted(PomodoroPhase.Focus, PomodoroPhase.ShortBreak), timer.CheckCompletion());
+        Assert.Equal(1, timer.State.CompletedToday);
+    }
+
+    [Fact]
+    public void Duration_edit_preserves_active_deadline_and_progress_until_reset()
+    {
+        var timer = NewTimer();
+        timer.Start();
+        _time.Advance(TimeSpan.FromMinutes(5));
+        var deadline = timer.State.EndsAtUtc;
+        timer.ApplySettings(new PomodoroSettings { FocusMinutes = 40 });
+        Assert.Equal(deadline, timer.State.EndsAtUtc);
+        Assert.Equal(TimeSpan.FromMinutes(20), timer.Remaining);
+        Assert.Equal(0.2, timer.Progress, 6);
+
+        timer.Pause();
+        timer.ApplySettings(new PomodoroSettings { FocusMinutes = 37 });
+        var json = System.Text.Json.JsonSerializer.Serialize(timer.State);
+        var restored = NewTimer(System.Text.Json.JsonSerializer.Deserialize<PomodoroState>(json)!);
+        Assert.Equal(TimeSpan.FromMinutes(20), restored.Remaining);
+        Assert.Equal(0.2, restored.Progress, 6);
+        restored.Start();
+        Assert.Equal(TimeSpan.FromMinutes(20), restored.Remaining);
+        restored.Reset();
+        Assert.Equal(TimeSpan.FromMinutes(37), restored.Remaining);
+        Assert.Equal(0, restored.Progress);
+    }
+
+    [Fact]
+    public void Legacy_active_duration_is_captured_before_settings_change()
+    {
+        var timer = NewTimer(new PomodoroState
+        {
+            Status = PomodoroStatus.Running,
+            EndsAtUtc = _time.GetUtcNow().AddMinutes(20),
+        });
+        timer.ApplySettings(new PomodoroSettings { FocusMinutes = 40 });
+        Assert.Equal(1500, timer.State.ActiveDurationSeconds);
+        Assert.Equal(0.2, timer.Progress, 6);
+    }
+
 }

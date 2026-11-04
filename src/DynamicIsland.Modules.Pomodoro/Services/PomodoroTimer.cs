@@ -74,6 +74,9 @@ public sealed class PomodoroState
     /// <summary>Seconds left while paused.</summary>
     public double RemainingSeconds { get; set; }
 
+    /// <summary>Original duration of the active phase, preserved when the next-session setting changes.</summary>
+    public double ActiveDurationSeconds { get; set; }
+
     /// <summary>Focus intervals finished in the current set (resets after a long break).</summary>
     public int CompletedFocus { get; set; }
 
@@ -119,7 +122,9 @@ public sealed class PomodoroTimer(PomodoroState state, TimeProvider time)
     {
         get
         {
-            var total = State.Settings.Duration(State.Phase);
+            var total = State.Status != PomodoroStatus.Idle && State.ActiveDurationSeconds > 0
+                ? TimeSpan.FromSeconds(State.ActiveDurationSeconds)
+                : State.Settings.Duration(State.Phase);
             return total > TimeSpan.Zero ? Math.Clamp(1 - (Remaining / total), 0, 1) : 0;
         }
     }
@@ -130,6 +135,11 @@ public sealed class PomodoroTimer(PomodoroState state, TimeProvider time)
         if (State.Status == PomodoroStatus.Running)
         {
             return;
+        }
+
+        if (State.Status == PomodoroStatus.Idle || State.ActiveDurationSeconds <= 0)
+        {
+            State.ActiveDurationSeconds = State.Settings.Duration(State.Phase).TotalSeconds;
         }
 
         var left = State.Status == PomodoroStatus.Paused ? TimeSpan.FromSeconds(State.RemainingSeconds) : State.Settings.Duration(State.Phase);
@@ -156,6 +166,20 @@ public sealed class PomodoroTimer(PomodoroState state, TimeProvider time)
         State.Status = PomodoroStatus.Idle;
         State.EndsAtUtc = null;
         State.RemainingSeconds = 0;
+        State.ActiveDurationSeconds = 0;
+    }
+
+    /// <summary>Changes durations for the next session; a running or paused countdown is preserved.</summary>
+    public void ApplySettings(PomodoroSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        settings.Normalize();
+        if (State.Status != PomodoroStatus.Idle && State.ActiveDurationSeconds <= 0)
+        {
+            State.ActiveDurationSeconds = State.Settings.Duration(State.Phase).TotalSeconds;
+        }
+
+        State.Settings = settings;
     }
 
     /// <summary>Switches to <paramref name="phase"/> (stopped, full duration).</summary>

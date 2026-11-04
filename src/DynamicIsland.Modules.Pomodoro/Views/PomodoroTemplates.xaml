@@ -14,10 +14,16 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Grid Width="70" Height="70" VerticalAlignment="Center">
-                <c:RingProgress Value="{Binding Progress}" Thickness="8" ProgressBrush="{DynamicResource Brush.Red}" />
-                <c:Icon Glyph="Timer" Width="30" Height="30" Foreground="{DynamicResource Brush.TextPrimary}" />
-            </Grid>
+            <StackPanel VerticalAlignment="Center">
+                <Grid Width="70" Height="70" HorizontalAlignment="Center">
+                    <c:RingProgress Value="{Binding Progress}" Thickness="8" ProgressBrush="{DynamicResource Brush.Red}" />
+                    <c:Icon Glyph="Timer" Width="30" Height="30" Foreground="{DynamicResource Brush.TextPrimary}" />
+                </Grid>
+                <c:NumberStepper Value="{Binding DurationMinutes}" Minimum="1" Maximum="{Binding MaximumDurationMinutes}" Step="1"
+                                 Suffix="{loc:Tr Pomodoro.Min}" Margin="0,4,0,0"
+                                 AutomationProperties.Name="{loc:Tr Pomodoro.Duration}"
+                                 ToolTip="{loc:Tr Pomodoro.DurationRule}" />
+            </StackPanel>
 
             <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Grid HorizontalAlignment="Center">
@@ -95,7 +101,7 @@
                 <StackPanel>
                     <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Pomodoro.FocusTime}" Style="{DynamicResource Settings.Label}" />
-                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding FocusMinutes}" Minimum="1" Maximum="180" Step="5" Suffix="{loc:Tr Pomodoro.Min}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding FocusMinutes}" Minimum="1" Maximum="180" Step="1" Suffix="{loc:Tr Pomodoro.Min}" />
                     </DockPanel>
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
@@ -105,7 +111,7 @@
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Pomodoro.LongBreak}" Style="{DynamicResource Settings.Label}" />
-                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding LongBreakMinutes}" Minimum="1" Maximum="120" Step="5" Suffix="{loc:Tr Pomodoro.Min}" />
+                        <c:NumberStepper DockPanel.Dock="Right" Value="{Binding LongBreakMinutes}" Minimum="1" Maximum="120" Step="1" Suffix="{loc:Tr Pomodoro.Min}" />
                     </DockPanel>
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
