@@ -88,8 +88,8 @@
     "ru": "Офлайн · нажмите «Перевести»"
   },
   "Translator.NotConfigured": {
-    "en": "Language package is not installed.",
-    "ru": "Языковой пакет не установлен."
+    "en": "Package missing or damaged. Remove it in settings, then download it again.",
+    "ru": "Пакет отсутствует или повреждён. Удалите его в настройках и скачайте снова."
   },
   "Translator.InvalidInput": {
     "en": "Select languages and split long text into shorter parts (up to 2,000 characters).",
@@ -108,8 +108,8 @@
     "ru": "Ошибка перевода. Повторите или переустановите пакет."
   },
   "Translator.InvalidResponse": {
-    "en": "The translation service returned an unexpected response.",
-    "ru": "Сервис перевода вернул неожиданный ответ."
+    "en": "Translation could not finish. Try a shorter text or reinstall the package.",
+    "ru": "Не удалось завершить перевод. Сократите текст или переустановите пакет."
   },
   "Translator.CredentialError": {
     "en": "Could not access Windows Credential Manager or the API key is invalid.",

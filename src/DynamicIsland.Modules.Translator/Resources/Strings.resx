@@ -70,13 +70,13 @@
     <value>Select languages and split long text into shorter parts (up to 2,000 characters).</value>
   </data>
   <data name="Translator.InvalidResponse" xml:space="preserve">
-    <value>The translation service returned an unexpected response.</value>
+    <value>Translation could not finish. Try a shorter text or reinstall the package.</value>
   </data>
   <data name="Translator.Manual" xml:space="preserve">
     <value>Offline · translate when you are ready</value>
   </data>
   <data name="Translator.NotConfigured" xml:space="preserve">
-    <value>Language package is not installed.</value>
+    <value>Package missing or damaged. Remove it in settings, then download it again.</value>
   </data>
   <data name="Translator.Output" xml:space="preserve">
     <value>Translation</value>

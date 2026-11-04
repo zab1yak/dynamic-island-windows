@@ -70,13 +70,13 @@
     <value>Выберите языки и разделите длинный текст на части (до 2000 знаков).</value>
   </data>
   <data name="Translator.InvalidResponse" xml:space="preserve">
-    <value>Сервис перевода вернул неожиданный ответ.</value>
+    <value>Не удалось завершить перевод. Сократите текст или переустановите пакет.</value>
   </data>
   <data name="Translator.Manual" xml:space="preserve">
     <value>Офлайн · нажмите «Перевести»</value>
   </data>
   <data name="Translator.NotConfigured" xml:space="preserve">
-    <value>Языковой пакет не установлен.</value>
+    <value>Пакет отсутствует или повреждён. Удалите его в настройках и скачайте снова.</value>
   </data>
   <data name="Translator.Output" xml:space="preserve">
     <value>Перевод</value>

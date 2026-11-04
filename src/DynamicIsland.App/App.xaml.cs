@@ -85,6 +85,8 @@ public partial class App : Application
             _island?.Hide();
             if (_settingsCreated) _host.Services.GetRequiredService<Settings.SettingsWindow>().Hide();
             await _host.Services.GetRequiredService<ModuleHost>().ShutdownAsync();
+            if (_host.Services.GetRequiredService<DynamicIsland.Core.Notifications.IAlertAudio>() is AlertAudioService audio)
+                await audio.StopAsync();
             _host.Services.GetRequiredService<TrayIconService>().Dispose();
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
             await _host.StopAsync(timeout.Token);

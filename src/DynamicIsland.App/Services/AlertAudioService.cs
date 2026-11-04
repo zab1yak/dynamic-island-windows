@@ -53,5 +53,13 @@ internal sealed class AlertAudioService : IAlertAudio, IDisposable
         }
     }
 
+    /// <summary>Close the active player while the WPF dispatcher can still process its cleanup.</summary>
+    public async Task StopAsync()
+    {
+        _shutdown.Cancel();
+        await _gate.WaitAsync();
+        _gate.Release();
+    }
+
     public void Dispose() => _shutdown.Cancel();
 }
