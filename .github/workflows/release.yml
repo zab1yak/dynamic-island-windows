@@ -86,8 +86,10 @@ jobs:
         include:
           - rid: win-x64
             channel: win
+            framework: vcredist143-x64
           - rid: win-arm64
             channel: win-arm64
+            framework: vcredist143-arm64
     steps:
       - uses: actions/checkout@v4
         with:
@@ -125,7 +127,8 @@ jobs:
           --packDir artifacts/publish/${{ matrix.rid }} --mainExe DynamicIsland.exe
           --packTitle "Dynamic Island" --packAuthors zab1yak
           --icon src/DynamicIsland.App/Assets/island.ico
-          --channel ${{ matrix.channel }} --runtime ${{ matrix.rid }} --outputDir artifacts/releases
+          --channel ${{ matrix.channel }} --runtime ${{ matrix.rid }}
+          --framework ${{ matrix.framework }} --outputDir artifacts/releases
 
       - name: Upload to GitHub Release
         env:

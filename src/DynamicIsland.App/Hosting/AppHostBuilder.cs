@@ -51,6 +51,7 @@ internal static class AppHostBuilder
         services.AddSingleton<DynamicIsland.Core.Platform.IPackageIdentity, DynamicIsland.Platform.Windows.Packaging.PackageIdentityService>();
         services.AddSingleton<TrayIconService>();
         services.AddSingleton<INotificationService, TrayNotificationService>();
+        services.AddSingleton<IAlertAudio, AlertAudioService>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<GlobalExceptionHandler>();
         services.AddSingleton<IUiDispatcher>(_ => new WpfUiDispatcher(System.Windows.Application.Current.Dispatcher));

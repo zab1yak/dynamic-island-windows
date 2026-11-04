@@ -21,7 +21,7 @@
         SnapsToDevicePixels="True"
         UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display"
-        TextOptions.TextRenderingMode="ClearType">
+        TextOptions.TextRenderingMode="Grayscale">
     <Grid x:Name="Root" Background="{x:Null}">
         <!-- LayoutTransform, not RenderTransform: the scaled root must FIT the scaled window. A render
              transform keeps the unscaled layout size, WPF clips it to the window and then shrinks the clip

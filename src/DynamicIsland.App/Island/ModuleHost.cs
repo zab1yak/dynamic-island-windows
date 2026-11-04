@@ -132,7 +132,9 @@ internal sealed partial class ModuleHost : ObservableObject
         {
             try
             {
-                await module.ShutdownAsync().WaitAsync(TimeSpan.FromSeconds(2));
+                // Native model initialization can take several seconds before cancellation is observed.
+                // Keep the UI dispatcher alive during the normal graceful-exit path while commands drain.
+                await module.ShutdownAsync().WaitAsync(TimeSpan.FromSeconds(15));
             }
             catch (Exception ex)
             {

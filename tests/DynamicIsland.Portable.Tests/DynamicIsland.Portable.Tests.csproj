@@ -14,6 +14,8 @@
     <ProjectReference Include="../../src/DynamicIsland.Core/DynamicIsland.Core.csproj" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" />
+    <PackageReference Include="Microsoft.ML.Tokenizers" />
     <Using Include="Xunit" />
     <Compile Include="../DynamicIsland.Tests/InlineDispatcher.cs" Link="InlineDispatcher.cs" />
     <Compile Include="../DynamicIsland.Tests/TempFolder.cs" Link="TempFolder.cs" />
@@ -25,5 +27,7 @@
     <Compile Include="../DynamicIsland.Tests/Water/WaterTrackerTests.cs" Link="WaterTrackerTests.cs" />
     <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/*.cs" Link="Production/%(Filename)%(Extension)" />
     <Compile Include="../DynamicIsland.Tests/Translator/TranslationServiceTests.cs" Link="TranslationServiceTests.cs" />
+    <Compile Include="../DynamicIsland.Tests/Translator/TranslationPackageTests.cs" Link="TranslationPackageTests.cs" />
+    <Compile Include="../DynamicIsland.Tests/Translator/TranslationHistoryTests.cs" Link="TranslationHistoryTests.cs" />
   </ItemGroup>
 </Project>

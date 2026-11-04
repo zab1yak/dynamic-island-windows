@@ -14,7 +14,7 @@ internal sealed class AppLifetime(ILogger<AppLifetime> logger) : DynamicIsland.C
     public void Exit()
     {
         logger.LogInformation("Exit requested");
-        Application.Current.Shutdown();
+        RequestShutdown();
     }
 
     /// <inheritdoc />
@@ -57,6 +57,18 @@ internal sealed class AppLifetime(ILogger<AppLifetime> logger) : DynamicIsland.C
         }
 
         logger.LogInformation("Restarting");
-        Application.Current.Shutdown();
+        RequestShutdown();
+    }
+
+    private static void RequestShutdown()
+    {
+        if (Application.Current is App app)
+        {
+            _ = app.ShutdownGracefullyAsync();
+        }
+        else
+        {
+            Application.Current.Shutdown();
+        }
     }
 }

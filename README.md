@@ -37,6 +37,21 @@ a Pomodoro timer, water reminders, a file shelf and a to-do list one glance away
   pages on/off and order, per-page options, Russian / English.
 - Auto-updates from GitHub Releases.
 
+### 0.3.1 candidate: offline translation
+
+The Translator page offers local English ↔ Russian translation without accounts,
+Python, subscriptions or API keys. Choose a direction, open the package manager
+with **Download**, review its size/source/license, and install the selected model.
+Each direction downloads about 243 MB separately. Translation then works offline.
+Local translation history is optional, off by default, and limited to 50 entries.
+See [translator details](src/DynamicIsland.Modules.Translator/README.md).
+
+The model is loaded only while translating, then released. Active translation
+uses substantially more memory than the idle island; the Linux smoke test reached
+approximately 780 MiB peak working set. Windows x64/ARM64 package and native
+execution checks are tracked separately from interactive WPF visual acceptance.
+This candidate is not a published stable 0.3.1 release.
+
 ## Install
 
 1. Download **`DynamicIslandForWindows-win-Setup.exe`** from the latest
@@ -158,8 +173,11 @@ Everything stays on your computer in `%LOCALAPPDATA%\DynamicIsland` (settings, t
 logs). To show the last track after a reboot, its title, artist and artwork are kept in
 `media-lasttrack.json` there. Logs never contain track titles, task texts, window titles, notification
 texts or file names. Voice recordings are written to a private temp folder first and only the finished file
-lands in your recordings folder. The only network access is the update
-check against this repository's GitHub Releases (can be turned off).
+lands in your recordings folder. Network access is used for update checks against
+this repository's GitHub Releases (can be turned off), and explicit downloads of
+pinned language packages from Hugging Face. Translation itself makes no network
+request. The previous cloud adapter is not registered in the application; old
+credentials are neither read nor deleted. Optional translation history stays local.
 
 ## Contributing
 
@@ -174,6 +192,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and ideas are welcome in
 ---
 
 ## На русском
+
+**Кандидат 0.3.1:** встроенный перевод английский ↔ русский без ключей и платных
+аккаунтов. В переводчике нажмите «Скачать», проверьте размер и источник в менеджере
+и установите нужное направление (около 243 МБ каждое). После этого интернет для
+перевода не нужен. История выключена по умолчанию; при включении сохраняются
+последние 50 переводов только на компьютере. Во время перевода расход памяти
+выше, чем у свёрнутого острова. Стабильный релиз 0.3.1 ещё не опубликован:
+состояние проверок приведено в [отчёте](docs/IMPLEMENTATION_STATUS_2026-11-04.md).
 
 **Dynamic Island for Windows** — чёрный анимированный «остров» по центру верхнего края экрана, как Dynamic
 Island на iPhone. Внутри: музыка (любой плеер Windows, обложка, перемотка, визуализатор по реальному уровню

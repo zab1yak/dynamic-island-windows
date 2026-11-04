@@ -6,6 +6,7 @@ namespace DynamicIsland.Tests.UI;
 
 public sealed class ComboBoxRenderingTests
 {
+    private static readonly string[] RequiredIcons = ["Settings", "Mail", "Telegram"];
     private sealed record PositionChoice(string Value, string Label);
 
     [Theory]
@@ -47,7 +48,7 @@ public sealed class ComboBoxRenderingTests
                 new Uri("/DynamicIsland.UI;component/Icons/Lucide.xaml", UriKind.Relative));
             icons.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(
                 new Uri("/DynamicIsland.UI;component/Icons/Support.xaml", UriKind.Relative)));
-            foreach (var name in new[] { "Settings", "Mail", "Telegram" })
+            foreach (var name in RequiredIcons)
             {
                 var geometry = Assert.IsAssignableFrom<Geometry>(icons["Icon." + name]);
                 Assert.False(geometry.Bounds.IsEmpty);

@@ -24,6 +24,8 @@ public partial class App : Application
     private IslandWindow? _island;
     private bool _settingsCreated;
     private bool _modulesReady;
+    private Task? _shutdownTask;
+    private bool _shutdownPrepared;
 
     internal App(IHost host, CommandLine commandLine, SingleInstance instance)
     {
@@ -45,6 +47,12 @@ public partial class App : Application
     /// <inheritdoc />
     protected override void OnExit(ExitEventArgs e)
     {
+        if (_shutdownPrepared)
+        {
+            base.OnExit(e);
+            return;
+        }
+
         try
         {
             _island?.CloseForExit();
@@ -64,6 +72,34 @@ public partial class App : Application
         }
 
         base.OnExit(e);
+    }
+
+    /// <summary>Drain UI commands while the dispatcher is still running, before WPF starts exit.</summary>
+    internal Task ShutdownGracefullyAsync(int exitCode = 0) => _shutdownTask ??= PrepareShutdownAsync(exitCode);
+
+    private async Task PrepareShutdownAsync(int exitCode)
+    {
+        _modulesReady = false;
+        try
+        {
+            _island?.Hide();
+            if (_settingsCreated) _host.Services.GetRequiredService<Settings.SettingsWindow>().Hide();
+            await _host.Services.GetRequiredService<ModuleHost>().ShutdownAsync();
+            _host.Services.GetRequiredService<TrayIconService>().Dispose();
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            await _host.StopAsync(timeout.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error preparing application shutdown");
+        }
+        finally
+        {
+            _shutdownPrepared = true;
+            _island?.CloseForExit();
+            if (_settingsCreated) _host.Services.GetRequiredService<Settings.SettingsWindow>().CloseForExit();
+            Shutdown(exitCode);
+        }
     }
 
     /// <inheritdoc />
@@ -173,7 +209,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "Start-up failed");
-            Shutdown(1);
+            await ShutdownGracefullyAsync(1);
         }
     }
 

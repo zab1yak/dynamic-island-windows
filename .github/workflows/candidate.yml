@@ -1,0 +1,61 @@
+name: Candidate packages
+
+on:
+  push:
+    branches: ['work/0.3.1']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet test --configuration Release
+      - name: Install pinned model data and run native Windows translation
+        run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release -- "${{ runner.temp }}/offline-models" --install
+      - name: Repeat with downloads disabled
+        run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release --no-build -- "${{ runner.temp }}/offline-models"
+
+  package:
+    needs: verify
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - rid: win-x64
+            channel: win
+            framework: vcredist143-x64
+          - rid: win-arm64
+            channel: win-arm64
+            framework: vcredist143-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Publish candidate without releasing
+        run: dotnet publish src/DynamicIsland.App -c Release -r ${{ matrix.rid }} --self-contained true -o artifacts/${{ matrix.rid }}
+      - name: Verify audio and native architecture
+        shell: pwsh
+        run: ./scripts/Verify-CandidatePackage.ps1 -PublishDirectory artifacts/${{ matrix.rid }} -RuntimeIdentifier ${{ matrix.rid }}
+      - name: Restore installer tool
+        run: dotnet tool restore
+      - name: Pack candidate with official Visual C++ prerequisite
+        run: >
+          dotnet vpk pack --packId DynamicIslandForWindows --packVersion 0.3.1
+          --packDir artifacts/${{ matrix.rid }} --mainExe DynamicIsland.exe
+          --packTitle "Dynamic Island" --packAuthors zab1yak
+          --icon src/DynamicIsland.App/Assets/island.ico
+          --channel ${{ matrix.channel }} --runtime ${{ matrix.rid }}
+          --framework ${{ matrix.framework }} --outputDir artifacts/installers/${{ matrix.rid }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DynamicIsland-candidate-${{ matrix.rid }}
+          path: artifacts/installers/${{ matrix.rid }}/
+          retention-days: 14
