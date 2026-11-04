@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><UseWPF>true</UseWPF></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <ProjectReference Include="..\DynamicIsland.Core\DynamicIsland.Core.csproj" />
+    <ProjectReference Include="..\DynamicIsland.UI\DynamicIsland.UI.csproj" />
+    <InternalsVisibleTo Include="DynamicIsland.Tests" />
+  </ItemGroup>
+</Project>

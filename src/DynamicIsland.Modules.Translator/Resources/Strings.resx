@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Translator.ApiHelp" xml:space="preserve"><value>API setup</value></data>
+  <data name="Translator.ApiKey" xml:space="preserve"><value>Service-account API key (blank = keep saved key)</value></data>
+  <data name="Translator.Authentication" xml:space="preserve"><value>API access denied. Check your key and service account role.</value></data>
+  <data name="Translator.Auto" xml:space="preserve"><value>Detect language</value></data>
+  <data name="Translator.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Translator.Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Translator.Chinese" xml:space="preserve"><value>Chinese</value></data>
+  <data name="Translator.Configure" xml:space="preserve"><value>Configure API access in Settings → Translator.</value></data>
+  <data name="Translator.Connected" xml:space="preserve"><value>API configured. Translate sends text using your account.</value></data>
+  <data name="Translator.Consent" xml:space="preserve"><value>Allow sending text to Yandex Cloud when I click Translate</value></data>
+  <data name="Translator.ConsentRequired" xml:space="preserve"><value>Key saved; translation is disabled until consent is saved.</value></data>
+  <data name="Translator.Copy" xml:space="preserve"><value>Copy translation</value></data>
+  <data name="Translator.CredentialError" xml:space="preserve"><value>Could not access Windows Credential Manager or the API key is invalid.</value></data>
+  <data name="Translator.Disconnect" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="Translator.English" xml:space="preserve"><value>English</value></data>
+  <data name="Translator.French" xml:space="preserve"><value>French</value></data>
+  <data name="Translator.German" xml:space="preserve"><value>German</value></data>
+  <data name="Translator.Input" xml:space="preserve"><value>Text to translate</value></data>
+  <data name="Translator.InvalidInput" xml:space="preserve"><value>Enter 1–10,000 characters and select languages.</value></data>
+  <data name="Translator.InvalidResponse" xml:space="preserve"><value>The translation service returned an unexpected response.</value></data>
+  <data name="Translator.Manual" xml:space="preserve"><value>Text is sent only when you click Translate.</value></data>
+  <data name="Translator.NotConfigured" xml:space="preserve"><value>Configure API access and consent in Settings → Translator.</value></data>
+  <data name="Translator.Output" xml:space="preserve"><value>Translation</value></data>
+  <data name="Translator.Pricing" xml:space="preserve"><value>Pricing</value></data>
+  <data name="Translator.Privacy" xml:space="preserve"><value>Only explicitly requested text is sent to Yandex Cloud. Input and results are not saved or logged. The key and consent are stored in your Windows Credential Manager. Save applies changes; Disconnect removes access and cancels pending requests. The website button opens a blank translator without sending your text.</value></data>
+  <data name="Translator.Quota" xml:space="preserve"><value>Yandex Cloud quota or billing limit reached.</value></data>
+  <data name="Translator.Ready" xml:space="preserve"><value>Translated by Yandex Cloud</value></data>
+  <data name="Translator.Russian" xml:space="preserve"><value>Russian</value></data>
+  <data name="Translator.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Translator.Settings" xml:space="preserve"><value>Configure translation API</value></data>
+  <data name="Translator.SetupHelp" xml:space="preserve"><value>Optional Yandex Cloud Translate API. Create your own service-account API key with yc.ai.translate.execute scope and ai.translate.user role. API usage may incur charges on your account. Review current pricing and your Cloud agreement before connecting.</value></data>
+  <data name="Translator.SourceLanguage" xml:space="preserve"><value>Source language</value></data>
+  <data name="Translator.Spanish" xml:space="preserve"><value>Spanish</value></data>
+  <data name="Translator.Swap" xml:space="preserve"><value>Swap languages</value></data>
+  <data name="Translator.TargetLanguage" xml:space="preserve"><value>Target language</value></data>
+  <data name="Translator.Terms" xml:space="preserve"><value>Cloud agreement</value></data>
+  <data name="Translator.Title" xml:space="preserve"><value>Translator</value></data>
+  <data name="Translator.Translate" xml:space="preserve"><value>Translate</value></data>
+  <data name="Translator.Unavailable" xml:space="preserve"><value>Translation unavailable. Check your connection and try again.</value></data>
+  <data name="Translator.Web" xml:space="preserve"><value>Open Yandex Translate</value></data>
+  <data name="Translator.Working" xml:space="preserve"><value>Translating…</value></data>
+</root>

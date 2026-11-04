@@ -1,0 +1,54 @@
+<UserControl x:Class="DynamicIsland.Modules.Translator.Views.TranslatorPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:DynamicIsland.UI.Controls;assembly=DynamicIsland.UI"
+             xmlns:loc="clr-namespace:DynamicIsland.UI.Localization;assembly=DynamicIsland.UI">
+    <UserControl.Resources>
+        <!-- The shared one-line TextField template hides its scrollbar. This bounded multiline
+             variant retains the same surface and corner geometry while exposing scrolling. -->
+        <Style x:Key="TranslationField" TargetType="TextBox" BasedOn="{StaticResource TextField}">
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <c:SquircleBorder Background="{TemplateBinding Background}" CornerRadius="10"
+                                              BorderBrush="{DynamicResource Island.Stroke}" BorderThickness="1" />
+                            <c:SquircleBorder x:Name="Focus" CornerRadius="10" BorderBrush="{DynamicResource Brush.Blue}" BorderThickness="1.5" Opacity="0" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False"
+                                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Focus" Property="Opacity" Value="1" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="0,0,0,4">
+        <Grid.RowDefinitions><RowDefinition Height="26" /><RowDefinition Height="*" /><RowDefinition Height="22" /></Grid.RowDefinitions>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="34" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+        <ComboBox ItemsSource="{Binding SourceLanguages}" DisplayMemberPath="Name" SelectedValuePath="Code" SelectedValue="{Binding SourceLanguage}"
+                  AutomationProperties.Name="{loc:Tr Translator.SourceLanguage}" Margin="0,0,0,2" />
+        <Button Grid.Column="1" Command="{Binding SwapCommand}" Style="{DynamicResource PillButton}" Background="Transparent" Padding="5,0"
+                ToolTip="{loc:Tr Translator.Swap}" AutomationProperties.Name="{loc:Tr Translator.Swap}">
+            <StackPanel><c:Icon Glyph="ChevronRight" Width="12" Height="10" /><c:Icon Glyph="ChevronLeft" Width="12" Height="10" /></StackPanel>
+        </Button>
+        <ComboBox Grid.Column="2" ItemsSource="{Binding TargetLanguages}" DisplayMemberPath="Name" SelectedValuePath="Code" SelectedValue="{Binding TargetLanguage}"
+                  AutomationProperties.Name="{loc:Tr Translator.TargetLanguage}" Margin="0,0,0,2" />
+        <TextBox Grid.Row="1" Style="{StaticResource TranslationField}" Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}" MaxLength="10000"
+                 TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="7,3" FontSize="12"
+                 AutomationProperties.Name="{loc:Tr Translator.Input}" GotKeyboardFocus="OnGotFocus" LostKeyboardFocus="OnLostFocus" PreviewMouseLeftButtonDown="OnInputPressed" />
+        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource TranslationField}" Text="{Binding Output, Mode=OneWay}" IsReadOnly="True"
+                 TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="7,3" FontSize="12"
+                 AutomationProperties.Name="{loc:Tr Translator.Output}" GotKeyboardFocus="OnGotFocus" LostKeyboardFocus="OnLostFocus" PreviewMouseLeftButtonDown="OnInputPressed" />
+        <TextBlock Grid.Row="2" Text="{Binding Status}" Style="{DynamicResource Text.Secondary}" FontSize="10" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding Status}" />
+        <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{DynamicResource PillButton}" Height="22" Padding="6,0" Command="{Binding TranslateCommand}" Content="{loc:Tr Translator.Translate}" />
+            <Button Style="{DynamicResource PillButton}" Height="22" Padding="6,0" Command="{Binding CancelCommand}" Content="{loc:Tr Translator.Cancel}" />
+            <Button Style="{DynamicResource PillButton}" Height="22" Padding="6,0" Click="OnCopy" ToolTip="{loc:Tr Translator.Copy}" AutomationProperties.Name="{loc:Tr Translator.Copy}"><c:Icon Glyph="Copy" Width="12" Height="12" /></Button>
+            <Button Style="{DynamicResource PillButton}" Height="22" Padding="6,0" Command="{Binding OpenSettingsCommand}" ToolTip="{loc:Tr Translator.Settings}" AutomationProperties.Name="{loc:Tr Translator.Settings}"><c:Icon Glyph="Settings" Width="12" Height="12" /></Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

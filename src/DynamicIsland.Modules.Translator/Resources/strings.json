@@ -1,0 +1,166 @@
+{
+  "Translator.Title": {
+    "en": "Translator",
+    "ru": "Переводчик"
+  },
+  "Translator.Russian": {
+    "en": "Russian",
+    "ru": "Русский"
+  },
+  "Translator.English": {
+    "en": "English",
+    "ru": "Английский"
+  },
+  "Translator.German": {
+    "en": "German",
+    "ru": "Немецкий"
+  },
+  "Translator.French": {
+    "en": "French",
+    "ru": "Французский"
+  },
+  "Translator.Spanish": {
+    "en": "Spanish",
+    "ru": "Испанский"
+  },
+  "Translator.Chinese": {
+    "en": "Chinese",
+    "ru": "Китайский"
+  },
+  "Translator.Auto": {
+    "en": "Detect language",
+    "ru": "Определить язык"
+  },
+  "Translator.SourceLanguage": {
+    "en": "Source language",
+    "ru": "Исходный язык"
+  },
+  "Translator.TargetLanguage": {
+    "en": "Target language",
+    "ru": "Язык перевода"
+  },
+  "Translator.Swap": {
+    "en": "Swap languages",
+    "ru": "Поменять языки местами"
+  },
+  "Translator.Input": {
+    "en": "Text to translate",
+    "ru": "Текст для перевода"
+  },
+  "Translator.Output": {
+    "en": "Translation",
+    "ru": "Перевод"
+  },
+  "Translator.Translate": {
+    "en": "Translate",
+    "ru": "Перевести"
+  },
+  "Translator.Cancel": {
+    "en": "Cancel",
+    "ru": "Отмена"
+  },
+  "Translator.Copy": {
+    "en": "Copy translation",
+    "ru": "Копировать перевод"
+  },
+  "Translator.Settings": {
+    "en": "Configure translation API",
+    "ru": "Настроить API перевода"
+  },
+  "Translator.Configure": {
+    "en": "Configure API access in Settings → Translator.",
+    "ru": "Настройте API-доступ: Настройки → Переводчик."
+  },
+  "Translator.Working": {
+    "en": "Translating…",
+    "ru": "Перевод…"
+  },
+  "Translator.Ready": {
+    "en": "Translated by Yandex Cloud",
+    "ru": "Переведено Yandex Cloud"
+  },
+  "Translator.Cancelled": {
+    "en": "Cancelled",
+    "ru": "Отменено"
+  },
+  "Translator.Manual": {
+    "en": "Text is sent only when you click Translate.",
+    "ru": "Текст отправляется только по кнопке «Перевести»."
+  },
+  "Translator.NotConfigured": {
+    "en": "Configure API access and consent in Settings → Translator.",
+    "ru": "Настройте API-доступ и согласие: Настройки → Переводчик."
+  },
+  "Translator.InvalidInput": {
+    "en": "Enter 1–10,000 characters and select languages.",
+    "ru": "Введите от 1 до 10 000 символов и выберите языки."
+  },
+  "Translator.Authentication": {
+    "en": "API access denied. Check your key and service account role.",
+    "ru": "Нет доступа к API. Проверьте ключ и роль сервисного аккаунта."
+  },
+  "Translator.Quota": {
+    "en": "Yandex Cloud quota or billing limit reached.",
+    "ru": "Достигнут лимит Yandex Cloud. Проверьте квоты и оплату."
+  },
+  "Translator.Unavailable": {
+    "en": "Translation unavailable. Check your connection and try again.",
+    "ru": "Перевод недоступен. Проверьте соединение и повторите попытку."
+  },
+  "Translator.InvalidResponse": {
+    "en": "The translation service returned an unexpected response.",
+    "ru": "Сервис перевода вернул неожиданный ответ."
+  },
+  "Translator.CredentialError": {
+    "en": "Could not access Windows Credential Manager or the API key is invalid.",
+    "ru": "Не удалось открыть Диспетчер учётных данных Windows или ключ API некорректен."
+  },
+  "Translator.SetupHelp": {
+    "en": "Optional Yandex Cloud Translate API. Create your own service-account API key with yc.ai.translate.execute scope and ai.translate.user role. API usage may incur charges on your account. Review current pricing and your Cloud agreement before connecting.",
+    "ru": "Необязательный Yandex Cloud Translate API. Создайте собственный API-ключ сервисного аккаунта с областью yc.ai.translate.execute и ролью ai.translate.user. Запросы могут оплачиваться с вашего аккаунта. До подключения ознакомьтесь с тарифами и договором Yandex Cloud."
+  },
+  "Translator.ApiKey": {
+    "en": "Service-account API key (blank = keep saved key)",
+    "ru": "API-ключ сервисного аккаунта (пусто = сохранить текущий)"
+  },
+  "Translator.Consent": {
+    "en": "Allow sending text to Yandex Cloud when I click Translate",
+    "ru": "Разрешить отправку текста в Yandex Cloud по кнопке «Перевести»"
+  },
+  "Translator.Privacy": {
+    "en": "Only explicitly requested text is sent to Yandex Cloud. Input and results are not saved or logged. The key and consent are stored in your Windows Credential Manager. Save applies changes; Disconnect removes access and cancels pending requests. The website button opens a blank translator without sending your text.",
+    "ru": "В Yandex Cloud отправляется только текст, для которого вы нажали «Перевести». Текст и результат не сохраняются и не попадают в логи. Ключ и согласие хранятся в Диспетчере учётных данных Windows. «Сохранить» применяет изменения; «Отключить» удаляет доступ и отменяет запросы. Кнопка сайта открывает пустой переводчик без отправки вашего текста."
+  },
+  "Translator.Save": {
+    "en": "Save",
+    "ru": "Сохранить"
+  },
+  "Translator.Disconnect": {
+    "en": "Disconnect",
+    "ru": "Отключить"
+  },
+  "Translator.Connected": {
+    "en": "API configured. Translate sends text using your account.",
+    "ru": "API настроен. «Перевести» отправляет текст через ваш аккаунт."
+  },
+  "Translator.ConsentRequired": {
+    "en": "Key saved; translation is disabled until consent is saved.",
+    "ru": "Ключ сохранён; для перевода сохраните согласие на отправку текста."
+  },
+  "Translator.ApiHelp": {
+    "en": "API setup",
+    "ru": "Настройка API"
+  },
+  "Translator.Pricing": {
+    "en": "Pricing",
+    "ru": "Тарифы"
+  },
+  "Translator.Terms": {
+    "en": "Cloud agreement",
+    "ru": "Договор Cloud"
+  },
+  "Translator.Web": {
+    "en": "Open Yandex Translate",
+    "ru": "Открыть Яндекс Переводчик"
+  }
+}

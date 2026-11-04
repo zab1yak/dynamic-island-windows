@@ -47,6 +47,7 @@
     <ProjectReference Include="..\DynamicIsland.Modules.Todo\DynamicIsland.Modules.Todo.csproj" />
     <ProjectReference Include="..\DynamicIsland.Modules.Recorder\DynamicIsland.Modules.Recorder.csproj" />
     <ProjectReference Include="..\DynamicIsland.Modules.Tools\DynamicIsland.Modules.Tools.csproj" />
+    <ProjectReference Include="..\DynamicIsland.Modules.Translator\DynamicIsland.Modules.Translator.csproj" />
     <ProjectReference Include="..\DynamicIsland.Modules.Notifications\DynamicIsland.Modules.Notifications.csproj" />
   </ItemGroup>
 

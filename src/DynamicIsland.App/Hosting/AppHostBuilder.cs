@@ -11,6 +11,7 @@ using DynamicIsland.Modules.Todo;
 using DynamicIsland.Modules.Recorder;
 using DynamicIsland.Modules.Tools;
 using DynamicIsland.Modules.Notifications;
+using DynamicIsland.Modules.Translator;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Platform.Windows.Status;
 using DynamicIsland.Core.Threading;
@@ -80,6 +81,7 @@ internal static class AppHostBuilder
         services.AddTodoModule();
         services.AddRecorderModule();
         services.AddNotificationsModule();
+        services.AddTranslatorModule();
         services.AddToolsModule();
         services.AddSingleton<IslandWindow>();
 

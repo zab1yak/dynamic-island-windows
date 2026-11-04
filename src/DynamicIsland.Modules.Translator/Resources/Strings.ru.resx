@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Translator.ApiHelp" xml:space="preserve"><value>Настройка API</value></data>
+  <data name="Translator.ApiKey" xml:space="preserve"><value>API-ключ сервисного аккаунта (пусто = сохранить текущий)</value></data>
+  <data name="Translator.Authentication" xml:space="preserve"><value>Нет доступа к API. Проверьте ключ и роль сервисного аккаунта.</value></data>
+  <data name="Translator.Auto" xml:space="preserve"><value>Определить язык</value></data>
+  <data name="Translator.Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Translator.Cancelled" xml:space="preserve"><value>Отменено</value></data>
+  <data name="Translator.Chinese" xml:space="preserve"><value>Китайский</value></data>
+  <data name="Translator.Configure" xml:space="preserve"><value>Настройте API-доступ: Настройки → Переводчик.</value></data>
+  <data name="Translator.Connected" xml:space="preserve"><value>API настроен. «Перевести» отправляет текст через ваш аккаунт.</value></data>
+  <data name="Translator.Consent" xml:space="preserve"><value>Разрешить отправку текста в Yandex Cloud по кнопке «Перевести»</value></data>
+  <data name="Translator.ConsentRequired" xml:space="preserve"><value>Ключ сохранён; для перевода сохраните согласие на отправку текста.</value></data>
+  <data name="Translator.Copy" xml:space="preserve"><value>Копировать перевод</value></data>
+  <data name="Translator.CredentialError" xml:space="preserve"><value>Не удалось открыть Диспетчер учётных данных Windows или ключ API некорректен.</value></data>
+  <data name="Translator.Disconnect" xml:space="preserve"><value>Отключить</value></data>
+  <data name="Translator.English" xml:space="preserve"><value>Английский</value></data>
+  <data name="Translator.French" xml:space="preserve"><value>Французский</value></data>
+  <data name="Translator.German" xml:space="preserve"><value>Немецкий</value></data>
+  <data name="Translator.Input" xml:space="preserve"><value>Текст для перевода</value></data>
+  <data name="Translator.InvalidInput" xml:space="preserve"><value>Введите от 1 до 10 000 символов и выберите языки.</value></data>
+  <data name="Translator.InvalidResponse" xml:space="preserve"><value>Сервис перевода вернул неожиданный ответ.</value></data>
+  <data name="Translator.Manual" xml:space="preserve"><value>Текст отправляется только по кнопке «Перевести».</value></data>
+  <data name="Translator.NotConfigured" xml:space="preserve"><value>Настройте API-доступ и согласие: Настройки → Переводчик.</value></data>
+  <data name="Translator.Output" xml:space="preserve"><value>Перевод</value></data>
+  <data name="Translator.Pricing" xml:space="preserve"><value>Тарифы</value></data>
+  <data name="Translator.Privacy" xml:space="preserve"><value>В Yandex Cloud отправляется только текст, для которого вы нажали «Перевести». Текст и результат не сохраняются и не попадают в логи. Ключ и согласие хранятся в Диспетчере учётных данных Windows. «Сохранить» применяет изменения; «Отключить» удаляет доступ и отменяет запросы. Кнопка сайта открывает пустой переводчик без отправки вашего текста.</value></data>
+  <data name="Translator.Quota" xml:space="preserve"><value>Достигнут лимит Yandex Cloud. Проверьте квоты и оплату.</value></data>
+  <data name="Translator.Ready" xml:space="preserve"><value>Переведено Yandex Cloud</value></data>
+  <data name="Translator.Russian" xml:space="preserve"><value>Русский</value></data>
+  <data name="Translator.Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="Translator.Settings" xml:space="preserve"><value>Настроить API перевода</value></data>
+  <data name="Translator.SetupHelp" xml:space="preserve"><value>Необязательный Yandex Cloud Translate API. Создайте собственный API-ключ сервисного аккаунта с областью yc.ai.translate.execute и ролью ai.translate.user. Запросы могут оплачиваться с вашего аккаунта. До подключения ознакомьтесь с тарифами и договором Yandex Cloud.</value></data>
+  <data name="Translator.SourceLanguage" xml:space="preserve"><value>Исходный язык</value></data>
+  <data name="Translator.Spanish" xml:space="preserve"><value>Испанский</value></data>
+  <data name="Translator.Swap" xml:space="preserve"><value>Поменять языки местами</value></data>
+  <data name="Translator.TargetLanguage" xml:space="preserve"><value>Язык перевода</value></data>
+  <data name="Translator.Terms" xml:space="preserve"><value>Договор Cloud</value></data>
+  <data name="Translator.Title" xml:space="preserve"><value>Переводчик</value></data>
+  <data name="Translator.Translate" xml:space="preserve"><value>Перевести</value></data>
+  <data name="Translator.Unavailable" xml:space="preserve"><value>Перевод недоступен. Проверьте соединение и повторите попытку.</value></data>
+  <data name="Translator.Web" xml:space="preserve"><value>Открыть Яндекс Переводчик</value></data>
+  <data name="Translator.Working" xml:space="preserve"><value>Перевод…</value></data>
+</root>
