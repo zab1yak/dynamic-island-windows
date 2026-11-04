@@ -57,12 +57,11 @@
                             <TextBlock Text="{Binding DrinkText}" FontWeight="SemiBold" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{DynamicResource PillButton}" Height="28" Padding="10,0" Margin="6,0,0,0" Command="{Binding OpenSettingsCommand}"
-                            AutomationProperties.Name="{loc:Tr Water.Settings}">
-                        <StackPanel Orientation="Horizontal">
-                            <c:Icon Glyph="SlidersHorizontal" Width="13" Height="13" Margin="0,0,5,0" />
-                            <TextBlock Text="{loc:Tr Water.Settings}" VerticalAlignment="Center" />
-                        </StackPanel>
+                    <!-- Keep the action in its original position; a full translated label
+                         makes this row wider than the space left beside the progress ring. -->
+                    <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="6,0,0,0" Command="{Binding OpenSettingsCommand}"
+                            AutomationProperties.Name="{loc:Tr Water.Settings}" ToolTip="{loc:Tr Water.Settings}">
+                        <c:Icon Glyph="SlidersHorizontal" Width="13" Height="13" />
                     </Button>
                     <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="4,0,0,0" Command="{Binding UndoCommand}"
                             IsEnabled="{Binding CanUndo}" AutomationProperties.Name="{loc:Tr Water.Undo}" ToolTip="{loc:Tr Water.Undo}">
