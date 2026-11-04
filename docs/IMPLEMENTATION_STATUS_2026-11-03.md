@@ -1,5 +1,33 @@
 # Implementation status — 2026-11-03
 
+## Update 2026-11-04 — version 0.3.0 published
+
+GitHub access was restored after the owner installed the Codex connector. The
+implementation is now in remote `main`, and stable release **v0.3.0** is published:
+https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.0
+
+- Application tag: `ac44353c12cec4d7ba28958593e4754b1d926b43` (same source trees
+  as the local implementation, with commits transferred through the GitHub API).
+- Full Windows suite: **419 passed, 0 failed, 0 skipped**; CI succeeded.
+- Portable suite: **140 passed**.
+- Both x64 and ARM64 installers, portable ZIPs, full/delta packages and update
+  manifests are uploaded. Both manifests advertise version 0.3.0.
+- Release workflow: https://github.com/zab1yak/dynamic-island-windows/actions/runs/41809464300
+- Packaging repair `81d6606` explicitly supplies each architecture to Velopack,
+  resumes an unpublished existing tag, and retries transient upload failures.
+  Packaging checks out the immutable application tag; the tag was not moved.
+- Both packaging/upload steps succeeded. The ARM64 job's redundant final release
+  notes edit returned HTTP 502 after all files were published; x64 had already
+  written the correct notes. The workflow now writes notes once, with retries.
+  The historical run is red for that final metadata request, not a test or asset
+  failure. Public assets and both update manifests were verified independently.
+- Interactive Windows visual/DPI/monitor acceptance, actual native credentials
+  and live player/Yandex API behavior remain unverified. Passing hosted Windows
+  tests is not a substitute for those checks.
+
+The remaining text is the original audit/history. Its earlier publication and
+connection blockers have been resolved by the update above.
+
 Baseline: clean `main`, `1c56f4175618336c159659650d3eb084a0ec90a8`.
 GitHub's latest published release was checked separately: `v0.2.0`, published
 2026-10-27. No release or tag was created. The installed Windows binary is unknown.
