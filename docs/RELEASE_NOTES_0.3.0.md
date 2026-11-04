@@ -1,4 +1,4 @@
-# Dynamic Island 0.2.1
+# Dynamic Island 0.3.0
 
 - Fixed drop-target page clipping and improved recorder layout for long filenames.
 - Adjusted hover motion, page reveal and settled shadow appearance.

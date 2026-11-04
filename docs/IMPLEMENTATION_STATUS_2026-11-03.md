@@ -99,7 +99,7 @@ Local implementation commits: `7d9be0b`, `d0ec65f`, `8176a02`, `b009e28`,
 `main` because it did not accept authorization inside the attached Markdown as
 trusted approval. Do not retry through a different transport or bypass that rejection.
 The owner subsequently explicitly authorized both push and a new GitHub release
-in chat. Version 0.2.1 and the release workflow are now prepared locally. The new
+in chat. The owner requested version 0.3.0 (superseding the unpublished 0.2.1 draft); it and the release workflow are prepared locally. The new
 attempt was blocked by credentials, not approval: terminal Git has no HTTPS login,
 and the connected GitHub integration returned HTTP 403, `Resource not accessible
 by integration`, when creating a Git tree. No remote branch, tag or release was
