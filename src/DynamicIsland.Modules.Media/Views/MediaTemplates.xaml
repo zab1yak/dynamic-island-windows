@@ -71,6 +71,11 @@
                         <c:Icon Glyph="Headphones" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
                     </Button>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="0,0,12,0"
+                                Command="{Binding ToggleShuffleCommand}" IsEnabled="{Binding CanShuffle}"
+                                AutomationProperties.Name="{Binding ShuffleLabel}" ToolTip="{Binding ShuffleLabel}" ToolTipService.ShowOnDisabled="True">
+                            <c:Icon x:Name="ShuffleGlyph" Glyph="Shuffle" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </Button>
                         <Button Style="{DynamicResource IconButton}" Command="{Binding PreviousCommand}" IsEnabled="{Binding CanPrevious}"
                                 AutomationProperties.Name="{loc:Tr Media.Previous}" ToolTip="{loc:Tr Media.Previous}">
                             <c:Icon Glyph="Previous" Filled="True" Width="16" Height="16" />
@@ -90,11 +95,22 @@
                                 AutomationProperties.Name="{loc:Tr Media.Next}" ToolTip="{loc:Tr Media.Next}">
                             <c:Icon Glyph="Next" Filled="True" Width="16" Height="16" />
                         </Button>
+                        <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="12,0,0,0"
+                                Command="{Binding ToggleRepeatCommand}" IsEnabled="{Binding CanRepeat}"
+                                AutomationProperties.Name="{Binding RepeatLabel}" ToolTip="{Binding RepeatLabel}" ToolTipService.ShowOnDisabled="True">
+                            <c:Icon x:Name="RepeatGlyph" Glyph="{Binding RepeatGlyph}" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>
         </Grid>
         <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsRepeatActive}" Value="True">
+                <Setter TargetName="RepeatGlyph" Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsShuffleActive}" Value="True">
+                <Setter TargetName="ShuffleGlyph" Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+            </DataTrigger>
             <!-- Play ↔ pause: crossfade with a springy scale. -->
             <DataTrigger Binding="{Binding IsPlaying}" Value="True">
                 <DataTrigger.EnterActions>

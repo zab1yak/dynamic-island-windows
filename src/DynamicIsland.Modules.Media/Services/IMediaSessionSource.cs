@@ -13,6 +13,14 @@ public enum PlaybackState
     Playing,
 }
 
+/// <summary>Repeat state reported by a media player.</summary>
+public enum MediaRepeatMode
+{
+    None,
+    Track,
+    List,
+}
+
 /// <summary>Immutable snapshot of one media session (Spotify, a browser tab, Yandex Music…).</summary>
 /// <param name="AppId">AppUserModelID of the source app (for example <c>Spotify.exe</c>).</param>
 /// <param name="AppName">Readable app name.</param>
@@ -44,6 +52,18 @@ public sealed record MediaSnapshot(
     bool CanNext,
     bool CanPrevious)
 {
+    /// <summary>Whether the player accepts repeat commands.</summary>
+    public bool CanRepeat { get; init; }
+
+    /// <summary>Whether the player accepts shuffle commands.</summary>
+    public bool CanShuffle { get; init; }
+
+    /// <summary>Actual repeat state, or null if the player does not report it.</summary>
+    public MediaRepeatMode? RepeatMode { get; init; }
+
+    /// <summary>Actual shuffle state, or null if the player does not report it.</summary>
+    public bool? IsShuffleActive { get; init; }
+
     /// <summary>Whether the session is playing.</summary>
     public bool IsPlaying => State == PlaybackState.Playing;
 }
@@ -71,6 +91,12 @@ public interface IMediaSessionSource
 
     /// <summary>Skips to the previous track.</summary>
     Task<bool> PreviousAsync(string appId);
+
+    /// <summary>Requests a repeat state. Success is not a playback-state confirmation.</summary>
+    Task<bool> SetRepeatAsync(string appId, MediaRepeatMode mode);
+
+    /// <summary>Requests a shuffle state. Success is not a playback-state confirmation.</summary>
+    Task<bool> SetShuffleAsync(string appId, bool active);
 
     /// <summary>Seeks to <paramref name="position"/>.</summary>
     Task<bool> SeekAsync(string appId, TimeSpan position);

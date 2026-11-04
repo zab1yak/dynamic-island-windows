@@ -23,6 +23,9 @@ ICONS = {
     "Pause": "pause",
     "Previous": "skip-back",
     "Next": "skip-forward",
+    "Repeat": "repeat",
+    "Repeat1": "repeat-1",
+    "Shuffle": "shuffle",
     "ChevronLeft": "chevron-left",
     "ChevronRight": "chevron-right",
     "Battery": "battery",
@@ -133,7 +136,12 @@ def convert(svg_text: str) -> str:
     for el in root.iter():
         tag = el.tag.split("}")[-1]
         if tag == "path":
-            parts.append(el.get("d", ""))
+            # Each SVG element starts at (0, 0); concatenating a relative initial move
+            # would instead continue from the previous element's final point.
+            data = el.get("d", "").strip()
+            if data.startswith("m"):
+                data = "M" + data[1:]
+            parts.append(data)
         elif tag == "circle":
             parts.append(circle(f(el, "cx"), f(el, "cy"), f(el, "r"), f(el, "r")))
         elif tag == "ellipse":

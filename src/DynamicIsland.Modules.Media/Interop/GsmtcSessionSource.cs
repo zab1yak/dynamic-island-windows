@@ -3,6 +3,7 @@ using DynamicIsland.Core.Threading;
 using DynamicIsland.Modules.Media.Services;
 using Microsoft.Extensions.Logging;
 using Windows.ApplicationModel;
+using Windows.Media;
 using Windows.Media.Control;
 using Windows.Storage.Streams;
 using GsmtcPlaybackStatus = Windows.Media.Control.GlobalSystemMediaTransportControlsSessionPlaybackStatus;
@@ -79,6 +80,38 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, TimeProvider 
     public Task<bool> PreviousAsync(string appId) => Run(appId, s => s.TrySkipPreviousAsync().AsTask());
 
     /// <inheritdoc />
+    public Task<bool> SetRepeatAsync(string appId, MediaRepeatMode mode) => Run(appId, async s =>
+    {
+        if (s.GetPlaybackInfo()?.Controls.IsRepeatEnabled != true)
+        {
+            return false;
+        }
+
+        var requested = mode switch
+        {
+            MediaRepeatMode.Track => MediaPlaybackAutoRepeatMode.Track,
+            MediaRepeatMode.List => MediaPlaybackAutoRepeatMode.List,
+            _ => MediaPlaybackAutoRepeatMode.None,
+        };
+        var ok = await s.TryChangeAutoRepeatModeAsync(requested);
+        await UpdateAndPublishAsync(s, includeMedia: false);
+        return ok;
+    });
+
+    /// <inheritdoc />
+    public Task<bool> SetShuffleAsync(string appId, bool active) => Run(appId, async s =>
+    {
+        if (s.GetPlaybackInfo()?.Controls.IsShuffleEnabled != true)
+        {
+            return false;
+        }
+
+        var ok = await s.TryChangeShuffleActiveAsync(active);
+        await UpdateAndPublishAsync(s, includeMedia: false);
+        return ok;
+    });
+
+    /// <inheritdoc />
     public Task<bool> SeekAsync(string appId, TimeSpan position) => Run(appId, async s =>
     {
         // Timeline positions are relative to StartTime (non-zero for some live streams).
@@ -115,7 +148,7 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, TimeProvider 
         {
             return await command(session);
         }
-        catch (Exception ex) when (ex is COMException or InvalidOperationException)
+        catch (Exception ex) when (ex is COMException or InvalidOperationException or UnauthorizedAccessException)
         {
             logger.LogWarning(ex, "Media command failed for {App}", appId);
             return false;
@@ -261,7 +294,19 @@ internal sealed class GsmtcSessionSource(IUiDispatcher dispatcher, TimeProvider 
             playback?.PlaybackRate ?? 1.0,
             hasTimeline && (playback?.Controls.IsPlaybackPositionEnabled ?? false),
             playback?.Controls.IsNextEnabled ?? false,
-            playback?.Controls.IsPreviousEnabled ?? false);
+            playback?.Controls.IsPreviousEnabled ?? false)
+        {
+            CanRepeat = playback?.Controls.IsRepeatEnabled ?? false,
+            CanShuffle = playback?.Controls.IsShuffleEnabled ?? false,
+            RepeatMode = playback?.AutoRepeatMode switch
+            {
+                MediaPlaybackAutoRepeatMode.None => MediaRepeatMode.None,
+                MediaPlaybackAutoRepeatMode.Track => MediaRepeatMode.Track,
+                MediaPlaybackAutoRepeatMode.List => MediaRepeatMode.List,
+                _ => null,
+            },
+            IsShuffleActive = playback?.IsShuffleActive,
+        };
     }
 
     private void PublishLocked()

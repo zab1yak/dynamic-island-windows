@@ -162,6 +162,8 @@ internal sealed class FakeMediaSource : IMediaSessionSource
 
     public bool Succeed { get; set; } = true;
 
+    public TaskCompletionSource<bool>? ControlReply { get; set; }
+
     public IReadOnlyList<MediaSnapshot> Sessions => List;
 
     public event EventHandler? Changed;
@@ -179,6 +181,16 @@ internal sealed class FakeMediaSource : IMediaSessionSource
     public Task<bool> PreviousAsync(string appId) => Record($"prev {appId}");
 
     public Task<bool> SeekAsync(string appId, TimeSpan position) => Record($"seek {appId} {position.TotalSeconds}");
+
+    public Task<bool> SetRepeatAsync(string appId, MediaRepeatMode mode) => RecordControl($"repeat {appId} {mode}");
+
+    public Task<bool> SetShuffleAsync(string appId, bool active) => RecordControl($"shuffle {appId} {active}");
+
+    private Task<bool> RecordControl(string command)
+    {
+        Commands.Add(command);
+        return ControlReply?.Task ?? Task.FromResult(Succeed);
+    }
 
     private Task<bool> Record(string command)
     {
@@ -306,4 +318,136 @@ public sealed class MediaViewModelTests : IDisposable
         Assert.Equal("Spotify", _vm.AppName);
         Assert.Null(_vm.RestoredAppId);
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Repeat_and_shuffle_wait_for_reported_player_state(bool reject)
+    {
+        _source.Succeed = !reject;
+        _source.List.Add(Snapshots.Track() with
+        {
+            CanRepeat = true,
+            CanShuffle = true,
+            RepeatMode = MediaRepeatMode.None,
+            IsShuffleActive = false,
+        });
+        _source.Raise();
+        Assert.True(_vm.ToggleRepeatCommand.CanExecute(null));
+        Assert.True(_vm.ToggleShuffleCommand.CanExecute(null));
+
+        await _vm.ToggleRepeatCommand.ExecuteAsync(null);
+        await _vm.ToggleShuffleCommand.ExecuteAsync(null);
+
+        Assert.Equal(["repeat Spotify.exe Track", "shuffle Spotify.exe True"], _source.Commands);
+        Assert.False(_vm.IsRepeatActive);
+        Assert.False(_vm.IsShuffleActive);
+        if (reject)
+        {
+            Assert.False(string.IsNullOrEmpty(_vm.Notice));
+        }
+
+        _source.List[0] = _source.List[0] with { RepeatMode = MediaRepeatMode.Track, IsShuffleActive = true };
+        _source.Raise();
+        Assert.True(_vm.IsRepeatActive);
+        Assert.True(_vm.IsShuffleActive);
+        Assert.Equal("Repeat1", _vm.RepeatGlyph);
+    }
+
+    [Fact]
+    public async Task Active_repeat_and_shuffle_can_be_turned_off()
+    {
+        _source.List.Add(Snapshots.Track() with
+        {
+            CanRepeat = true,
+            CanShuffle = true,
+            RepeatMode = MediaRepeatMode.Track,
+            IsShuffleActive = true,
+        });
+        _source.Raise();
+
+        await _vm.ToggleRepeatCommand.ExecuteAsync(null);
+        await _vm.ToggleShuffleCommand.ExecuteAsync(null);
+
+        Assert.Equal(["repeat Spotify.exe None", "shuffle Spotify.exe False"], _source.Commands);
+        Assert.True(_vm.IsRepeatActive);
+        Assert.True(_vm.IsShuffleActive);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Unsupported_or_unknown_controls_never_send_commands(bool advertiseWithoutState)
+    {
+        _source.List.Add(Snapshots.Track() with { CanRepeat = advertiseWithoutState, CanShuffle = advertiseWithoutState });
+        _source.Raise();
+
+        Assert.False(_vm.CanRepeat);
+        Assert.False(_vm.CanShuffle);
+        Assert.False(_vm.ToggleRepeatCommand.CanExecute(null));
+        Assert.False(_vm.ToggleShuffleCommand.CanExecute(null));
+        await _vm.ToggleRepeatCommand.ExecuteAsync(null);
+        await _vm.ToggleShuffleCommand.ExecuteAsync(null);
+        Assert.Empty(_source.Commands);
+    }
+
+    [Fact]
+    public void Changing_sessions_resets_repeat_shuffle_and_capabilities()
+    {
+        _source.List.Add(Snapshots.Track() with
+        {
+            CanRepeat = true,
+            CanShuffle = true,
+            RepeatMode = MediaRepeatMode.List,
+            IsShuffleActive = true,
+        });
+        _source.List.Add(Snapshots.Track("chrome", PlaybackState.Paused));
+        _source.Raise();
+        Assert.True(_vm.IsRepeatActive);
+        Assert.Equal("Repeat", _vm.RepeatGlyph);
+
+        _vm.NextSessionCommand.Execute(null);
+
+        Assert.False(_vm.IsRepeatActive);
+        Assert.False(_vm.IsShuffleActive);
+        Assert.False(_vm.CanRepeat);
+        Assert.False(_vm.CanShuffle);
+    }
+
+    [Fact]
+    public async Task Late_failure_does_not_change_the_newly_selected_player()
+    {
+        var reply = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _source.ControlReply = reply;
+        _source.List.Add(Snapshots.Track() with { CanRepeat = true, RepeatMode = MediaRepeatMode.None });
+        _source.List.Add(Snapshots.Track("chrome", PlaybackState.Paused));
+        _source.Raise();
+        var request = _vm.ToggleRepeatCommand.ExecuteAsync(null);
+        _vm.NextSessionCommand.Execute(null);
+
+        reply.SetResult(false);
+        await request;
+
+        Assert.Equal("chrome", _vm.CurrentSnapshot?.AppId);
+        Assert.False(_vm.IsRepeatActive);
+        Assert.Null(_vm.Notice);
+    }
+
+    [Fact]
+    public void Restored_track_has_no_live_repeat_or_shuffle_controls()
+    {
+        _vm.ShowRestored(Snapshots.Track() with
+        {
+            CanRepeat = true,
+            CanShuffle = true,
+            RepeatMode = MediaRepeatMode.Track,
+            IsShuffleActive = true,
+        });
+
+        Assert.False(_vm.CanRepeat);
+        Assert.False(_vm.CanShuffle);
+        Assert.False(_vm.IsRepeatActive);
+        Assert.False(_vm.IsShuffleActive);
+    }
+
 }

@@ -58,5 +58,33 @@
   "Media.Restore.PressPlay": {
     "en": "Press Play to continue in the app",
     "ru": "Нажмите Play, чтобы продолжить в приложении"
+  },
+  "Media.RepeatUnavailable": {
+    "en": "Repeat is unavailable in this player",
+    "ru": "Повтор недоступен в этом плеере"
+  },
+  "Media.ShuffleUnavailable": {
+    "en": "Shuffle is unavailable in this player",
+    "ru": "Перемешивание недоступно в этом плеере"
+  },
+  "Media.RepeatOff": {
+    "en": "Repeat: off — repeat this track",
+    "ru": "Повтор выключен — повторять трек"
+  },
+  "Media.RepeatTrack": {
+    "en": "Repeat: current track — turn off",
+    "ru": "Повтор текущего трека — выключить"
+  },
+  "Media.RepeatList": {
+    "en": "Repeat: playlist — repeat this track",
+    "ru": "Повтор плейлиста — повторять трек"
+  },
+  "Media.ShuffleOn": {
+    "en": "Shuffle: on — turn off",
+    "ru": "Перемешивание включено — выключить"
+  },
+  "Media.ShuffleOff": {
+    "en": "Shuffle: off — turn on",
+    "ru": "Перемешивание выключено — включить"
   }
 }

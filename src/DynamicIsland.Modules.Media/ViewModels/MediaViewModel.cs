@@ -70,6 +70,43 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
     private bool _canPrevious;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ToggleRepeatCommand))]
+    [NotifyPropertyChangedFor(nameof(RepeatLabel))]
+    private bool _canRepeat;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ToggleShuffleCommand))]
+    [NotifyPropertyChangedFor(nameof(ShuffleLabel))]
+    private bool _canShuffle;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsRepeatActive))]
+    [NotifyPropertyChangedFor(nameof(RepeatGlyph))]
+    [NotifyPropertyChangedFor(nameof(RepeatLabel))]
+    private MediaRepeatMode? _repeatMode;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShuffleLabel))]
+    private bool _isShuffleActive;
+
+    /// <summary>Whether the actual player reports any repeat mode as active.</summary>
+    public bool IsRepeatActive => RepeatMode is MediaRepeatMode.Track or MediaRepeatMode.List;
+
+    /// <summary>Use the existing Lucide repeat glyph matching the actual mode.</summary>
+    public string RepeatGlyph => RepeatMode == MediaRepeatMode.Track ? "Repeat1" : "Repeat";
+
+    /// <summary>Accessible label also explaining unsupported player controls.</summary>
+    public string RepeatLabel => MediaStrings.Get(!CanRepeat ? "Media.RepeatUnavailable" : RepeatMode switch
+    {
+        MediaRepeatMode.Track => "Media.RepeatTrack",
+        MediaRepeatMode.List => "Media.RepeatList",
+        _ => "Media.RepeatOff",
+    });
+
+    /// <summary>Accessible label of the real shuffle state.</summary>
+    public string ShuffleLabel => MediaStrings.Get(!CanShuffle ? "Media.ShuffleUnavailable" : IsShuffleActive ? "Media.ShuffleOn" : "Media.ShuffleOff");
+
+    [ObservableProperty]
     private double _progress;
 
     [ObservableProperty]
@@ -210,6 +247,38 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanRepeat))]
+    private async Task ToggleRepeatAsync()
+    {
+        var current = _current;
+        if (current is null || !CanRepeat)
+        {
+            return;
+        }
+
+        // Never paint the requested mode as active: wait for the player's snapshot.
+        var mode = current.RepeatMode == MediaRepeatMode.Track ? MediaRepeatMode.None : MediaRepeatMode.Track;
+        if (!await _source.SetRepeatAsync(current.AppId, mode) && _current?.AppId == current.AppId)
+        {
+            await OnCommandFailedAsync();
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanShuffle))]
+    private async Task ToggleShuffleAsync()
+    {
+        var current = _current;
+        if (current is null || !CanShuffle)
+        {
+            return;
+        }
+
+        if (!await _source.SetShuffleAsync(current.AppId, current.IsShuffleActive != true) && _current?.AppId == current.AppId)
+        {
+            await OnCommandFailedAsync();
+        }
+    }
+
     /// <summary>Seeks to a fraction (0–1) of the track.</summary>
     [RelayCommand]
     private async Task SeekAsync(double fraction)
@@ -279,7 +348,14 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         }
 
         RestoredAppId = snapshot.AppId;
-        Show(snapshot with { State = PlaybackState.Paused });
+        Show(snapshot with
+        {
+            State = PlaybackState.Paused,
+            CanRepeat = false,
+            CanShuffle = false,
+            RepeatMode = null,
+            IsShuffleActive = null,
+        });
     }
 
     private void Show(MediaSnapshot? snapshot)
@@ -300,6 +376,15 @@ public sealed partial class MediaViewModel : ObservableObject, ILiveActivitySour
         CanSeek = snapshot?.CanSeek ?? false;
         CanNext = snapshot?.CanNext ?? false;
         CanPrevious = snapshot?.CanPrevious ?? false;
+        RepeatMode = snapshot?.RepeatMode;
+        IsShuffleActive = snapshot?.IsShuffleActive == true;
+        CanRepeat = snapshot is { CanRepeat: true, RepeatMode: not null } && RestoredAppId is null;
+        CanShuffle = snapshot is { CanShuffle: true, IsShuffleActive: not null } && RestoredAppId is null;
+        if (previous?.AppId != snapshot?.AppId)
+        {
+            Notice = null;
+        }
+
         DurationText = PositionInterpolator.Format(snapshot?.Duration ?? TimeSpan.Zero);
         RemainingText = snapshot is null ? string.Empty : PositionInterpolator.FormatRemaining(snapshot, _time.GetUtcNow());
 
