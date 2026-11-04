@@ -93,6 +93,13 @@ public sealed class TranslatorLayoutTests
         root.UpdateLayout();
 
         var scenario = $"{language}/{percent}%/{state}";
+        if (state == "downloading")
+        {
+            var status = Assert.IsType<TextBlock>(page.FindName("DownloadStatus"));
+            var foreground = Assert.IsAssignableFrom<SolidColorBrush>(status.Foreground).Color;
+            var background = Assert.IsAssignableFrom<SolidColorBrush>(page.FindResource("Brush.Surface1")).Color;
+            Assert.True(Contrast(foreground, background) >= 4.5, $"{scenario}: download status has insufficient text contrast");
+        }
         var pageBounds = Bounds(page, root);
         var controls = Descendants<Control>(page)
             .Where(control => control is ComboBox or TextBox or Button && control.Visibility == Visibility.Visible)
@@ -143,6 +150,18 @@ public sealed class TranslatorLayoutTests
 
     private static Rect Bounds(FrameworkElement element, Visual root) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
     private static bool Overlaps(Rect a, Rect b) => a.Left < b.Right - 0.5 && a.Right > b.Left + 0.5 && a.Top < b.Bottom - 0.5 && a.Bottom > b.Top + 0.5;
+
+    private static double Contrast(Color foreground, Color background)
+    {
+        var alpha = foreground.A / 255.0;
+        static double Linear(double channel) => channel <= 0.04045 ? channel / 12.92 : Math.Pow((channel + 0.055) / 1.055, 2.4);
+        static double Luminance(double red, double green, double blue) => 0.2126 * Linear(red) + 0.7152 * Linear(green) + 0.0722 * Linear(blue);
+        var back = Luminance(background.R / 255.0, background.G / 255.0, background.B / 255.0);
+        var front = Luminance((foreground.R * alpha + background.R * (1 - alpha)) / 255.0,
+            (foreground.G * alpha + background.G * (1 - alpha)) / 255.0,
+            (foreground.B * alpha + background.B * (1 - alpha)) / 255.0);
+        return (Math.Max(front, back) + 0.05) / (Math.Min(front, back) + 0.05);
+    }
 
     private static IEnumerable<T> Descendants<T>(DependencyObject parent) where T : DependencyObject
     {
