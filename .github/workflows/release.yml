@@ -3,6 +3,10 @@ name: Release
 on:
   push:
     tags: ["v*"]
+    branches: [main]
+    paths:
+      - Directory.Build.props
+      - .github/workflows/release.yml
 
 permissions:
   contents: write
@@ -12,7 +16,36 @@ env:
   REPO_URL: https://github.com/${{ github.repository }}
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      publish: ${{ steps.version.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve version without recreating existing releases
+        id: version
+        shell: python
+        run: |
+          import os, re, subprocess, xml.etree.ElementTree as ET
+          version = ET.parse("Directory.Build.props").findtext(".//Version")
+          if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version or ""):
+              raise SystemExit("Release version must be major.minor.patch")
+          tag = "v" + version
+          tagged = os.environ["GITHUB_REF_TYPE"] == "tag"
+          if tagged and os.environ["GITHUB_REF_NAME"] != tag:
+              raise SystemExit("Tag and project version differ")
+          exists = subprocess.run(["git", "rev-parse", "--verify", "refs/tags/" + tag], capture_output=True).returncode == 0
+          publish = tagged or not exists
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"version={version}\ntag={tag}\npublish={str(publish).lower()}\n")
+
   test:
+    needs: version
+    if: needs.version.outputs.publish == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,8 +54,21 @@ jobs:
           global-json-file: global.json
       - run: dotnet test --configuration Release
 
+  tag:
+    needs: [version, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag the tested version
+        if: github.ref_type != 'tag'
+        env:
+          RELEASE_TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          git tag "$RELEASE_TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$RELEASE_TAG"
+
   release:
-    needs: test
+    needs: [version, test, tag]
     runs-on: windows-latest
     strategy:
       max-parallel: 1 # both architectures publish into the same GitHub release
@@ -43,7 +89,7 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}".TrimStart('v')
+          $version = "${{ needs.version.outputs.version }}"
           "version=$version" >> $env:GITHUB_OUTPUT
 
       - name: Publish (self-contained)
@@ -73,5 +119,16 @@ jobs:
         run: >
           dotnet vpk upload github --repoUrl ${{ env.REPO_URL }} --channel ${{ matrix.channel }}
           --outputDir artifacts/releases --publish --merge
-          --releaseName "Dynamic Island ${{ steps.version.outputs.version }}" --tag ${{ github.ref_name }}
+          --releaseName "Dynamic Island ${{ steps.version.outputs.version }}" --tag ${{ needs.version.outputs.tag }}
           --token ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Attach release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.version.outputs.tag }}
+        shell: pwsh
+        run: |
+          $notes = "docs/RELEASE_NOTES_${{ needs.version.outputs.version }}.md"
+          if (Test-Path $notes) {
+            gh release edit $env:RELEASE_TAG --repo $env:REPO_URL --notes-file $notes
+          }
