@@ -2,6 +2,8 @@
   <PropertyGroup><UseWPF>true</UseWPF></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" />
+    <PackageReference Include="Microsoft.ML.Tokenizers" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <ProjectReference Include="..\DynamicIsland.Core\DynamicIsland.Core.csproj" />
     <ProjectReference Include="..\DynamicIsland.UI\DynamicIsland.UI.csproj" />
