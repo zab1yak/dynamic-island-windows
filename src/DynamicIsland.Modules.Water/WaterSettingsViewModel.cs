@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DynamicIsland.UI.Localization;
 
 namespace DynamicIsland.Modules.Water;
 
@@ -7,6 +9,17 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
 {
     private readonly WaterViewModel _water;
     private bool _loading;
+
+    [ObservableProperty]
+    private string _soundStatus = string.Empty;
+
+    [RelayCommand]
+    private async Task PreviewSoundAsync()
+    {
+        SoundStatus = string.Empty;
+        if (!await _water.PreviewSoundAsync()) SoundStatus = Loc.Instance["Water.SoundFailed"];
+    }
+
 
     [ObservableProperty]
     private int _goalMl;
@@ -19,6 +32,9 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _remindersEnabled;
+
+    [ObservableProperty]
+    private bool _sound;
 
     [ObservableProperty]
     private int _intervalMinutes;
@@ -44,6 +60,7 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
         StepMl = s.StepMl;
         FineStepMl = s.FineStepMl;
         RemindersEnabled = s.RemindersEnabled;
+        Sound = s.Sound;
         IntervalMinutes = s.ReminderIntervalMinutes;
         ActiveFromHour = s.ActiveFromHour;
         ActiveToHour = s.ActiveToHour;
@@ -57,6 +74,8 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
     partial void OnFineStepMlChanged(int value) => Apply();
 
     partial void OnRemindersEnabledChanged(bool value) => Apply();
+
+    partial void OnSoundChanged(bool value) => Apply();
 
     partial void OnIntervalMinutesChanged(int value) => Apply();
 
@@ -76,6 +95,7 @@ public sealed partial class WaterSettingsViewModel : ObservableObject
         s.StepMl = StepMl;
         s.FineStepMl = FineStepMl;
         s.RemindersEnabled = RemindersEnabled;
+        s.Sound = Sound;
         s.ReminderIntervalMinutes = IntervalMinutes;
         s.ActiveFromHour = ActiveFromHour;
         s.ActiveToHour = ActiveToHour;

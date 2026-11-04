@@ -22,6 +22,18 @@ public sealed class WaterTrackerTests
     }
 
     [Fact]
+    public void Sound_is_additive_for_legacy_data_and_preserves_explicit_opt_out()
+    {
+        var legacy = System.Text.Json.JsonSerializer.Deserialize<WaterState>("{\"GoalMl\":2500}")!;
+        legacy.Normalize();
+        Assert.True(legacy.Sound);
+        var optedOut = System.Text.Json.JsonSerializer.Deserialize<WaterState>("{\"Sound\":false,\"GoalMl\":2500}")!;
+        optedOut.Normalize();
+        Assert.False(optedOut.Sound);
+        Assert.Equal(2500, optedOut.GoalMl);
+    }
+
+    [Fact]
     public void Drink_adds_a_portion_and_undo_removes_it()
     {
         var tracker = NewTracker();

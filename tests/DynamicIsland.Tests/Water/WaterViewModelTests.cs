@@ -1,4 +1,5 @@
 using DynamicIsland.Core.Storage;
+using DynamicIsland.Core.Notifications;
 using DynamicIsland.Modules.Water;
 using DynamicIsland.Tests.Pomodoro;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,6 +13,7 @@ public sealed class WaterViewModelTests : IDisposable
     private readonly TempFolder _temp = new();
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 27, 5, 0, 0, TimeSpan.Zero));
     private readonly RecordingNotifications _notifications = new();
+    private readonly RecordingAlertAudio _audio = new();
     private readonly JsonStorageService _storage;
 
     public WaterViewModelTests()
@@ -22,7 +24,7 @@ public sealed class WaterViewModelTests : IDisposable
 
     public void Dispose() => _temp.Dispose();
 
-    private WaterViewModel NewVm() => new(_storage, _time, new InlineDispatcher(), _notifications);
+    private WaterViewModel NewVm() => new(_storage, _time, new InlineDispatcher(), _notifications, audio: _audio);
 
     [Fact]
     public async Task Drinks_and_history_survive_a_restart()
@@ -54,8 +56,36 @@ public sealed class WaterViewModelTests : IDisposable
         _time.Advance(TimeSpan.FromMinutes(1));
 
         Assert.Single(_notifications.Shown);
-        Assert.True(_notifications.Shown[0].Sound);
+        Assert.False(_notifications.Shown[0].Sound);
+        Assert.Equal(AlertSound.Water, Assert.Single(_audio.Played));
         Assert.True(vm.Current?.IsAlert);
+    }
+
+    [Fact]
+    public async Task Disabled_water_sound_still_shows_one_reminder_and_survives_restart()
+    {
+        using var vm = NewVm();
+        await vm.LoadAsync(TestContext.Current.CancellationToken);
+        vm.State.Sound = false;
+        await vm.SaveAsync();
+        _time.Advance(TimeSpan.FromHours(1));
+        await vm.RecheckAsync();
+        Assert.Single(_notifications.Shown);
+        Assert.Empty(_audio.Played);
+        using var reopened = NewVm();
+        await reopened.LoadAsync(TestContext.Current.CancellationToken);
+        Assert.False(reopened.State.Sound);
+    }
+
+    [Fact]
+    public async Task Preview_plays_without_changing_water_schedule()
+    {
+        using var vm = NewVm();
+        await vm.LoadAsync(TestContext.Current.CancellationToken);
+        Assert.True(await vm.PreviewSoundAsync());
+        Assert.Equal(AlertSound.Water, Assert.Single(_audio.Played));
+        Assert.Null(vm.State.LastReminderAt);
+        Assert.Empty(_notifications.Shown);
     }
 
     [Fact]

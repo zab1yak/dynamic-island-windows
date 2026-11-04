@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DynamicIsland.UI.Localization;
 using DynamicIsland.Modules.Pomodoro.Services;
 
 namespace DynamicIsland.Modules.Pomodoro.ViewModels;
@@ -8,6 +10,17 @@ public sealed partial class PomodoroSettingsViewModel : ObservableObject
 {
     private readonly PomodoroViewModel _timer;
     private bool _loading;
+
+    [ObservableProperty]
+    private string _soundStatus = string.Empty;
+
+    [RelayCommand]
+    private async Task PreviewSoundAsync()
+    {
+        SoundStatus = string.Empty;
+        if (!await _timer.PreviewSoundAsync()) SoundStatus = Loc.Instance["Pomodoro.SoundFailed"];
+    }
+
 
     [ObservableProperty]
     private int _focusMinutes;

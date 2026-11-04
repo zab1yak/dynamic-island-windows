@@ -123,6 +123,10 @@
                         <TextBlock Text="{loc:Tr Pomodoro.SoundSetting}" Style="{DynamicResource Settings.Label}" />
                         <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding Sound}" VerticalAlignment="Center" />
                     </DockPanel>
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Command="{Binding PreviewSoundCommand}" Content="{loc:Tr Pomodoro.PreviewSound}" />
+                        <TextBlock Text="{Binding SoundStatus}" TextWrapping="Wrap" Style="{DynamicResource Text.Secondary}" />
+                    </DockPanel>
                 </StackPanel>
             </c:SquircleBorder>
         </StackPanel>

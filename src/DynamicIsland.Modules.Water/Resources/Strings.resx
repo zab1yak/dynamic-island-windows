@@ -30,4 +30,7 @@
   <data name="Water.Title" xml:space="preserve"><value>Water Reminder</value></data>
   <data name="Water.TitleAccent" xml:space="preserve"><value>Reminder</value></data>
   <data name="Water.Undo" xml:space="preserve"><value>Undo last drink</value></data>
+  <data name="Water.PreviewSound" xml:space="preserve"><value>Preview sound</value></data>
+  <data name="Water.SoundFailed" xml:space="preserve"><value>Sound could not be played. Check your audio device and app installation.</value></data>
+  <data name="Water.SoundSetting" xml:space="preserve"><value>Reminder sound</value></data>
 </root>

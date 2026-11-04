@@ -16,11 +16,23 @@ internal sealed class RecordingNotifications : INotificationService
     public void Show(string title, string message, bool sound) => Shown.Add((title, sound));
 }
 
+internal sealed class RecordingAlertAudio : IAlertAudio
+{
+    public List<AlertSound> Played { get; } = [];
+    public bool Succeeds { get; set; } = true;
+    public Task<bool> PlayAsync(AlertSound sound, CancellationToken cancellationToken = default)
+    {
+        Played.Add(sound);
+        return Task.FromResult(Succeeds);
+    }
+}
+
 public sealed class PomodoroViewModelTests : IDisposable
 {
     private readonly TempFolder _temp = new();
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 27, 9, 0, 0, TimeSpan.Zero));
     private readonly RecordingNotifications _notifications = new();
+    private readonly RecordingAlertAudio _audio = new();
     private readonly JsonStorageService _storage;
     private readonly IslandStateMachine _island;
     private readonly PomodoroViewModel _vm;
@@ -29,7 +41,7 @@ public sealed class PomodoroViewModelTests : IDisposable
     {
         _storage = new JsonStorageService(_temp.Path, NullLogger<JsonStorageService>.Instance);
         _island = new IslandStateMachine(_time, new InlineDispatcher());
-        _vm = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications);
+        _vm = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications, _audio);
     }
 
     public void Dispose()
@@ -59,7 +71,8 @@ public sealed class PomodoroViewModelTests : IDisposable
         _time.Advance(TimeSpan.FromMinutes(25));
 
         Assert.Single(_notifications.Shown);
-        Assert.True(_notifications.Shown[0].Sound);
+        Assert.False(_notifications.Shown[0].Sound);
+        Assert.Equal(AlertSound.Pomodoro, Assert.Single(_audio.Played));
         Assert.True(_vm.Current?.IsAlert);
         Assert.Equal(PomodoroPhase.ShortBreak, _vm.Phase);
         Assert.Equal(1, _vm.CompletedToday);
@@ -69,13 +82,41 @@ public sealed class PomodoroViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Recheck_does_not_repeat_completion_audio_and_sound_can_be_disabled()
+    {
+        await _vm.LoadAsync(TestContext.Current.CancellationToken);
+        await _vm.StartPauseCommand.ExecuteAsync(null);
+        _time.Advance(TimeSpan.FromMinutes(25));
+        _vm.RecheckSoon();
+        _vm.RecheckSoon();
+        Assert.Single(_audio.Played);
+        await _vm.ApplySettingsAsync(new PomodoroSettings { Sound = false });
+        await _vm.StartPauseCommand.ExecuteAsync(null);
+        _time.Advance(TimeSpan.FromMinutes(5));
+        Assert.Single(_audio.Played);
+        Assert.Equal(2, _notifications.Shown.Count);
+    }
+
+    [Fact]
+    public async Task Audio_failure_keeps_the_visible_notification_and_reports_failure()
+    {
+        _audio.Succeeds = false;
+        await _vm.LoadAsync(TestContext.Current.CancellationToken);
+        await _vm.StartPauseCommand.ExecuteAsync(null);
+        _time.Advance(TimeSpan.FromMinutes(25));
+        Assert.Single(_audio.Played);
+        Assert.Equal(2, _notifications.Shown.Count);
+        Assert.True(_vm.Current?.IsAlert);
+    }
+
+    [Fact]
     public async Task Running_timer_is_restored_from_disk()
     {
         await _vm.LoadAsync(TestContext.Current.CancellationToken);
         await _vm.StartPauseCommand.ExecuteAsync(null);
         _time.Advance(TimeSpan.FromMinutes(5));
 
-        using var reopened = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications);
+        using var reopened = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications, _audio);
         await reopened.LoadAsync(TestContext.Current.CancellationToken);
 
         Assert.True(reopened.IsRunning);
@@ -107,7 +148,7 @@ public sealed class PomodoroViewModelTests : IDisposable
         Assert.Equal("32:00", _vm.RemainingText);
         Assert.Equal(5.0 / 37, _vm.Progress, 6);
 
-        using var reopened = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications);
+        using var reopened = new PomodoroViewModel(_storage, _time, new InlineDispatcher(), _island, _notifications, _audio);
         await reopened.LoadAsync(TestContext.Current.CancellationToken);
         Assert.Equal(42, reopened.DurationMinutes);
         Assert.Equal("32:00", reopened.RemainingText);

@@ -10,6 +10,18 @@ public sealed class PomodoroTimerTests
     private PomodoroTimer NewTimer(PomodoroState? state = null) => new(state ?? new PomodoroState(), _time);
 
     [Fact]
+    public void Missed_completion_is_consumed_once_even_after_long_sleep()
+    {
+        var timer = NewTimer();
+        timer.Start();
+        _time.Advance(TimeSpan.FromHours(12));
+        Assert.NotNull(timer.CheckCompletion());
+        Assert.Null(timer.CheckCompletion());
+        Assert.Equal(1, timer.State.CompletedToday);
+        Assert.Equal(PomodoroStatus.Idle, timer.State.Status);
+    }
+
+    [Fact]
     public void Idle_shows_the_full_focus_duration()
     {
         var timer = NewTimer();

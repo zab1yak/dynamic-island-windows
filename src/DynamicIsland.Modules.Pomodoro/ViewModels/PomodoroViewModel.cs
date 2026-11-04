@@ -27,6 +27,7 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
     private readonly IUiDispatcher _dispatcher;
     private readonly IslandStateMachine _island;
     private readonly INotificationService _notifications;
+    private readonly IAlertAudio? _audio;
     private PomodoroTimer _timer;
     private ITimer? _tick;
     private ITimer? _completion;
@@ -67,13 +68,14 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
     [ObservableProperty]
     private int _maximumDurationMinutes = 180;
 
-    public PomodoroViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, IslandStateMachine island, INotificationService notifications)
+    public PomodoroViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, IslandStateMachine island, INotificationService notifications, IAlertAudio? audio = null)
     {
         _storage = storage;
         _time = time;
         _dispatcher = dispatcher;
         _island = island;
         _notifications = notifications;
+        _audio = audio;
         _timer = new PomodoroTimer(new PomodoroState(), time);
         Live = new PomodoroLiveViewModel(this);
         island.ModeChanged += (_, _) => UpdateTick();
@@ -118,6 +120,7 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
         Sanitize(state, _time.GetUtcNow());
         _timer = new PomodoroTimer(state, _time);
         _timer.CheckCompletion();
+        await SaveAsync(); // Persist quiet startup completion so a restart cannot count it twice.
         _startedAt = _time.GetUtcNow();
         Refresh();
         ScheduleCompletion();
@@ -142,14 +145,8 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
     /// <summary>After sleep or a clock change: complete what ended and re-arm the end timer. Any thread.</summary>
     public void RecheckSoon() => _dispatcher.Post(() =>
     {
-        if (_timer.CheckCompletion() is not null)
-        {
-            _ = AfterChangeAsync();
-            return;
-        }
-
+        OnCompletionDue();
         Refresh();
-        ScheduleCompletion();
     });
 
     /// <summary>Saves the state.</summary>
@@ -302,7 +299,8 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
 
         var title = Loc.Instance[done.Finished == PomodoroPhase.Focus ? "Pomodoro.FocusDone" : "Pomodoro.BreakDone"];
         var body = Loc.Instance[done.Next == PomodoroPhase.Focus ? "Pomodoro.NextFocus" : done.Next == PomodoroPhase.LongBreak ? "Pomodoro.NextLongBreak" : "Pomodoro.NextShortBreak"];
-        _notifications.Show(title, body, _timer.State.Settings.Sound);
+        _notifications.Show(title, body, sound: false);
+        if (_timer.State.Settings.Sound) _ = PlayCompletionSoundAsync(title);
 
         _alert = done;
         _alertTimer?.Dispose();
@@ -312,6 +310,15 @@ public sealed partial class PomodoroViewModel : ObservableObject, ILiveActivityS
             Changed?.Invoke(this, EventArgs.Empty);
         }), null, AlertDuration, Timeout.InfiniteTimeSpan);
         _ = AfterChangeAsync();
+    }
+
+    /// <summary>Plays the configured sound without changing any music session.</summary>
+    public Task<bool> PreviewSoundAsync() => _audio?.PlayAsync(AlertSound.Pomodoro) ?? Task.FromResult(false);
+
+    private async Task PlayCompletionSoundAsync(string title)
+    {
+        if (!await PreviewSoundAsync())
+            _dispatcher.Post(() => _notifications.Show(title, Loc.Instance["Pomodoro.SoundFailed"], sound: false));
     }
 
     private void UpdateTick()

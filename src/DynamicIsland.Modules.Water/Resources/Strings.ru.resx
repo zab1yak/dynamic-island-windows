@@ -30,4 +30,7 @@
   <data name="Water.Title" xml:space="preserve"><value>Водный баланс</value></data>
   <data name="Water.TitleAccent" xml:space="preserve"><value>баланс</value></data>
   <data name="Water.Undo" xml:space="preserve"><value>Отменить последнее</value></data>
+  <data name="Water.PreviewSound" xml:space="preserve"><value>Прослушать</value></data>
+  <data name="Water.SoundFailed" xml:space="preserve"><value>Не удалось воспроизвести звук. Проверьте аудиоустройство и установку приложения.</value></data>
+  <data name="Water.SoundSetting" xml:space="preserve"><value>Звук напоминания</value></data>
 </root>

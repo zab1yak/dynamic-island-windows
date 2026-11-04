@@ -118,6 +118,11 @@
                     </DockPanel>
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
+                        <TextBlock Text="{loc:Tr Water.SoundSetting}" Style="{DynamicResource Settings.Label}" />
+                        <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource ToggleSwitch}" IsChecked="{Binding Sound}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <Rectangle Style="{DynamicResource Settings.Separator}" />
+                    <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Water.Interval}" Style="{DynamicResource Settings.Label}" />
                         <c:NumberStepper DockPanel.Dock="Right" Value="{Binding IntervalMinutes}" Minimum="15" Maximum="480" Step="15" Suffix="{loc:Tr Water.Min}" />
                     </DockPanel>
@@ -130,6 +135,10 @@
                     <DockPanel Style="{DynamicResource Settings.Row}">
                         <TextBlock Text="{loc:Tr Water.ActiveTo}" Style="{DynamicResource Settings.Label}" />
                         <c:NumberStepper DockPanel.Dock="Right" Value="{Binding ActiveToHour}" Minimum="1" Maximum="24" Suffix=":00" />
+                    </DockPanel>
+                    <DockPanel Style="{DynamicResource Settings.Row}">
+                        <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Command="{Binding PreviewSoundCommand}" Content="{loc:Tr Water.PreviewSound}" />
+                        <TextBlock Text="{Binding SoundStatus}" TextWrapping="Wrap" Style="{DynamicResource Text.Secondary}" />
                     </DockPanel>
                 </StackPanel>
             </c:SquircleBorder>

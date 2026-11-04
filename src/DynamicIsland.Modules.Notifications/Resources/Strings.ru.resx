@@ -21,4 +21,5 @@
   <data name="Notifications.SetupTitle" xml:space="preserve"><value>Уведомления Telegram и других приложений</value></data>
   <data name="Notifications.Title" xml:space="preserve"><value>Уведомления</value></data>
   <data name="Notifications.Working" xml:space="preserve"><value>Настройка…</value></data>
+  <data name="Notifications.Unavailable" xml:space="preserve"><value>История уведомлений Windows недоступна. Оповещения таймера и воды продолжают работать. Проверьте параметры Windows и повторите проверку.</value></data>
 </root>

@@ -27,13 +27,45 @@ public enum NotificationAccess
 public sealed record NotificationEntry(uint Id, string App, string Title, string Body, DateTimeOffset Time);
 
 /// <summary>Reads the Windows notification center through <c>UserNotificationListener</c>.</summary>
-public sealed partial class NotificationHistory
+public sealed partial class NotificationHistory : IDisposable
 {
     private const int AppModelErrorNoPackage = 15700;
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(10);
 
     /// <summary>Most notifications kept on the page.</summary>
     public const int Limit = 30;
+
+    private bool _subscribed;
+
+    /// <summary>Windows reports that notifications were added or removed; no content is retained.</summary>
+    public event EventHandler? Changed;
+
+    /// <summary>Listen only once access is granted; no polling or permission prompt.</summary>
+    public void StartListening()
+    {
+        if (_subscribed || CheckAccess() != NotificationAccess.Allowed) return;
+        try
+        {
+            UserNotificationListener.Current.NotificationChanged += OnNotificationChanged;
+            _subscribed = true;
+        }
+        catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            CheckAccess();
+        }
+    }
+
+    private void OnNotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args) => Changed?.Invoke(this, EventArgs.Empty);
+
+    public void Dispose()
+    {
+        if (_subscribed)
+        {
+            try { UserNotificationListener.Current.NotificationChanged -= OnNotificationChanged; }
+            catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException) { }
+            _subscribed = false;
+        }
+    }
 
     /// <summary>Current access state.</summary>
     public NotificationAccess Access { get; private set; }
@@ -98,7 +130,7 @@ public sealed partial class NotificationHistory
     /// <summary>Latest toasts, newest first (empty without access).</summary>
     public async Task<IReadOnlyList<NotificationEntry>> ReadAsync()
     {
-        if (Access != NotificationAccess.Allowed)
+        if (CheckAccess() != NotificationAccess.Allowed)
         {
             return [];
         }
@@ -106,6 +138,8 @@ public sealed partial class NotificationHistory
         try
         {
             var list = await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast);
+            // Access may be revoked while awaiting the asynchronous read.
+            if (CheckAccess() != NotificationAccess.Allowed) return [];
             return list
                 .OrderByDescending(n => n.CreationTime)
                 .Take(Limit)
@@ -114,7 +148,7 @@ public sealed partial class NotificationHistory
         }
         catch (Exception ex) when (ex is COMException or UnauthorizedAccessException or InvalidOperationException or TypeLoadException)
         {
-            Access = NotificationAccess.Unavailable;
+            if (CheckAccess() == NotificationAccess.Allowed) Access = NotificationAccess.Unavailable;
             return [];
         }
     }

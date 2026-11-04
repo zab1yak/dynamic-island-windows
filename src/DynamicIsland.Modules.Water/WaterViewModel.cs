@@ -26,6 +26,7 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
     private readonly TimeProvider _time;
     private readonly IUiDispatcher _dispatcher;
     private readonly INotificationService _notifications;
+    private readonly IAlertAudio? _audio;
     private WaterTracker _tracker;
     private ITimer? _reminder;
     private ITimer? _midnight;
@@ -76,13 +77,14 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
 
     private readonly IIslandHost? _host;
 
-    public WaterViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, INotificationService notifications, IIslandHost? host = null)
+    public WaterViewModel(IStorageService storage, TimeProvider time, IUiDispatcher dispatcher, INotificationService notifications, IIslandHost? host = null, IAlertAudio? audio = null)
     {
         _host = host;
         _storage = storage;
         _time = time;
         _dispatcher = dispatcher;
         _notifications = notifications;
+        _audio = audio;
         _tracker = new WaterTracker(new WaterState(), time);
         Live = new WaterLiveViewModel(this);
         Loc.Instance.CultureChanged += (_, _) => Refresh();
@@ -226,6 +228,15 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
         _midnight = _time.CreateTimer(_ => _dispatcher.Post(() => _ = RecheckAsync()), null, _tracker.UntilMidnight() + TimeSpan.FromSeconds(1), Timeout.InfiniteTimeSpan);
     }
 
+    /// <summary>Preview does not change the reminder schedule or the user's music.</summary>
+    public Task<bool> PreviewSoundAsync() => _audio?.PlayAsync(AlertSound.Water) ?? Task.FromResult(false);
+
+    private async Task PlayReminderSoundAsync()
+    {
+        if (!await PreviewSoundAsync())
+            _dispatcher.Post(() => _notifications.Show(Loc.Instance["Water.ReminderTitle"], Loc.Instance["Water.SoundFailed"], sound: false));
+    }
+
     private void OnReminder()
     {
         // Re-validate: the user may have drunk, or the day may have changed since scheduling.
@@ -236,7 +247,8 @@ public sealed partial class WaterViewModel : ObservableObject, ILiveActivitySour
         }
 
         _tracker.MarkReminded();
-        _notifications.Show(Loc.Instance["Water.ReminderTitle"], Loc.Instance.Format("Water.ReminderBody", TotalText), sound: true);
+        _notifications.Show(Loc.Instance["Water.ReminderTitle"], Loc.Instance.Format("Water.ReminderBody", TotalText), sound: false);
+        if (_tracker.State.Sound) _ = PlayReminderSoundAsync();
         _alert = true;
         _alertTimer?.Dispose();
         _alertTimer = _time.CreateTimer(_ => _dispatcher.Post(() =>

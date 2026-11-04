@@ -21,4 +21,5 @@
   <data name="Notifications.SetupTitle" xml:space="preserve"><value>Notifications from Telegram and other apps</value></data>
   <data name="Notifications.Title" xml:space="preserve"><value>Notifications</value></data>
   <data name="Notifications.Working" xml:space="preserve"><value>Setting up…</value></data>
+  <data name="Notifications.Unavailable" xml:space="preserve"><value>Windows notification history is unavailable. Your timer and water alerts still work. Retry after checking Windows settings.</value></data>
 </root>

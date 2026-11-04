@@ -9,6 +9,7 @@ using DynamicIsland.Core.Island;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Core.Platform;
 using DynamicIsland.Core.Storage;
+using DynamicIsland.Core.Threading;
 using DynamicIsland.Modules.Notifications.Services;
 using DynamicIsland.UI.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,9 @@ public enum NotificationsPageState
 
     /// <summary>The list.</summary>
     Ready,
+
+    /// <summary>Identity exists, but the listener API is unavailable or failed.</summary>
+    Unavailable,
 }
 
 /// <summary>Persisted page state (<c>notifications.json</c>): only when the list was last cleared, no texts.</summary>
@@ -52,7 +56,7 @@ public sealed record NotificationRow(string App, string Title, string Body, stri
 /// <c>UserNotificationListener</c>. Requires package identity, set up on the user's click (D-038).
 /// Texts stay in memory only; nothing is logged or written to disk except the «cleared at» time.
 /// </summary>
-public sealed partial class NotificationsViewModel : ObservableObject
+public sealed partial class NotificationsViewModel : ObservableObject, IDisposable
 {
     /// <summary>File name relative to the data folder.</summary>
     public const string FileName = "notifications.json";
@@ -69,7 +73,7 @@ public sealed partial class NotificationsViewModel : ObservableObject
     private DateTimeOffset _lastLoad = DateTimeOffset.MinValue;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowSetup), nameof(ShowRestart), nameof(ShowPermission), nameof(ShowDenied), nameof(ShowList))]
+    [NotifyPropertyChangedFor(nameof(ShowSetup), nameof(ShowRestart), nameof(ShowPermission), nameof(ShowDenied), nameof(ShowList), nameof(ShowUnavailable))]
     private NotificationsPageState _pageState;
 
     [ObservableProperty]
@@ -82,16 +86,20 @@ public sealed partial class NotificationsViewModel : ObservableObject
     private bool _isEmpty = true;
 
     public NotificationsViewModel(IPackageIdentity identity, IAppControl app, IStorageService storage, IslandStateMachine island,
-        TimeProvider time, ILogger<NotificationsViewModel> logger)
+        TimeProvider time, ILogger<NotificationsViewModel> logger, IUiDispatcher? dispatcher = null)
     {
         _identity = identity;
         _app = app;
         _storage = storage;
         _time = time;
         _logger = logger;
+        _history.Changed += (_, _) =>
+        {
+            if (dispatcher is not null) dispatcher.Post(() => _ = RefreshAsync());
+        };
         island.ModeChanged += (_, mode) =>
         {
-            if (IslandMetrics.IsExpanded(mode) && PageState == NotificationsPageState.Ready)
+            if (IslandMetrics.IsExpanded(mode))
             {
                 _ = LoadAsync();
             }
@@ -108,6 +116,10 @@ public sealed partial class NotificationsViewModel : ObservableObject
     public bool ShowPermission => PageState == NotificationsPageState.NeedsPermission;
 
     public bool ShowDenied => PageState == NotificationsPageState.Denied;
+
+    public bool ShowUnavailable => PageState == NotificationsPageState.Unavailable;
+
+    public void Dispose() => _history.Dispose();
 
     public bool ShowList => PageState == NotificationsPageState.Ready;
 
@@ -130,7 +142,7 @@ public sealed partial class NotificationsViewModel : ObservableObject
             (false, _) => NotificationsPageState.NeedsSetup,
             (true, NotificationAccess.Allowed) => NotificationsPageState.Ready,
             (true, NotificationAccess.Denied) => NotificationsPageState.Denied,
-            (true, NotificationAccess.Unavailable) => NotificationsPageState.NeedsSetup,
+            (true, NotificationAccess.Unavailable) => NotificationsPageState.Unavailable,
             _ => NotificationsPageState.NeedsPermission,
         };
 
@@ -215,12 +227,29 @@ public sealed partial class NotificationsViewModel : ObservableObject
         }
 
         _lastLoad = now;
-        var entries = NotificationHistory.Visible(await _history.ReadAsync(), _state.ClearedAt);
-        if (_history.Access == NotificationAccess.Unavailable)
+        if (IsBusy) return;
+        PageState = DecideState(_identity.HasIdentity, _identity.HasIdentity ? _history.CheckAccess() : NotificationAccess.Unavailable, _identity.IsRegistered);
+        if (PageState != NotificationsPageState.Ready)
         {
-            PageState = NotificationsPageState.NeedsSetup;
+            Items.Clear();
+            IsEmpty = true;
             return;
         }
+        IsBusy = true;
+        IReadOnlyList<NotificationEntry> entries;
+        try
+        {
+            entries = NotificationHistory.Visible(await _history.ReadAsync(), _state.ClearedAt);
+        }
+        finally { IsBusy = false; }
+        PageState = DecideState(_identity.HasIdentity, _history.Access, _identity.IsRegistered);
+        if (PageState != NotificationsPageState.Ready)
+        {
+            Items.Clear();
+            IsEmpty = true;
+            return;
+        }
+        _history.StartListening();
 
         Items.Clear();
         var today = _time.GetLocalNow().Date;
@@ -262,7 +291,11 @@ public sealed class NotificationsModule(NotificationsViewModel viewModel) : IIsl
         return viewModel.InitializeAsync(cancellationToken);
     }
 
-    public Task ShutdownAsync() => Task.CompletedTask;
+    public Task ShutdownAsync()
+    {
+        viewModel.Dispose();
+        return Task.CompletedTask;
+    }
 }
 
 /// <summary>DI registration.</summary>

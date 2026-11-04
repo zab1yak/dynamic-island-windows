@@ -14,7 +14,7 @@ public sealed class NotificationsTests
     [InlineData(true, NotificationAccess.Unknown, true, NotificationsPageState.NeedsPermission)]
     [InlineData(true, NotificationAccess.Denied, true, NotificationsPageState.Denied)]
     [InlineData(true, NotificationAccess.Allowed, true, NotificationsPageState.Ready)]
-    [InlineData(true, NotificationAccess.Unavailable, true, NotificationsPageState.NeedsSetup)]
+    [InlineData(true, NotificationAccess.Unavailable, true, NotificationsPageState.Unavailable)]
     public void Page_state_follows_identity_and_access(bool identity, NotificationAccess access, bool registered, NotificationsPageState expected) =>
         Assert.Equal(expected, NotificationsViewModel.DecideState(identity, access, registered));
 

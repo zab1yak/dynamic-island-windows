@@ -56,8 +56,8 @@
     "ru": "Длинный перерыв после каждых N сессий"
   },
   "Pomodoro.SoundSetting": {
-    "en": "Sound and notification at the end",
-    "ru": "Звук и уведомление в конце"
+    "en": "Sound at the end of a phase",
+    "ru": "Звук в конце фазы"
   },
   "Pomodoro.Duration": {
     "en": "Duration of this phase",
@@ -66,5 +66,13 @@
   "Pomodoro.DurationRule": {
     "en": "Minutes: Focus 1–180, Short Break 1–60, Long Break 1–120. Changes during a running or paused session apply to its next session; Reset applies them now.",
     "ru": "Минуты: фокус 1–180, перерыв 1–60, длинный перерыв 1–120. Во время работы или паузы изменения применятся в следующей сессии этой фазы; «Сбросить» применяет их сейчас."
+  },
+  "Pomodoro.PreviewSound": {
+    "en": "Preview sound",
+    "ru": "Прослушать"
+  },
+  "Pomodoro.SoundFailed": {
+    "en": "Sound could not be played. Check your audio device and app installation.",
+    "ru": "Не удалось воспроизвести звук. Проверьте аудиоустройство и установку приложения."
   }
 }

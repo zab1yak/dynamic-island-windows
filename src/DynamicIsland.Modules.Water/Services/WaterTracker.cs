@@ -26,6 +26,9 @@ public sealed class WaterState
     /// <summary>Remind to drink.</summary>
     public bool RemindersEnabled { get; set; } = true;
 
+    /// <summary>Play the water reminder sound independently of music playback.</summary>
+    public bool Sound { get; set; } = true;
+
     /// <summary>Minutes between reminders.</summary>
     public int ReminderIntervalMinutes { get; set; } = 60;
 

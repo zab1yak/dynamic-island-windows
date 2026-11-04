@@ -102,5 +102,17 @@
   "Water.FineStepSetting": {
     "en": "Portion step (− / +)",
     "ru": "Шаг порции (− / +)"
+  },
+  "Water.PreviewSound": {
+    "en": "Preview sound",
+    "ru": "Прослушать"
+  },
+  "Water.SoundFailed": {
+    "en": "Sound could not be played. Check your audio device and app installation.",
+    "ru": "Не удалось воспроизвести звук. Проверьте аудиоустройство и установку приложения."
+  },
+  "Water.SoundSetting": {
+    "en": "Reminder sound",
+    "ru": "Звук напоминания"
   }
 }

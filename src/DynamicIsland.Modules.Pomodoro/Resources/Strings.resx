@@ -17,8 +17,10 @@
   <data name="Pomodoro.NextShortBreak" xml:space="preserve"><value>Take a short break.</value></data>
   <data name="Pomodoro.Reset" xml:space="preserve"><value>Reset</value></data>
   <data name="Pomodoro.ShortBreak" xml:space="preserve"><value>Short Break</value></data>
-  <data name="Pomodoro.SoundSetting" xml:space="preserve"><value>Sound and notification at the end</value></data>
+  <data name="Pomodoro.SoundSetting" xml:space="preserve"><value>Sound at the end of a phase</value></data>
   <data name="Pomodoro.StartPause" xml:space="preserve"><value>Start or pause</value></data>
   <data name="Pomodoro.Title" xml:space="preserve"><value>Pomodoro</value></data>
   <data name="Pomodoro.Today" xml:space="preserve"><value>Today:</value></data>
+  <data name="Pomodoro.PreviewSound" xml:space="preserve"><value>Preview sound</value></data>
+  <data name="Pomodoro.SoundFailed" xml:space="preserve"><value>Sound could not be played. Check your audio device and app installation.</value></data>
 </root>
