@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Run the platform-independent production logic and the same regression tests on Linux.
+       This project intentionally does not claim to test WPF, GSMTC or Credential Manager. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SupportedOSPlatformVersion />
+    <NoWarn>$(NoWarn);CA1707;CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/DynamicIsland.Core/DynamicIsland.Core.csproj" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <Using Include="Xunit" />
+    <Compile Include="../DynamicIsland.Tests/InlineDispatcher.cs" Link="InlineDispatcher.cs" />
+    <Compile Include="../DynamicIsland.Tests/TempFolder.cs" Link="TempFolder.cs" />
+    <Compile Include="../DynamicIsland.Tests/Island/*.cs" Link="Island/%(Filename)%(Extension)" />
+    <Compile Include="../DynamicIsland.Tests/Settings/*.cs" Link="Settings/%(Filename)%(Extension)" />
+    <Compile Include="../../src/DynamicIsland.Modules.Pomodoro/Services/PomodoroTimer.cs" Link="Production/PomodoroTimer.cs" />
+    <Compile Include="../DynamicIsland.Tests/Pomodoro/PomodoroTimerTests.cs" Link="PomodoroTimerTests.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Water/Services/WaterTracker.cs" Link="Production/WaterTracker.cs" />
+    <Compile Include="../DynamicIsland.Tests/Water/WaterTrackerTests.cs" Link="WaterTrackerTests.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/*.cs" Link="Production/%(Filename)%(Extension)" />
+    <Compile Include="../DynamicIsland.Tests/Translator/TranslationServiceTests.cs" Link="TranslationServiceTests.cs" />
+  </ItemGroup>
+</Project>
