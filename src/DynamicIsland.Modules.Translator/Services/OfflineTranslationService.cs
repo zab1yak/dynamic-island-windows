@@ -10,9 +10,9 @@ namespace DynamicIsland.Modules.Translator.Services;
 public sealed class OfflineTranslationService : ITranslationService, IDisposable
 {
     private readonly ITranslationPackageManager packages;
-    private readonly OfflineDecodingOptions _decoding;
+    private readonly OfflineDecodingOptions? _decoding;
 
-    public OfflineTranslationService(ITranslationPackageManager packages) : this(packages, new()) { }
+    public OfflineTranslationService(ITranslationPackageManager packages) { this.packages = packages; }
 
     internal OfflineTranslationService(ITranslationPackageManager packages, OfflineDecodingOptions decoding)
     {
@@ -32,14 +32,21 @@ public sealed class OfflineTranslationService : ITranslationService, IDisposable
             throw new TranslationException(TranslationFailure.InvalidInput);
         sourceLanguage ??= text.Any(c => c is >= '\u0400' and <= '\u052f') ? "ru" : "en";
         if (sourceLanguage == targetLanguage && sourceLanguage is "en" or "ru") return new(text, sourceLanguage);
-        var model = TranslationModelCatalog.Find(sourceLanguage, targetLanguage)
+        _ = TranslationModelCatalog.Find(sourceLanguage, targetLanguage)
             ?? throw new TranslationException(TranslationFailure.InvalidInput);
         var path = packages.GetInstalledPath(sourceLanguage, targetLanguage);
+        TranslationModel model;
+        try
+        {
+            model = TranslationModelCatalog.FindInstalled(sourceLanguage, targetLanguage, path)
+                ?? throw new TranslationException(TranslationFailure.NotConfigured);
+        }
+        catch (IOException) { throw new TranslationException(TranslationFailure.NotConfigured); }
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-            return await Task.Run(() => Translate(text, model, path, _decoding, cancellationToken), cancellationToken).ConfigureAwait(false);
+            return await Task.Run(() => Translate(text, model, path, _decoding ?? new(model.BeamWidth, model.SplitSentences), cancellationToken), cancellationToken).ConfigureAwait(false);
         }
         catch (OnnxRuntimeException)
         {

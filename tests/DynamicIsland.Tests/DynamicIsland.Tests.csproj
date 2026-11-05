@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <Resource Include="Fixtures/Fonts/SourceSans3/*.ttf" />
+    <Content Include="Fixtures/Fonts/SourceSans3/*.ttf" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

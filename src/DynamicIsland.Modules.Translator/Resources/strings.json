@@ -254,5 +254,29 @@
   "Translator.OfflinePrivacy": {
     "en": "Free offline translation, without accounts or API keys. Only language-package downloads need internet. Your text stays on this computer.",
     "ru": "Бесплатный офлайн-перевод без аккаунтов и API-ключей. Интернет нужен только для загрузки языковых пакетов. Ваш текст остаётся на этом компьютере."
+  },
+  "Translator.Update": {
+    "en": "Update",
+    "ru": "Обновить"
+  },
+  "Translator.Rollback": {
+    "en": "Roll back",
+    "ru": "Откатить"
+  },
+  "Translator.RolledBack": {
+    "en": "Previous package restored.",
+    "ru": "Предыдущий пакет восстановлен."
+  },
+  "Translator.RollbackError": {
+    "en": "Could not restore the previous package. Try again.",
+    "ru": "Не удалось восстановить предыдущий пакет. Повторите попытку."
+  },
+  "Translator.LegacyPackage": {
+    "en": "original package",
+    "ru": "исходный пакет"
+  },
+  "Translator.UpdateAvailable": {
+    "en": "update available",
+    "ru": "доступно обновление"
   }
 }

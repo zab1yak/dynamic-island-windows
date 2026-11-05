@@ -148,6 +148,94 @@ public sealed class TranslationPackageTests
         Assert.Equal(TranslationFailure.NotConfigured, error.Failure);
     }
 
+    [Fact]
+    public async Task UpgradeAndRollbackRetainLegacyAndRevisionsWithoutRedownloadOrHistoryChanges()
+    {
+        using var folder = new TempFolder();
+        using (var original = Manager(folder.Path, _ => Response(ModelBytes)))
+            await original.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var history = Path.Combine(folder.Path, "translation-history.json");
+        await File.WriteAllTextAsync(history, "private history fixture", TestContext.Current.CancellationToken);
+        var newerBytes = Encoding.UTF8.GetBytes("new immutable model fixture");
+        var newer = TestModel with { Revision = "revision-v2", Files = [new("onnx/encoder_model_quantized.onnx", newerBytes.Length, Convert.ToHexString(SHA256.HashData(newerBytes)))] };
+        var requests = 0;
+        using var manager = new TranslationPackageManager(new HttpClient(new PackageHandler(_ => { requests++; return Response(newerBytes); })), folder.Path, [newer, TestModel]);
+        Assert.Single(manager.AvailablePackages);
+        Assert.Equal(newer.Revision, manager.AvailablePackages[0].Revision);
+        Assert.Equal(TestModel.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.True(manager.IsUpdateAvailable("en", "ru"));
+        await manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var newerPath = manager.GetInstalledPath("en", "ru");
+        Assert.Equal(newer.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.False(manager.IsUpdateAvailable("en", "ru"));
+        Assert.True(manager.CanRollback("en", "ru"));
+        Assert.True(File.Exists(Path.Combine(folder.Path, "en-ru", "installed")));
+        await manager.RollbackAsync("en", "ru", TestContext.Current.CancellationToken);
+        Assert.Equal(TestModel.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.True(Directory.Exists(newerPath));
+        Assert.True(manager.CanRollback("en", "ru"));
+        await manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        Assert.Equal(1, requests); // Reactivating retained latest needs no network.
+        Assert.Equal("private history fixture", await File.ReadAllTextAsync(history, TestContext.Current.CancellationToken));
+        await manager.RemoveAsync("en", "ru", TestContext.Current.CancellationToken);
+        Assert.False(manager.IsInstalled("en", "ru"));
+        Assert.True(File.Exists(history));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FailedOrCancelledUpgradeKeepsPreviousVersionUsable(bool cancel)
+    {
+        using var folder = new TempFolder();
+        using (var original = Manager(folder.Path, _ => Response(ModelBytes)))
+            await original.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var newer = TestModel with { Revision = "revision-v2" };
+        using var cancellation = new CancellationTokenSource();
+        using var manager = new TranslationPackageManager(new HttpClient(new PackageHandler(_ =>
+        {
+            if (cancel) cancellation.Cancel();
+            return Response(new byte[ModelBytes.Length]);
+        })), folder.Path, [newer, TestModel]);
+        await Assert.ThrowsAnyAsync<Exception>(() => manager.InstallAsync("en", "ru", null, cancellation.Token));
+        Assert.Equal(TestModel.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.Equal(ModelBytes, await File.ReadAllBytesAsync(Path.Combine(manager.GetInstalledPath("en", "ru"), "encoder_model_quantized.onnx"), TestContext.Current.CancellationToken));
+        Assert.DoesNotContain(Directory.GetDirectories(folder.Path), p => p.Contains(".download-", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task RollbackRejectsDamagedBackupWithoutChangingActiveOrRollbackPointer()
+    {
+        using var folder = new TempFolder();
+        using (var original = Manager(folder.Path, _ => Response(ModelBytes)))
+            await original.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var newer = TestModel with { Revision = "revision-v2" };
+        using var manager = new TranslationPackageManager(new HttpClient(new PackageHandler(_ => Response(ModelBytes))), folder.Path, [newer, TestModel]);
+        await manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var pointer = await File.ReadAllTextAsync(Path.Combine(folder.Path, "en-ru.active"), TestContext.Current.CancellationToken);
+        await File.WriteAllBytesAsync(Path.Combine(folder.Path, "en-ru", "encoder_model_quantized.onnx"), new byte[ModelBytes.Length], TestContext.Current.CancellationToken);
+        await Assert.ThrowsAsync<IOException>(() => manager.RollbackAsync("en", "ru", TestContext.Current.CancellationToken));
+        Assert.Equal(newer.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.Equal(pointer, await File.ReadAllTextAsync(Path.Combine(folder.Path, "en-ru.active"), TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task AtomicSelectionFailureKeepsLegacyUsableAndRetainsDownloadedRevision()
+    {
+        using var folder = new TempFolder();
+        using (var original = Manager(folder.Path, _ => Response(ModelBytes)))
+            await original.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var newer = TestModel with { Revision = "revision-v2" };
+        using var manager = new TranslationPackageManager(new HttpClient(new PackageHandler(_ =>
+        {
+            Directory.CreateDirectory(Path.Combine(folder.Path, "en-ru.active")); // Simulate a failed atomic publish.
+            return Response(ModelBytes);
+        })), folder.Path, [newer, TestModel]);
+        await Assert.ThrowsAsync<IOException>(() => manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken));
+        Assert.Equal(TestModel.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.True(Directory.Exists(Path.Combine(folder.Path, "en-ru.revision-revision-v2")));
+    }
+
     private static TranslationPackageManager Manager(string root, Func<HttpRequestMessage, HttpResponseMessage> send) =>
         new(new HttpClient(new PackageHandler(send)), root, [TestModel]);
 

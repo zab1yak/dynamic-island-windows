@@ -23,6 +23,9 @@ jobs:
           - os: windows-11-arm
             arch: Arm64
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      DI_EXPECTED_ARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -35,9 +38,14 @@ jobs:
           $env:DI_LAYOUT_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'layout'
           dotnet test -c Release
       - name: Actual island window, transparency timeline and page matrix
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: |
           dotnet run --project tests/DynamicIsland.Visual.QA -c Release -- --quick --output "${{ runner.temp }}/visual-qa"
+      - name: Install pinned models and verify native offline engine
+        run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release -- "${{ runner.temp }}/offline-models" --install
+      - name: Verify translation with HTTP forbidden
+        run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release --no-build -- "${{ runner.temp }}/offline-models"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

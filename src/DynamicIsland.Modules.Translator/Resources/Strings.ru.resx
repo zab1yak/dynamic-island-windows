@@ -204,4 +204,10 @@
   <data name="Translator.OfflinePrivacy" xml:space="preserve">
     <value>Бесплатный офлайн-перевод без аккаунтов и API-ключей. Интернет нужен только для загрузки языковых пакетов. Ваш текст остаётся на этом компьютере.</value>
   </data>
+  <data name="Translator.Update" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Translator.Rollback" xml:space="preserve"><value>Откатить</value></data>
+  <data name="Translator.RolledBack" xml:space="preserve"><value>Предыдущий пакет восстановлен.</value></data>
+  <data name="Translator.RollbackError" xml:space="preserve"><value>Не удалось восстановить предыдущий пакет. Повторите попытку.</value></data>
+  <data name="Translator.LegacyPackage" xml:space="preserve"><value>исходный пакет</value></data>
+  <data name="Translator.UpdateAvailable" xml:space="preserve"><value>доступно обновление</value></data>
 </root>

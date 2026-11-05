@@ -42,3 +42,21 @@ See the Mozilla research report for its separately measured official-WASM
 candidate. Its persistent native/WASM model lifetime differs from this ONNX
 per-request lifetime; timings should not be read as a deployment-equivalent
 comparison. No Windows idle RAM/CPU or end-user visual acceptance is claimed.
+
+## Selected production behavior
+
+A separate masked qualitative review selected TC-big int8 with beam 4 and
+sentence segmentation: 108/132 points, seven major meaning errors, versus
+87/132 and 18 major errors for the v0.3.1 baseline. This is a small subjective
+AI review, not a certified human evaluation or a universal quality guarantee.
+The full masked review belongs alongside the raw outputs; all six idioms and
+ambiguity failures remain visible, including regressions for financial bank and
+glasses/points. Better average results do not remove those limitations.
+
+Only new explicit installations/updates choose TC-big. An existing package is
+resolved by its recorded revision, preserving the original model and greedy
+whole-input decoding until the user chooses Update. Revisions are immutable;
+an atomic selection file stores the active and previous revision together.
+Rollback checks hashes before switching and retains both versions. Reactivating
+a retained latest model needs no download. Delete explicitly removes known
+models for that direction; history/settings files are never read or modified.

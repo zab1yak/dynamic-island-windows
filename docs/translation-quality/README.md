@@ -28,7 +28,8 @@ application must never log user translation text.
 
 Baseline production decoding must be captured before changing defaults. Model
 selection requires paired meaning/fluency review across the entire corpus, legal
-redistribution review and resource measurements. No candidate is yet approved.
+redistribution review and resource measurements. The selected production candidate is TC-big
+with beam 4 and generic sentence segmentation; Windows acceptance remains a release gate.
 
 The checked larger candidate is **TigreGotico/opus-mt-tc-big-en-zle-onnx** and
 **TigreGotico/opus-mt-tc-big-zle-en-onnx**, dynamic int8 export of Helsinki-NLP
@@ -52,3 +53,37 @@ preserves punctuation, decimal/version tokens, initials and common abbreviated
 titles. No phrase-specific translation rules or substitution dictionary exists.
 The benchmark can resume a partial JSONL by skipping IDs already present; if a run
 was interrupted, disclose that fact when interpreting timing/high-water memory.
+
+
+## Blinded semantic review and selection
+
+`masked-independent-review.json` records an independent **AI qualitative review**,
+not a human evaluation. The reviewer received randomized labels A–E, all 330
+outputs, source texts and illustrative references, without model provenance.
+Every output was graded 2 (acceptable), 1 (partial) or 0 (major error). References
+were guidance, not an exact-string requirement. Mapping was disclosed only after
+all grades were committed.
+
+| Label | Configuration | Score /132 | Acceptable | Partial | Major |
+|---|---|---:|---:|---:|---:|
+| D | v0.3.1 greedy, whole input | 87 | 39 | 9 | 18 |
+| A | Same weights, greedy, segmented | 98 | 43 | 12 | 11 |
+| E | Same weights, beam 4, segmented | 94 | 41 | 12 | 13 |
+| C | TC-big int8, beam 4, segmented | 108 | 49 | 10 | 7 |
+| B | Mozilla official full-vocabulary WASM | 102 | 46 | 10 | 10 |
+
+TC-big is selected for the next package revision: it improves the paired semantic
+result and uses the existing native ONNX deployment path on both Windows
+architectures. This does not establish universal superiority: against Mozilla it
+wins 10 cases, loses 6 and ties 50. Ambiguous bank/glasses senses regress and idioms
+remain unreliable. Its measured Linux peak memory and latency are higher; see
+[measurement limitations](measurements-linux.md). Mozilla is a promising smaller
+alternative, but a Windows .NET/WASM bridge has not been implemented or validated.
+
+Existing installed packages retain their original decoder and remain usable.
+The new weights require an explicit package update. Revisioned storage preserves
+the old package for rollback and never removes translation history.
+
+This corpus does not cover empty/invalid input, code or JSON; validation is tested
+separately. Standalone “What's up?” is not a scored case, and its greeting versus
+literal-event interpretation must not be forced by a phrase replacement.

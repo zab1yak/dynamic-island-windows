@@ -103,3 +103,26 @@ Inter is bundled so the UI no longer depends on installed Apple/system fonts.
 The alternative Source Sans3.052R is included only in test fixtures for WPF
 comparison, not the installer: https://github.com/adobe-fonts/source-sans/releases/tag/3.052R .
 Its OFL1.1 copyright notice is retained alongside the original static TTFs.
+
+## Optional updated offline translation packages — CC BY 4.0
+
+New explicit model installations/updates use Helsinki-NLP's OPUS-MT TC-big
+English ↔ East-Slavic models with Russian target selection. Original authors:
+Helsinki-NLP / OPUS-MT project contributors. ONNX export and dynamic int8
+quantization: Tigre Gótico Lda / TigreGotico. Dynamic Island redistributes no
+modified model bytes; its installer downloads pinned exports only when requested.
+
+| Direction | Original model | Export and immutable revision |
+|---|---|---|
+| English → Russian | https://huggingface.co/Helsinki-NLP/opus-mt-tc-big-en-zle | https://huggingface.co/TigreGotico/opus-mt-tc-big-en-zle-onnx/tree/5d49b6e3c63c3eddeb6ad2190ec7e2f661b6bd49 |
+| Russian → English | https://huggingface.co/Helsinki-NLP/opus-mt-tc-big-zle-en | https://huggingface.co/TigreGotico/opus-mt-tc-big-zle-en-onnx/tree/8e66bdc2a181d7f21f65100fd215c7755a6a76b2 |
+
+Both upstream model cards and export cards declare **CC BY 4.0**:
+https://creativecommons.org/licenses/by/4.0/ . Attribution must be preserved.
+The export changes format (ONNX) and numerical precision (dynamic int8); the
+application consumes these exports unchanged. Full consumed-file hashes, sizes,
+and source paths are in `docs/translation-quality/tc-big-artifact-lock.json`.
+An attribution file is included in each installed package. See the upstream model
+cards for training data, author citations and limitations. Existing v0.3.1 packages
+remain usable with their original decoding until the user explicitly updates;
+previous revisions are retained for rollback. Translation history is separate.

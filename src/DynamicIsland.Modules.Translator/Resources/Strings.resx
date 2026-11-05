@@ -204,4 +204,10 @@
   <data name="Translator.OfflinePrivacy" xml:space="preserve">
     <value>Free offline translation, without accounts or API keys. Only language-package downloads need internet. Your text stays on this computer.</value>
   </data>
+  <data name="Translator.Update" xml:space="preserve"><value>Update</value></data>
+  <data name="Translator.Rollback" xml:space="preserve"><value>Roll back</value></data>
+  <data name="Translator.RolledBack" xml:space="preserve"><value>Previous package restored.</value></data>
+  <data name="Translator.RollbackError" xml:space="preserve"><value>Could not restore the previous package. Try again.</value></data>
+  <data name="Translator.LegacyPackage" xml:space="preserve"><value>original package</value></data>
+  <data name="Translator.UpdateAvailable" xml:space="preserve"><value>update available</value></data>
 </root>

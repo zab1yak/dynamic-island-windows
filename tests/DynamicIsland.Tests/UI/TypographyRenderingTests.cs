@@ -146,11 +146,12 @@ public sealed class TypographyRenderingTests
     {
         // Loading a resource dictionary is safe even after the layout suite has shut down its Application.
         var typography = (ResourceDictionary)Application.LoadComponent(new Uri("/DynamicIsland.UI;component/Themes/Typography.xaml", UriKind.Relative));
+        var comparisonDirectory = new Uri(Path.Combine(AppContext.BaseDirectory, "Fixtures", "Fonts", "SourceSans3") + Path.DirectorySeparatorChar);
         return
         [
             new("Previous machine fallback", new FontFamily("SF Pro Text, SF Pro Display, Segoe UI Variable Text, Segoe UI"), null),
             new("Inter", (FontFamily)typography["Font.Text"], "DynamicIsland.UI;component/Fonts/Inter/"),
-            new("Source Sans 3", new FontFamily("pack://application:,,,/DynamicIsland.Tests;component/Fixtures/Fonts/SourceSans3/#Source Sans 3"), "DynamicIsland.Tests;component/Fixtures/Fonts/SourceSans3/"),
+            new("Source Sans 3", new FontFamily(comparisonDirectory, "./#Source Sans 3"), comparisonDirectory.AbsoluteUri),
         ];
     }
 
