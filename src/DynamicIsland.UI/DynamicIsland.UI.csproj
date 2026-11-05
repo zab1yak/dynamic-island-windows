@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Fonts\Inter\*.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="DynamicIsland.Tests" />
   </ItemGroup>
 
