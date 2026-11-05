@@ -139,7 +139,7 @@ public sealed record TranslationPackageItem(TranslationPackage Package, bool Ins
     public string TargetLanguage => Package.TargetLanguage;
     public string Name => Loc.Instance["Translator." + (SourceLanguage == "ru" ? "Russian" : "English")] + " → " + Loc.Instance["Translator." + (TargetLanguage == "ru" ? "Russian" : "English")];
     public string DownloadLabel => Loc.Instance[UpdateAvailable ? "Translator.Update" : "Translator.Download"];
-    public string Details => $"{Package.ModelName} · {ShortRevision(Package.Revision)} · {Package.DownloadBytes / 1000000.0:F1} MB · {new Uri(Package.SourceUrl).Host} · {Package.License}";
+    public string Details => Loc.Instance["Translator.AvailablePackage"] + " · " + $"{Package.ModelName} · {ShortRevision(Package.Revision)} · {Package.DownloadBytes / 1000000.0:F1} MB · {new Uri(Package.SourceUrl).Host} · {Package.License}";
     private static string ShortRevision(string revision) => revision[..Math.Min(12, revision.Length)];
     public string State => Loc.Instance[Installed ? "Translator.Installed" : "Translator.NotInstalled"]
         + (Installed ? $" · {(InstalledRevision is null ? Loc.Instance["Translator.LegacyPackage"] : ShortRevision(InstalledRevision))}" : "")

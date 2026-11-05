@@ -145,7 +145,7 @@ internal static class Fixtures
         model["TargetLanguages"] = model["SourceLanguages"];
         model["SourceLanguage"] = ru ? "ru" : "en";
         model["TargetLanguage"] = ru ? "en" : "ru";
-        model["Packages"] = new { IsBusy = false, Status = string.Empty, Progress = 0d, CancelCommand = NoOpCommand.Instance };
+        model["Packages"] = new PackageState();
         model["CpuBrushKey"] = "Brush.Green";
         model["CpuPercent"] = 7d;
         model["CpuText"] = "7%";
@@ -170,6 +170,14 @@ internal static class Fixtures
                 new TodoItem { Title = ru ? "Длинная задача с ₽ € % °" : "A longer task with ₽ € % °", Draft = string.Empty, Done = true, IsEditing = false },
             };
         return model;
+    }
+
+    private sealed class PackageState
+    {
+        public bool IsBusy { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public double Progress { get; set; }
+        public ICommand CancelCommand => NoOpCommand.Instance;
     }
 
     private sealed class TodoItem

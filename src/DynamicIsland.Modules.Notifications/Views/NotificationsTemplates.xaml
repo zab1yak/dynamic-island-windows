@@ -81,7 +81,7 @@
                                     <StackPanel>
                                         <TextBlock Style="{DynamicResource Text.Base}" FontSize="{DynamicResource FontSize.Secondary}" TextTrimming="CharacterEllipsis">
                                             <Run Text="{Binding App, Mode=OneWay}" Foreground="{DynamicResource Brush.TextSecondary}" /><Run Text="  " /><Run
-                                                 Text="{Binding Title, Mode=OneWay}" FontWeight="SemiBold" />
+                                                 Text="{Binding Title, Mode=OneWay}" FontWeight="{DynamicResource FontWeight.SemiBold}" />
                                         </TextBlock>
                                         <TextBlock Text="{Binding Body}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" TextTrimming="CharacterEllipsis" />
                                     </StackPanel>

@@ -278,5 +278,9 @@
   "Translator.UpdateAvailable": {
     "en": "update available",
     "ru": "доступно обновление"
+  },
+  "Translator.AvailablePackage": {
+    "en": "Available package",
+    "ru": "Доступный пакет"
   }
 }

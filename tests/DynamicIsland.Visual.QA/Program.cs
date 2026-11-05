@@ -43,6 +43,13 @@ internal static class Program
         Directory.CreateDirectory(output);
         var quick = args.Contains("--quick", StringComparer.Ordinal);
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        app.DispatcherUnhandledException += (_, error) =>
+        {
+            _exitCode = 1;
+            File.WriteAllText(System.IO.Path.Combine(output, "qa-dispatcher-failure.txt"), error.Exception.ToString());
+            error.Handled = true;
+            app.Shutdown(1);
+        };
         app.Resources.MergedDictionaries.Add(new ResourceDictionary
         {
             Source = new Uri("pack://application:,,,/DynamicIsland.UI;component/Themes/Theme.xaml"),

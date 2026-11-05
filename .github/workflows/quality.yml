@@ -43,8 +43,10 @@ jobs:
         run: |
           dotnet run --project tests/DynamicIsland.Visual.QA -c Release -- --quick --output "${{ runner.temp }}/visual-qa"
       - name: Install pinned models and verify native offline engine
+        if: ${{ !cancelled() }}
         run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release -- "${{ runner.temp }}/offline-models" --install
       - name: Verify translation with HTTP forbidden
+        if: ${{ !cancelled() }}
         run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release --no-build -- "${{ runner.temp }}/offline-models"
       - uses: actions/upload-artifact@v4
         if: always()

@@ -210,4 +210,5 @@
   <data name="Translator.RollbackError" xml:space="preserve"><value>Не удалось восстановить предыдущий пакет. Повторите попытку.</value></data>
   <data name="Translator.LegacyPackage" xml:space="preserve"><value>исходный пакет</value></data>
   <data name="Translator.UpdateAvailable" xml:space="preserve"><value>доступно обновление</value></data>
+  <data name="Translator.AvailablePackage" xml:space="preserve"><value>Доступный пакет</value></data>
 </root>
