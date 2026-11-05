@@ -220,6 +220,24 @@ public sealed class TranslationPackageTests
     }
 
     [Fact]
+    public async Task CancelledRollbackDoesNotChangeEitherSelection()
+    {
+        using var folder = new TempFolder();
+        using (var original = Manager(folder.Path, _ => Response(ModelBytes)))
+            await original.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var newer = TestModel with { Revision = "revision-v2" };
+        using var manager = new TranslationPackageManager(new HttpClient(new PackageHandler(_ => Response(ModelBytes))), folder.Path, [newer, TestModel]);
+        await manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken);
+        var pointer = await File.ReadAllTextAsync(Path.Combine(folder.Path, "en-ru.active"), TestContext.Current.CancellationToken);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => manager.RollbackAsync("en", "ru", cancellation.Token));
+        Assert.Equal(pointer, await File.ReadAllTextAsync(Path.Combine(folder.Path, "en-ru.active"), TestContext.Current.CancellationToken));
+        Assert.Equal(newer.Revision, manager.GetInstalledRevision("en", "ru"));
+        Assert.True(manager.CanRollback("en", "ru"));
+    }
+
+    [Fact]
     public async Task AtomicSelectionFailureKeepsLegacyUsableAndRetainsDownloadedRevision()
     {
         using var folder = new TempFolder();

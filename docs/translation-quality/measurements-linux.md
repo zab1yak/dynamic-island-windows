@@ -60,3 +60,14 @@ an atomic selection file stores the active and previous revision together.
 Rollback checks hashes before switching and retains both versions. Reactivating
 a retained latest model needs no download. Delete explicitly removes known
 models for that direction; history/settings files are never read or modified.
+
+Updated production smoke also passed locally with native Linux x64 ONNX inference
+and a HTTP handler that always rejects network access. English input
+`Good morning. The number is 42.` produced `Доброе утро. Номер 42.`; Russian
+input `Доброе утро. Число — 42.` produced `Good morning. The number is 42.`.
+The smoke checks greeting sense, both sentence segments and numeric retention,
+not exact reference equality. The legacy production configuration was separately
+resolved from existing v0.3.1 markers: `Hello` → `Привет.` and `Привет` → `Hey.`.
+This verifies old packages still load without automatic update. An earlier
+ambiguous single-word `Hello` check rejected the new model's legitimate phone
+greeting `Алло.`; the test input was made contextually unambiguous.

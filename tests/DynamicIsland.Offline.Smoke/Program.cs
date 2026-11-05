@@ -28,14 +28,18 @@ foreach (var package in packages.AvailablePackages)
         await packages.InstallAsync(package.SourceLanguage, package.TargetLanguage, null, CancellationToken.None);
     var before = Process.GetCurrentProcess().TotalProcessorTime;
     var timer = Stopwatch.StartNew();
-    var input = package.SourceLanguage == "en" ? "Hello" : "Привет";
-    var result = await engine.TranslateAsync(input, package.SourceLanguage, package.TargetLanguage, CancellationToken.None);
+    var input = package.SourceLanguage == "en" ? "Good morning. The number is 42." : "Доброе утро. Число — 42.";
+    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+    var result = await engine.TranslateAsync(input, package.SourceLanguage, package.TargetLanguage, timeout.Token);
     timer.Stop();
     var cpu = Process.GetCurrentProcess().TotalProcessorTime - before;
     // These fixed synthetic smoke inputs are intentionally printable; user translations are never logged.
     Console.WriteLine($"{package.SourceLanguage}→{package.TargetLanguage}: {input} → {result.Text}; {timer.Elapsed.TotalSeconds:F2}s wall, {cpu.TotalSeconds:F2}s CPU, {Process.GetCurrentProcess().PeakWorkingSet64 / 1048576} MiB peak working set");
-    if (package.TargetLanguage == "ru" && !result.Text.Contains("привет", StringComparison.OrdinalIgnoreCase)) return 1;
-    if (package.TargetLanguage == "en" && !result.Text.Contains("hello", StringComparison.OrdinalIgnoreCase) && !result.Text.Contains("hi", StringComparison.OrdinalIgnoreCase) && !result.Text.Contains("hey", StringComparison.OrdinalIgnoreCase)) return 1;
+    // This is a synthetic inference/target-control smoke, not a quality score.
+    if (!result.Text.Contains("42", StringComparison.Ordinal)) return 1;
+    if (package.TargetLanguage == "ru" && !result.Text.Contains("утро", StringComparison.OrdinalIgnoreCase)) return 1;
+    if (package.TargetLanguage == "en" && !result.Text.Contains("morning", StringComparison.OrdinalIgnoreCase)) return 1;
+    if (TranslationSentenceSplitter.Split(result.Text).Length < 2) return 1;
 }
 return 0;
 
