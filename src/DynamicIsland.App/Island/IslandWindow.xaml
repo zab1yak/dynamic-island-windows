@@ -20,6 +20,7 @@
         Focusable="False"
         SnapsToDevicePixels="True"
         UseLayoutRounding="True"
+        FontFamily="{DynamicResource Font.Text}" Foreground="{DynamicResource Brush.TextPrimary}" FontSize="{DynamicResource FontSize.Body}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="Grayscale">
     <Grid x:Name="Root" Background="{x:Null}">
@@ -154,7 +155,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <ContentPresenter Content="{Binding Status}" ContentTemplate="{StaticResource PrivacyDots}" />
-                        <TextBlock Text="{Binding Status.PrivacyText}" Style="{DynamicResource Text.Secondary}" FontSize="11"
+                        <TextBlock Text="{Binding Status.PrivacyText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}"
                                    MaxWidth="130" Margin="6,0,0,0" ToolTip="{Binding Status.PrivacyText}" />
                         <ContentPresenter Content="{Binding Playback}" ContentTemplate="{StaticResource SoundWave}" Margin="8,0,0,0"
                                           Visibility="{Binding Playback, Converter={StaticResource NullToVisibility}}" />

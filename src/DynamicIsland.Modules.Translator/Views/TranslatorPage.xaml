@@ -46,9 +46,9 @@
                 <Button Style="{DynamicResource PillButton}" Height="24" Padding="6,0" Command="{Binding OpenSettingsCommand}" ToolTip="{loc:Tr Translator.Settings}" AutomationProperties.Name="{loc:Tr Translator.Settings}"><c:Icon Glyph="Settings" Width="13" Height="13" /></Button>
             </StackPanel>
             <Grid Margin="0,0,6,0" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Status}" Style="{DynamicResource Text.Secondary}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Status}" />
+                <TextBlock Text="{Binding Status}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Status}" />
                 <Border Background="{DynamicResource Brush.Surface1}" Visibility="{Binding Packages.IsBusy, Converter={StaticResource BoolVisible}}">
-                    <StackPanel><TextBlock x:Name="DownloadStatus" Text="{Binding Packages.Status}" Style="{DynamicResource Text.Secondary}" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip="{Binding Packages.Status}" /><ProgressBar Value="{Binding Packages.Progress}" Height="3" Maximum="100" /></StackPanel>
+                    <StackPanel><TextBlock x:Name="DownloadStatus" Text="{Binding Packages.Status}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Packages.Status}" /><ProgressBar Value="{Binding Packages.Progress}" Height="3" Maximum="100" /></StackPanel>
                 </Border>
             </Grid>
         </DockPanel>

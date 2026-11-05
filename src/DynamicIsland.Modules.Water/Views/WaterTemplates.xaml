@@ -21,7 +21,7 @@
                                   Command="{Binding ToggleRemindersCommand}" VerticalAlignment="Center"
                                   AutomationProperties.Name="{loc:Tr Water.Reminders}" ToolTip="{Binding ReminderText}" />
                 </StackPanel>
-                <TextBlock Text="{Binding StatusText}" FontSize="12" Margin="0,1,0,0">
+                <TextBlock Text="{Binding StatusText}" FontSize="{DynamicResource FontSize.Secondary}" Margin="0,1,0,0">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Secondary}">
                             <Style.Triggers>
@@ -75,10 +75,10 @@
             <Grid Grid.Column="2" Width="76" Height="76" VerticalAlignment="Center">
                 <c:RingProgress Value="{Binding Progress}" Thickness="6" ProgressBrush="{DynamicResource Brush.Blue}" />
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding PercentNumber}" Style="{DynamicResource Text.Title}" FontSize="22" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding PercentNumber}" Style="{DynamicResource Text.Title}" FontSize="{DynamicResource FontSize.MediumNumber}" HorizontalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,-3,0,0">
                         <c:Icon Glyph="Droplet" Width="10" Height="10" Foreground="{DynamicResource Brush.Blue}" />
-                        <TextBlock Text="%" Style="{DynamicResource Text.Secondary}" FontSize="10" Margin="2,0,0,0" />
+                        <TextBlock Text="%" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" Margin="2,0,0,0" />
                     </StackPanel>
                 </StackPanel>
             </Grid>

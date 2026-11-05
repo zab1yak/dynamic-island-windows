@@ -90,7 +90,7 @@
                                 <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.TextPrimary}"
                                            VerticalAlignment="Center" Margin="4,0" />
                                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0" />
+                                    <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" VerticalAlignment="Center" Margin="0,0,4,0" />
                                     <Button Style="{DynamicResource IconButton}" Width="24" Height="24"
                                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}"
                                             AutomationProperties.Name="{loc:Tr Recorder.Delete}">
@@ -129,7 +129,7 @@
                 <DockPanel Style="{DynamicResource Settings.Row}">
                     <StackPanel VerticalAlignment="Center" DockPanel.Dock="Left" MaxWidth="300">
                         <TextBlock Text="{loc:Tr Recorder.FolderSetting}" Style="{DynamicResource Text.Base}" />
-                        <TextBlock Text="{Binding Folder}" Style="{DynamicResource Text.Secondary}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Folder}" />
+                        <TextBlock Text="{Binding Folder}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Folder}" />
                     </StackPanel>
                     <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Content="{loc:Tr Recorder.ChooseFolder}" Command="{Binding ChooseFolderCommand}"
                             VerticalAlignment="Center" AutomationProperties.Name="{loc:Tr Recorder.ChooseFolder}" />

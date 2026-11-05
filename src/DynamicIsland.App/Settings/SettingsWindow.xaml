@@ -9,6 +9,7 @@
         Title="{loc:Tr Settings.Title}" Width="780" Height="560" MinWidth="640" MinHeight="420"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource Brush.Surface1}"
         Icon="pack://application:,,,/Assets/island.ico"
+        FontFamily="{DynamicResource Font.Text}" Foreground="{DynamicResource Brush.TextPrimary}" FontSize="{DynamicResource FontSize.Body}"
         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType" UseLayoutRounding="True">
     <Window.Resources>
         <!-- The app icon as a vector (same geometry as Assets/island.svg): sharp at any size, unlike the .ico. -->
@@ -321,7 +322,7 @@
         <!-- Content. -->
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24,18">
             <StackPanel>
-                <TextBlock Text="{Binding Selected.Title}" Style="{DynamicResource Text.Title}" FontSize="20" Margin="4,0,0,14" />
+                <TextBlock Text="{Binding Selected.Title}" Style="{DynamicResource Settings.Title}" Margin="4,0,0,14" />
                 <ContentPresenter Content="{Binding Selected.Content}" />
             </StackPanel>
         </ScrollViewer>

@@ -91,3 +91,15 @@ the owner's confirmation of public distribution rights. This is owner-provided
 authorization, not an independently identified third-party license or a grant
 that these audio files inherit the application's MIT license. No third-party
 hosting of the audio was used during development.
+
+
+## Embedded Inter typography — SIL Open Font License1.1
+
+Four original static Inter4.1 faces (400/500/600/700) are included in the UI
+assembly from https://github.com/rsms/inter/releases/tag/v4.1 . The complete
+OFL notice and SHA-256 provenance are in src/DynamicIsland.UI/Fonts/Inter.
+Inter is bundled so the UI no longer depends on installed Apple/system fonts.
+
+The alternative Source Sans3.052R is included only in test fixtures for WPF
+comparison, not the installer: https://github.com/adobe-fonts/source-sans/releases/tag/3.052R .
+Its OFL1.1 copyright notice is retained alongside the original static TTFs.

@@ -41,8 +41,8 @@
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Text}" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Control}" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeight.SemiBold}" />
         <Setter Property="c:Press.Scale" Value="0.92" />
         <Setter Property="Template">
             <Setter.Value>
@@ -99,7 +99,7 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Surface2}" />
         <Setter Property="Padding" Value="14,0" />
         <Setter Property="Height" Value="30" />
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Button}" />
     </Style>
 
     <!-- Large circular primary action (play in Pomodoro). -->
@@ -187,7 +187,7 @@
         <Setter Property="SelectionBrush" Value="{DynamicResource Brush.Blue}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Surface1}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Text}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Control}" />
         <Setter Property="Padding" Value="10,0" />
         <Setter Property="MinHeight" Value="30" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -264,7 +264,7 @@
     <Style TargetType="ComboBox">
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Text}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Control}" />
         <Setter Property="Height" Value="30" />
         <Setter Property="Template">
             <Setter.Value>

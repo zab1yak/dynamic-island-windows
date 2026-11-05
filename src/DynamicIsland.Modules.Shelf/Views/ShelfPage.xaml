@@ -13,8 +13,8 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
             <c:Icon Glyph="Download" Width="24" Height="24" Foreground="{DynamicResource Brush.TextPrimary}" />
-            <TextBlock Text="{loc:Tr Shelf.DropHere}" Style="{DynamicResource Text.Title}" FontSize="14" HorizontalAlignment="Center" Margin="0,6,0,1" />
-            <TextBlock Text="{loc:Tr Shelf.DropHint}" Style="{DynamicResource Text.Secondary}" FontSize="11" HorizontalAlignment="Center" />
+            <TextBlock Text="{loc:Tr Shelf.DropHere}" Style="{DynamicResource Text.Title}" FontSize="{DynamicResource FontSize.Editor}" HorizontalAlignment="Center" Margin="0,6,0,1" />
+            <TextBlock Text="{loc:Tr Shelf.DropHint}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" HorizontalAlignment="Center" />
         </StackPanel>
 
         <!-- Paste (Ctrl+V works too): a small button in the corner, the zone itself stays as on the reference photo. -->
@@ -67,8 +67,8 @@
                                 <Image Source="{Binding Thumbnail}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                             </c:SquircleBorder>
                             <TextBlock Text="{Binding Name}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.TextPrimary}"
-                                       FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0" MaxWidth="70" />
-                            <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" FontSize="10" HorizontalAlignment="Center" MaxWidth="70" />
+                                       FontSize="{DynamicResource FontSize.Caption}" HorizontalAlignment="Center" Margin="0,4,0,0" MaxWidth="70" />
+                            <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" HorizontalAlignment="Center" MaxWidth="70" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

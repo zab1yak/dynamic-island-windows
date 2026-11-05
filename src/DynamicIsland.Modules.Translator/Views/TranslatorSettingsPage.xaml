@@ -15,8 +15,8 @@
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{Binding Name}" Style="{DynamicResource Settings.Label}" />
-                                <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" FontSize="11" />
-                                <TextBlock Text="{Binding State}" Style="{DynamicResource Text.Secondary}" FontSize="11" />
+                                <TextBlock Text="{Binding Details}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Caption}" />
+                                <TextBlock Text="{Binding State}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
                                 <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Download}" Command="{Binding DataContext.Packages.DownloadCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Padding="8,5" />

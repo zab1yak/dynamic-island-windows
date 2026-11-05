@@ -21,13 +21,13 @@
                     <Border Background="{DynamicResource Brush.Surface2}" CornerRadius="10" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
                             <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="{Binding CreatedAt, StringFormat={}{0:g}}" Style="{DynamicResource Text.Secondary}" FontSize="11" />
+                                <TextBlock Text="{Binding CreatedAt, StringFormat={}{0:g}}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Caption}" />
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <TextBlock Text="{Binding SourceLanguage}" Margin="6,0" /><TextBlock Text="→" /><TextBlock Text="{Binding TargetLanguage}" Margin="6,0" />
                                 </StackPanel>
                             </DockPanel>
-                            <TextBlock Text="{Binding Input}" FontSize="14" TextWrapping="Wrap" MaxHeight="100" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding Output}" FontSize="14" TextWrapping="Wrap" MaxHeight="100" TextTrimming="CharacterEllipsis" Margin="0,6,0,8" />
+                            <TextBlock Text="{Binding Input}" FontSize="{DynamicResource FontSize.Editor}" TextWrapping="Wrap" MaxHeight="100" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding Output}" FontSize="{DynamicResource FontSize.Editor}" TextWrapping="Wrap" MaxHeight="100" TextTrimming="CharacterEllipsis" Margin="0,6,0,8" />
                             <WrapPanel>
                                 <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Restore}" Command="{Binding DataContext.RestoreCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Padding="10,5" Click="OnRestore" />
                                 <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Translator.Copy}" Tag="{Binding Output}" Click="OnCopy" Padding="10,5" Margin="5,0,0,0" />

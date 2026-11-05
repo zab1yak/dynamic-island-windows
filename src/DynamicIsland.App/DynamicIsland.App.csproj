@@ -20,6 +20,7 @@
     <Resource Include="Assets\island.ico" />
     <Content Include="Assets/Sounds/*.mp3" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../THIRD_PARTY_NOTICES.md" Link="THIRD_PARTY_NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../DynamicIsland.UI/Fonts/Inter/OFL.txt" Link="licenses/Inter-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../docs/licenses/*" Link="licenses/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
@@ -57,6 +58,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicIsland.Tests" />
+    <InternalsVisibleTo Include="DynamicIsland.Visual.QA" />
   </ItemGroup>
 
   <!-- Identity-only package and its public certificate for the notification history (D-038). -->

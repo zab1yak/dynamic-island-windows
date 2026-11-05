@@ -55,11 +55,11 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="44" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding PositionText}" Style="{DynamicResource Text.Secondary}" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding PositionText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Secondary}" VerticalAlignment="Center" />
                     <c:Scrubber Grid.Column="1" Value="{Binding Progress, Mode=OneWay}" IsInteractive="{Binding CanSeek}"
                                 SeekCommand="{Binding SeekCommand}" IsDragging="{Binding IsScrubbing, Mode=OneWayToSource}"
                                 FillBrush="{DynamicResource Brush.TextPrimary}" TrackBrush="{DynamicResource Brush.Surface3}" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="2" Text="{Binding RemainingText}" Style="{DynamicResource Text.Secondary}" FontSize="12"
+                    <TextBlock Grid.Column="2" Text="{Binding RemainingText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Secondary}"
                                HorizontalAlignment="Right" VerticalAlignment="Center" />
                 </Grid>
 

@@ -30,7 +30,7 @@
                     </DockPanel>
                     <Rectangle Style="{DynamicResource Settings.Separator}" />
                     <DockPanel Style="{DynamicResource Settings.Row}">
-                        <TextBlock Text="{Binding Folder}" Style="{DynamicResource Settings.Label}" Foreground="{DynamicResource Brush.TextSecondary}" FontSize="12" />
+                        <TextBlock Text="{Binding Folder}" Style="{DynamicResource Settings.Label}" Foreground="{DynamicResource Brush.TextSecondary}" FontSize="{DynamicResource FontSize.Secondary}" />
                         <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Content="{loc:Tr Shelf.OpenFolder}" Command="{Binding OpenFolderCommand}" VerticalAlignment="Center" />
                     </DockPanel>
                 </StackPanel>
