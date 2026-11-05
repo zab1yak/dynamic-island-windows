@@ -1,0 +1,133 @@
+{
+  "retrievedUtc": "2026-11-05",
+  "source": "https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-models-v2/records",
+  "attachmentBase": "https://firefox-settings-attachments.cdn.mozilla.net/",
+  "models": [
+    {
+      "name": "vocab.ruen.spm",
+      "schema": 1788296481536,
+      "version": "3.1",
+      "fileType": "vocab",
+      "attachment": {
+        "hash": "db7d5931908ba7597ec12fcbab9109c5e254c582b1fe515e7d76ab2cd36388c6",
+        "size": 366313,
+        "filename": "vocab.ruen.spm.zst",
+        "location": "main-workspace/translations-models-v2/20260901210122--ae25ce40-fafe-4007-b46e-a6102be02380--869477ea-0384-4cda-be95-823dfc66f128.zst",
+        "mimetype": "application/zstd"
+      },
+      "architecture": "base-memory",
+      "sourceLanguage": "ru",
+      "targetLanguage": "en",
+      "decompressedHash": "de8af5f87e231ee4016cec4bb482e6b584cb1ca34dcb624fc7b8398f25bb35df",
+      "decompressedSize": 952371,
+      "filter_expression": "",
+      "id": "ae25ce40-fafe-4007-b46e-a6102be02380",
+      "last_modified": 1788296808921
+    },
+    {
+      "name": "lex.50.50.ruen.s2t.bin",
+      "schema": 1788296482886,
+      "version": "3.1",
+      "fileType": "lex",
+      "attachment": {
+        "hash": "e22557093855eb6e81170ffd91512fa49eac4bd17ffb1159eedc4339c6638aca",
+        "size": 1553356,
+        "filename": "lex.50.50.ruen.s2t.bin.zst",
+        "location": "main-workspace/translations-models-v2/20260901210123--a88cb304-587e-4b4f-8ae2-14c56187aa8d--7ca1a627-9daa-4458-b7a1-d06b83fd952b.zst",
+        "mimetype": "application/zstd"
+      },
+      "architecture": "base-memory",
+      "sourceLanguage": "ru",
+      "targetLanguage": "en",
+      "decompressedHash": "c944e753f298bbdf6506388de7257fb48cbd12c83e2807e2c284fc323771895b",
+      "decompressedSize": 4397908,
+      "filter_expression": "",
+      "id": "a88cb304-587e-4b4f-8ae2-14c56187aa8d",
+      "last_modified": 1788296808918
+    },
+    {
+      "name": "model.ruen.intgemm.alphas.bin",
+      "schema": 1788296477254,
+      "version": "3.1",
+      "fileType": "model",
+      "attachment": {
+        "hash": "7ea801682242498cb1ab3fcd7c17ed78d27849608cb9277781d27fe963b0c8bc",
+        "size": 22222762,
+        "filename": "model.ruen.intgemm.alphas.bin.zst",
+        "location": "main-workspace/translations-models-v2/20260901210120--f62bc4c8-4ab7-4393-ba90-c6424e407eed--df7c8cfe-6ab9-457c-940a-d4436ed73b9f.zst",
+        "mimetype": "application/zstd"
+      },
+      "architecture": "base-memory",
+      "sourceLanguage": "ru",
+      "targetLanguage": "en",
+      "decompressedHash": "aa0efa194b3dbd2da129ba0b8db8ef139126cb0914e57072f62061294746f1e2",
+      "decompressedSize": 31561787,
+      "filter_expression": "",
+      "id": "f62bc4c8-4ab7-4393-ba90-c6424e407eed",
+      "last_modified": 1788296808915
+    },
+    {
+      "name": "vocab.enru.spm",
+      "schema": 1758910816447,
+      "version": "3.0",
+      "fileType": "vocab",
+      "attachment": {
+        "hash": "088a38d8b5faf6315b284e3088714f70a8c79438496b15826b6c62496503c447",
+        "size": 345737,
+        "filename": "vocab.enru.spm.zst",
+        "location": "main-workspace/translations-models-v2/13e4cd3b-1643-4fff-ac27-72c8732d1479.zst",
+        "mimetype": "application/zstd"
+      },
+      "architecture": "base",
+      "sourceLanguage": "en",
+      "targetLanguage": "ru",
+      "decompressedHash": "56ee63e14e8cb926c394242adc3ed7cc602644c3d33058cff2ce2959d52a6258",
+      "decompressedSize": 904455,
+      "filter_expression": "env.appinfo.OS != 'Android'",
+      "id": "bfe3eac9-8250-44bb-935e-7cf1c19a8d46",
+      "last_modified": 1758912286514
+    },
+    {
+      "name": "lex.50.50.enru.s2t.bin",
+      "schema": 1758910807150,
+      "version": "3.0",
+      "fileType": "lex",
+      "attachment": {
+        "hash": "d5a33e067e7a7b2a1168f70d403424c4e68c539c333837bde05b150f83c39e8b",
+        "size": 990112,
+        "filename": "lex.50.50.enru.s2t.bin.zst",
+        "location": "main-workspace/translations-models-v2/001d4c2d-b97f-454c-95c5-f02a436e4640.zst",
+        "mimetype": "application/zstd"
+      },
+      "architecture": "base",
+      "sourceLanguage": "en",
+      "targetLanguage": "ru",
+      "decompressedHash": "3587f93c10c1d457f874c2ba7ff4d5e2686fdaf7f3fd179cfefeacab3c6990b9",
+      "decompressedSize": 2768468,
+      "filter_expression": "env.appinfo.OS != 'Android'",
+      "id": "87b0a45e-7eb1-4782-b116-56409e76fb8f",
+      "last_modified": 1758912286511
+    },
+    {
+      "name": "model.enru.intgemm.alphas.bin",
+      "schema": 1758910808832,
+      "version": "3.0",
+      "fileType": "model",
+      "attachment": {
+        "hash": "8a9ee496752361b7d7dd449dab046929880d21ab3ebcd2a261f076441d52dc30",
+        "size": 29744901,
+        "filename": "model.enru.intgemm.alphas.bin.zst",
+        "location": "main-workspace/translations-models-v2/935dd36c-6429-4686-a3c3-074aa1873cf2.zst",
+        "mimetype": "application/zstd"
+      },
+      "architecture": "base",
+      "sourceLanguage": "en",
+      "targetLanguage": "ru",
+      "decompressedHash": "0ef9a209c5edc46692750e7505b3695655b1c7c3ec73058b641201ef18c481ce",
+      "decompressedSize": 42992955,
+      "filter_expression": "env.appinfo.OS != 'Android'",
+      "id": "5e98f2ef-948f-4de6-a5e7-79728ec686fb",
+      "last_modified": 1758912286505
+    }
+  ]
+}
