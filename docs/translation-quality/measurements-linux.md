@@ -71,3 +71,16 @@ resolved from existing v0.3.1 markers: `Hello` → `Привет.` and `Прив
 This verifies old packages still load without automatic update. An earlier
 ambiguous single-word `Hello` check rejected the new model's legitimate phone
 greeting `Алло.`; the test input was made contextually unambiguous.
+
+
+## Additional settled-host sample
+
+A fresh Linux x64 native smoke host translated the two synthetic morning/42 inputs
+with the selected models, then waited 20 seconds without forced GC or memory trim.
+Host startup-to-entry was 46 ms; first-direction wall/CPU 2057/2944 ms and reverse
+1825/2557 ms. Baseline working set was 39.5 MiB, process peak 862.1 MiB. After the
+20-second window, working set was **607.4 MiB**, private bytes **698.0 MiB**, with
+0.64% CPU of one core during that window. This is the engine host, not the WPF app.
+Disposing native sessions does **not** establish a return to the app's original
+idle-memory target. No claim of <150 MiB after translation is made. The samples
+are workload- and runtime-specific; the full 66-case peak above is higher.

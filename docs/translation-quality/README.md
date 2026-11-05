@@ -87,3 +87,15 @@ the old package for rollback and never removes translation history.
 This corpus does not cover empty/invalid input, code or JSON; validation is tested
 separately. Standalone “What's up?” is not a scored case, and its greeting versus
 literal-event interpretation must not be forced by a phrase replacement.
+
+
+### Screenshot greeting diagnostic (outside the scored corpus)
+
+`greeting-diagnostic.json` and the two `greeting-*-linux-x64.jsonl` files record a
+separate real no-network check after selection. Both baseline and TC-big produce
+«Что случилось?» for standalone “What's up?”, and both keep that interpretation
+in “Hi Alex, what's up?”. It is a possible event/concern reading, but the friendly
+“How are things?” sense is not reliably selected. **This example is not fixed by
+the new weights**, and no replacement rule was added. In the server-context case,
+TC-big preserves the second sentence (“It stopped responding.”) that baseline
+omits. These three diagnostic cases do not alter the blinded 66-case scores.

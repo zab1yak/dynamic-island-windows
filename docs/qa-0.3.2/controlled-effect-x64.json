@@ -1,0 +1,10 @@
+{
+  "Description": "Controlled prior v0.3.1 DropShadowEffect parameters on CURRENT production Body, not an old binary screenshot",
+  "FixedAlpha": 192,
+  "ControlledPriorEffectAlpha": 213,
+  "Sample": {
+    "X": 332,
+    "Y": 32
+  },
+  "BitmapDpi": 144
+}

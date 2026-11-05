@@ -89,7 +89,8 @@ public sealed class OfflineTranslationService : ITranslationService, IDisposable
             ExecutionMode = ExecutionMode.ORT_SEQUENTIAL,
             GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL,
         };
-        // Sessions are lazy and scoped to this operation: no model memory or inference threads in idle state.
+        // Sessions are lazy and scoped to this operation. Native allocators may retain
+        // committed pages after disposal; settled process memory is measured separately.
         using var encoder = new InferenceSession(Path.Combine(path, "encoder_model_quantized.onnx"), options);
         using var decoder = new InferenceSession(Path.Combine(path, "decoder_model_quantized.onnx"), options);
         using var run = new RunOptions();

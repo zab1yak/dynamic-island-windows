@@ -28,3 +28,9 @@ reattaches the exact prior shadow parameters to the current production Body; it 
 a causal reproduction, **not a screenshot from the old installed binary**.
 
 A nonzero exit code indicates failed assertions. `qa-failure.txt` preserves errors.
+
+The controlled old-effect diagnostic records `Reproduced` and render tier. Some
+hosted ARM64 renderers do not materialize bitmap effects in RenderTargetBitmap;
+a missing control delta is reported as inconclusive, not as a product failure.
+Stable current alpha, current absence of shadow, surface scope, actual fonts and
+hit testing remain strict assertions on both architectures.

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "greeting-01",
+    "category": "ambiguous-greeting",
+    "source": "en",
+    "target": "ru",
+    "text": "What's up?",
+    "references": [
+      "Как дела?",
+      "Что случилось?"
+    ]
+  },
+  {
+    "id": "greeting-02",
+    "category": "contextual-greeting",
+    "source": "en",
+    "target": "ru",
+    "text": "Hi Alex, what's up?",
+    "references": [
+      "Привет, Алекс, как дела?",
+      "Привет, Алекс, что нового?"
+    ]
+  },
+  {
+    "id": "greeting-03",
+    "category": "contextual-problem",
+    "source": "en",
+    "target": "ru",
+    "text": "What's up with the server? It stopped responding.",
+    "references": [
+      "Что с сервером? Он перестал отвечать.",
+      "Что случилось с сервером? Он не отвечает."
+    ]
+  }
+]

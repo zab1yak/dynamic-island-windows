@@ -1,0 +1,74 @@
+[
+  {
+    "Stage": "compact",
+    "ElapsedMilliseconds": 0,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 216,
+    "BodyHeight": 34
+  },
+  {
+    "Stage": "expand-request",
+    "ElapsedMilliseconds": 0.0028,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 216,
+    "BodyHeight": 34
+  },
+  {
+    "Stage": "morph-50ms",
+    "ElapsedMilliseconds": 50.2423,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 457.02549743652344,
+    "BodyHeight": 111.47247314453125
+  },
+  {
+    "Stage": "morph-150ms",
+    "ElapsedMilliseconds": 153.4033,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 568.5274467468262,
+    "BodyHeight": 147.31239318847656
+  },
+  {
+    "Stage": "morph-350ms",
+    "ElapsedMilliseconds": 352.153,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 606.2605209350586,
+    "BodyHeight": 159.44088745117188
+  },
+  {
+    "Stage": "morph-700ms",
+    "ElapsedMilliseconds": 701.3549,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 607.9898738861084,
+    "BodyHeight": 160
+  },
+  {
+    "Stage": "settled",
+    "ElapsedMilliseconds": 1201.4548,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 608,
+    "BodyHeight": 160
+  },
+  {
+    "Stage": "settled-plus-1s",
+    "ElapsedMilliseconds": 2214.7304,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 608,
+    "BodyHeight": 160
+  },
+  {
+    "Stage": "settled-plus-3s",
+    "ElapsedMilliseconds": 4229.8605,
+    "Alpha": 192,
+    "Effect": null,
+    "BodyWidth": 608,
+    "BodyHeight": 160
+  }
+]

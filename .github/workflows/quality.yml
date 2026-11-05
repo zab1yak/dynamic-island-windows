@@ -3,6 +3,12 @@ name: Post-0.3.1 quality checks
 on:
   push:
     branches: [work/0.3.2]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.*"
+      - "global.json"
+      - ".github/workflows/quality.yml"
   workflow_dispatch:
 
 permissions:
@@ -41,12 +47,16 @@ jobs:
         if: ${{ !cancelled() }}
         shell: pwsh
         run: |
-          dotnet run --project tests/DynamicIsland.Visual.QA -c Release -- --quick --output "${{ runner.temp }}/visual-qa"
+          dotnet run --project tests/DynamicIsland.Visual.QA -c Release -- --output "${{ runner.temp }}/visual-qa"
       - name: Install pinned models and verify native offline engine
         if: ${{ !cancelled() }}
+        env:
+          DI_OFFLINE_METRICS: ${{ runner.temp }}/offline-metrics/install.json
         run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release -- "${{ runner.temp }}/offline-models" --install
       - name: Verify translation with HTTP forbidden
         if: ${{ !cancelled() }}
+        env:
+          DI_OFFLINE_METRICS: ${{ runner.temp }}/offline-metrics/offline.json
         run: dotnet run --project tests/DynamicIsland.Offline.Smoke -c Release --no-build -- "${{ runner.temp }}/offline-models"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -56,5 +66,6 @@ jobs:
             ${{ runner.temp }}/typography/
             ${{ runner.temp }}/layout/
             ${{ runner.temp }}/visual-qa/
+            ${{ runner.temp }}/offline-metrics/
           if-no-files-found: warn
           retention-days: 14
