@@ -11,7 +11,8 @@ namespace DynamicIsland.UI.Localization;
 /// </summary>
 public sealed class Loc : INotifyPropertyChanged
 {
-    private readonly List<ResourceManager> _managers = [new ResourceManager("DynamicIsland.UI.Resources.Strings", typeof(Loc).Assembly)];
+    private ResourceManager[] _managers = [new ResourceManager("DynamicIsland.UI.Resources.Strings", typeof(Loc).Assembly)];
+    private readonly object _managerGate = new();
     private CultureInfo _culture = CultureInfo.CurrentUICulture;
 
     private Loc()
@@ -35,7 +36,7 @@ public sealed class Loc : INotifyPropertyChanged
     {
         get
         {
-            foreach (var manager in _managers)
+            foreach (var manager in Volatile.Read(ref _managers))
             {
                 var value = manager.GetString(key, _culture);
                 if (value is not null)
@@ -55,9 +56,14 @@ public sealed class Loc : INotifyPropertyChanged
     public void Register(ResourceManager manager)
     {
         ArgumentNullException.ThrowIfNull(manager);
-        if (!_managers.Contains(manager))
+        lock (_managerGate)
         {
-            _managers.Add(manager);
+            var snapshot = _managers;
+            if (!snapshot.Contains(manager))
+            {
+                // Readers keep an immutable snapshot while modules register.
+                Volatile.Write(ref _managers, [.. snapshot, manager]);
+            }
         }
     }
 

@@ -1,4 +1,38 @@
-# Offline translation — v0.3.1 implementation and evidence
+# Offline translation — v0.3.2
+
+New explicit installations use pinned TC-big int8 models, beam width 4 and generic
+sentence segmentation. The English→Russian direction prepends the required
+`>>rus<<` control token directly from model vocabulary; the reverse direction
+targets English. No phrase-specific substitutions are used.
+
+| Direction | Export | Bytes |
+|---|---|---:|
+| EN→RU | TigreGotico/opus-mt-tc-big-en-zle-onnx | 373284417 |
+| RU→EN | TigreGotico/opus-mt-tc-big-zle-en-onnx | 371543310 |
+
+Both exports and upstream cards declare CC BY 4.0. Exact immutable revisions,
+consumed files, hashes and attribution are in the catalog, THIRD_PARTY_NOTICES.md
+and [artifact lock](../../docs/translation-quality/tc-big-artifact-lock.json).
+
+Existing v0.3.1 directories and their original greedy decoder remain usable.
+Updates are explicit: verified immutable revision files are installed separately,
+and one atomically replaced selection file stores active and previous revisions.
+Failed/cancelled switches preserve the previous working selection. Rollback
+verifies retained files before switching; history and settings are separate.
+Only an explicit Delete removes model revisions.
+
+The [paired quality report](../../docs/translation-quality/README.md) compares
+66 cases across original decoding, segmentation, beam search, TC-big and official
+Mozilla WASM. TC-big improves the blinded AI score on this small sample, with
+counterexamples and higher resource cost. Sessions are disposed per request,
+but native allocation pages may remain resident; <150 MiB after translation is
+not claimed. Native Windows x64/ARM64 smoke and full WPF matrix results are in
+[QA_CHECKLIST](../../docs/QA_CHECKLIST.md).
+
+The following section is retained as **historical v0.3.1 evidence**. Its model,
+decoding, timing and test-count statements describe that release only.
+
+## Historical v0.3.1 implementation and evidence
 
 ## Engine choice
 

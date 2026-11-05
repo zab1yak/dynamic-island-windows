@@ -37,20 +37,23 @@ a Pomodoro timer, water reminders, a file shelf and a to-do list one glance away
   pages on/off and order, per-page options, Russian / English.
 - Auto-updates from GitHub Releases.
 
-### 0.3.1: offline translation
+### 0.3.2: offline translation and rendering fixes
 
 The Translator page offers local English ↔ Russian translation without accounts,
 Python, subscriptions or API keys. Choose a direction, open the package manager
 with **Download**, review its size/source/license, and install the selected model.
-Each direction downloads about 243 MB separately. Translation then works offline.
+New TC-big directions download about 373 MB separately. Existing packages stay
+usable until you explicitly update; the previous revision is retained for rollback.
+Translation then works offline.
 Local translation history is optional, off by default, and limited to 50 entries.
 See [translator details](src/DynamicIsland.Modules.Translator/README.md).
 
-The model is loaded only while translating, then released. Active translation
-uses substantially more memory than the idle island; the Linux smoke test reached
-approximately 780 MiB peak working set. Windows x64/ARM64 package and native
-execution checks are tracked separately from interactive WPF visual acceptance.
-Download the stable `.exe` installer from [release 0.3.1](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.1),
+Native sessions are loaded only while translating and disposed afterwards. Native
+allocators can retain hundreds of MiB after translation; returning to 150 MiB is
+not guaranteed. The full 66-case Linux TC-big run reached 1363 MiB peak working set.
+See the [quality and resource evidence](docs/translation-quality/README.md).
+Inter is embedded, and the translucent theme keeps its tint after expansion.
+Download the stable `.exe` installer from [release 0.3.2](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.2),
 or check for updates in Settings → About, then exit through the tray and relaunch.
 
 The installer checks the official Microsoft Visual C++ runtime and
@@ -198,14 +201,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and ideas are welcome in
 
 ## На русском
 
-**Версия 0.3.1:** встроенный перевод английский ↔ русский без ключей и платных
+**Версия 0.3.2:** встроенный перевод английский ↔ русский без ключей и платных
 аккаунтов. В переводчике нажмите «Скачать», проверьте размер и источник в менеджере
-и установите нужное направление (около 243 МБ каждое). После этого интернет для
+и установите нужное направление (около 373 МБ каждое). После этого интернет для
 перевода не нужен. История выключена по умолчанию; при включении сохраняются
 последние 50 переводов только на компьютере. Во время перевода расход памяти
-выше, чем у свёрнутого острова. Установщик `.exe` доступен в [релизе 0.3.1](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.1).
+выше, чем у свёрнутого острова; нативный аллокатор может сохранять сотни мегабайт
+и после запроса. Старые пакеты работают до явного обновления, предыдущая ревизия
+сохраняется для отката. Встроен Inter, устранено потемнение прозрачного фона
+после раскрытия. Установщик `.exe` доступен в [релизе 0.3.2](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.2).
 Для установленной версии: «О программе» → проверка обновлений, затем выход
-через трей и повторный запуск. Состояние проверок — в [отчёте](docs/IMPLEMENTATION_STATUS_2026-11-04.md).
+через трей и повторный запуск. Состояние проверок — в [чек-листе](docs/QA_CHECKLIST.md).
 
 Установщик проверяет Microsoft Visual C++ runtime и предлагает его
 штатную установку, если он отсутствует. Для этого компонента могут потребоваться

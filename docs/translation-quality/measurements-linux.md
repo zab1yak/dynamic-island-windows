@@ -84,3 +84,27 @@ Host startup-to-entry was 46 ms; first-direction wall/CPU 2057/2944 ms and rever
 Disposing native sessions does **not** establish a return to the app's original
 idle-memory target. No claim of <150 MiB after translation is made. The samples
 are workload- and runtime-specific; the full 66-case peak above is higher.
+
+
+## Native Windows deployment sample
+
+Fresh native smoke hosts on Windows x64 and ARM64 installed the pinned exports,
+then repeated both directions with a handler that forbids every HTTP request.
+Each translated only the two fixed morning/42 sentences; this is an architecture
+and offline-path check, not a Windows 66-case quality benchmark.
+
+| Native host, HTTP forbidden | Host entry | EN→RU wall / CPU | RU→EN wall / CPU | Peak WS | WS after 20s | Idle CPU, one core |
+|---|---:|---:|---:|---:|---:|---:|
+| Windows x64 | 83 ms | 2861 / 3969 ms | 2189 / 3016 ms | 550.5 MiB | 140.0 MiB | 0.078% |
+| Windows ARM64 | 76 ms | 2346 / 2969 ms | 1640 / 2203 ms | 609.2 MiB | 159.9 MiB | 0% |
+
+Native session/tokenizer/file-verification setup is included in each request.
+“Host entry” is process start to smoke setup, not WPF application startup.
+Private bytes after the wait were 114.2 MiB /160.0 MiB. No forced GC or process
+memory trim was requested. These are CI observations, not general guarantees;
+full-app idle after translation and physical desktop interaction remain separate.
+Raw install and no-network metrics: `native-engine-windows.json`, from Actions
+[42087544282](https://github.com/zab1yak/dynamic-island-windows/actions/runs/42087544282).
+The model and full 2,352-image render checks passed on both architectures in that
+run; a separate localization registration race made its overall ARM64 status red.
+That race is corrected and covered by a deterministic concurrency regression test.

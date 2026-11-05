@@ -1,0 +1,152 @@
+{
+  "run": "https://github.com/zab1yak/dynamic-island-windows/actions/runs/42087544282",
+  "note": "Native offline engine smoke host, not the full WPF app; no forced GC or memory trim; 20-second post-request observation",
+  "x64": [
+    {
+      "description": "Native offline engine smoke host; not the full WPF application",
+      "architecture": "X64",
+      "runtime": ".NET 10.0.14",
+      "os": "Microsoft Windows 10.0.26100",
+      "install": true,
+      "startupMs": 99.3509,
+      "baselineWorkingSet": 29659136,
+      "requests": [
+        {
+          "SourceLanguage": "en",
+          "TargetLanguage": "ru",
+          "Revision": "5d49b6e3c63c3eddeb6ad2190ec7e2f661b6bd49",
+          "DownloadBytes": 373284417,
+          "wallMs": 2415.1127,
+          "cpuMs": 3484.375,
+          "peakWorkingSetBytes": 550584320,
+          "workingSetBytes": 129036288
+        },
+        {
+          "SourceLanguage": "ru",
+          "TargetLanguage": "en",
+          "Revision": "8e66bdc2a181d7f21f65100fd215c7755a6a76b2",
+          "DownloadBytes": 371543310,
+          "wallMs": 1868.4707,
+          "cpuMs": 2875,
+          "peakWorkingSetBytes": 594395136,
+          "workingSetBytes": 167305216
+        }
+      ],
+      "idleWindowMs": 20005.7373,
+      "idleCpuOneCorePercent": 0,
+      "idleWorkingSetBytes": 159100928,
+      "idlePrivateBytes": 122204160,
+      "processPeakWorkingSetBytes": 594395136
+    },
+    {
+      "description": "Native offline engine smoke host; not the full WPF application",
+      "architecture": "X64",
+      "runtime": ".NET 10.0.14",
+      "os": "Microsoft Windows 10.0.26100",
+      "install": false,
+      "startupMs": 83.3812,
+      "baselineWorkingSet": 28069888,
+      "requests": [
+        {
+          "SourceLanguage": "en",
+          "TargetLanguage": "ru",
+          "Revision": "5d49b6e3c63c3eddeb6ad2190ec7e2f661b6bd49",
+          "DownloadBytes": 373284417,
+          "wallMs": 2860.5687,
+          "cpuMs": 3968.75,
+          "peakWorkingSetBytes": 538615808,
+          "workingSetBytes": 117501952
+        },
+        {
+          "SourceLanguage": "ru",
+          "TargetLanguage": "en",
+          "Revision": "8e66bdc2a181d7f21f65100fd215c7755a6a76b2",
+          "DownloadBytes": 371543310,
+          "wallMs": 2189.1758,
+          "cpuMs": 3015.625,
+          "peakWorkingSetBytes": 577216512,
+          "workingSetBytes": 148361216
+        }
+      ],
+      "idleWindowMs": 20012.9936,
+      "idleCpuOneCorePercent": 0.07807424393401849,
+      "idleWorkingSetBytes": 146817024,
+      "idlePrivateBytes": 119799808,
+      "processPeakWorkingSetBytes": 577216512
+    }
+  ],
+  "arm64": [
+    {
+      "description": "Native offline engine smoke host; not the full WPF application",
+      "architecture": "Arm64",
+      "runtime": ".NET 10.0.14",
+      "os": "Microsoft Windows 10.0.26200",
+      "install": true,
+      "startupMs": 376.4685,
+      "baselineWorkingSet": 30494720,
+      "requests": [
+        {
+          "SourceLanguage": "en",
+          "TargetLanguage": "ru",
+          "Revision": "5d49b6e3c63c3eddeb6ad2190ec7e2f661b6bd49",
+          "DownloadBytes": 373284417,
+          "wallMs": 4065.1094,
+          "cpuMs": 3171.875,
+          "peakWorkingSetBytes": 567779328,
+          "workingSetBytes": 212205568
+        },
+        {
+          "SourceLanguage": "ru",
+          "TargetLanguage": "en",
+          "Revision": "8e66bdc2a181d7f21f65100fd215c7755a6a76b2",
+          "DownloadBytes": 371543310,
+          "wallMs": 1615.386,
+          "cpuMs": 2125,
+          "peakWorkingSetBytes": 654618624,
+          "workingSetBytes": 236023808
+        }
+      ],
+      "idleWindowMs": 20014.1085,
+      "idleCpuOneCorePercent": 0.07806988422313614,
+      "idleWorkingSetBytes": 186527744,
+      "idlePrivateBytes": 162889728,
+      "processPeakWorkingSetBytes": 654618624
+    },
+    {
+      "description": "Native offline engine smoke host; not the full WPF application",
+      "architecture": "Arm64",
+      "runtime": ".NET 10.0.14",
+      "os": "Microsoft Windows 10.0.26200",
+      "install": false,
+      "startupMs": 75.5961,
+      "baselineWorkingSet": 29720576,
+      "requests": [
+        {
+          "SourceLanguage": "en",
+          "TargetLanguage": "ru",
+          "Revision": "5d49b6e3c63c3eddeb6ad2190ec7e2f661b6bd49",
+          "DownloadBytes": 373284417,
+          "wallMs": 2345.9257,
+          "cpuMs": 2968.75,
+          "peakWorkingSetBytes": 555327488,
+          "workingSetBytes": 185393152
+        },
+        {
+          "SourceLanguage": "ru",
+          "TargetLanguage": "en",
+          "Revision": "8e66bdc2a181d7f21f65100fd215c7755a6a76b2",
+          "DownloadBytes": 371543310,
+          "wallMs": 1640.1693,
+          "cpuMs": 2203.125,
+          "peakWorkingSetBytes": 638754816,
+          "workingSetBytes": 236412928
+        }
+      ],
+      "idleWindowMs": 20003.2198,
+      "idleCpuOneCorePercent": 0,
+      "idleWorkingSetBytes": 167616512,
+      "idlePrivateBytes": 167727104,
+      "processPeakWorkingSetBytes": 638754816
+    }
+  ]
+}
