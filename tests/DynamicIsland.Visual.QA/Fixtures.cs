@@ -166,10 +166,18 @@ internal static class Fixtures
             ? new[] { new { App = "QA Calendar", Title = ru ? "Встреча через 15 минут" : "Meeting in 15 minutes", Body = ru ? "Обсудить дизайн острова" : "Review island design", Time = "09:45" } }
             : (object)new[]
             {
-                new { Title = ru ? "Проверить кириллицу ё Ё" : "Review English typography", Draft = string.Empty, Done = false, IsEditing = false },
-                new { Title = ru ? "Длинная задача с ₽ € % °" : "A longer task with ₽ € % °", Draft = string.Empty, Done = true, IsEditing = false },
+                new TodoItem { Title = ru ? "Проверить кириллицу ё Ё" : "Review English typography", Draft = string.Empty, Done = false, IsEditing = false },
+                new TodoItem { Title = ru ? "Длинная задача с ₽ € % °" : "A longer task with ₽ € % °", Draft = string.Empty, Done = true, IsEditing = false },
             };
         return model;
+    }
+
+    private sealed class TodoItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Draft { get; set; } = string.Empty;
+        public bool Done { get; set; }
+        public bool IsEditing { get; set; }
     }
 
     private sealed record Language(string Code, string Name);

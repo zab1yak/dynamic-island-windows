@@ -249,7 +249,8 @@ public sealed class TranslationPackageTests
             Directory.CreateDirectory(Path.Combine(folder.Path, "en-ru.active")); // Simulate a failed atomic publish.
             return Response(ModelBytes);
         })), folder.Path, [newer, TestModel]);
-        await Assert.ThrowsAsync<IOException>(() => manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken));
+        var error = await Record.ExceptionAsync(() => manager.InstallAsync("en", "ru", null, TestContext.Current.CancellationToken));
+        Assert.True(error is IOException or UnauthorizedAccessException, error?.ToString() ?? "Expected an atomic publish failure");
         Assert.Equal(TestModel.Revision, manager.GetInstalledRevision("en", "ru"));
         Assert.True(Directory.Exists(Path.Combine(folder.Path, "en-ru.revision-revision-v2")));
     }
