@@ -18,5 +18,6 @@ The x64 run passed 588 covering window renders, all 468 Windows tests and native
 translation with downloads forbidden. ARM64 passed tests, current-alpha timeline
 and native translation, but its hosted renderer did not materialize a delta for
 the old-effect causal control. That control is inconclusive on this ARM64 runner;
-it is not a failure of current alpha. A full 2,352-image matrix per architecture
-is the next release gate; its result will be linked in the QA checklist.
+it is not a failure of current alpha. The full 2,352-image matrix per architecture is covered by final acceptance run
+[42089082130](https://github.com/zab1yak/dynamic-island-windows/actions/runs/42089082130),
+including the localization concurrency fix; see the QA checklist for the final gates.
