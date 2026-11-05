@@ -179,7 +179,7 @@ internal static class Fixtures
         public bool IsBusy { get; set; }
         public string Status { get; set; } = string.Empty;
         public double Progress { get; set; }
-        public ICommand CancelCommand => NoOpCommand.Instance;
+        public ICommand CancelCommand { get; } = NoOpCommand.Instance;
     }
 
     private sealed class TodoItem
