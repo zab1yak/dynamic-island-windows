@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Resources;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -54,7 +53,6 @@ internal static class Program
         {
             Source = new Uri("pack://application:,,,/DynamicIsland.UI;component/Themes/Theme.xaml"),
         });
-        Loc.Instance.Register(new ResourceManager("DynamicIsland.App.Resources.Strings", typeof(IslandWindow).Assembly));
         app.Dispatcher.BeginInvoke(async () =>
         {
             try
@@ -80,6 +78,7 @@ internal static class Program
     {
         var settings = new MemorySettings();
         var fixtures = Fixtures.CreateModules();
+        Require(Loc.Instance["Todo.Add"] != "Todo.Add", "Production module localization did not resolve");
         var host = new ModuleHost(fixtures, [], settings, NullLogger<ModuleHost>.Instance);
         await host.InitializeAsync(CancellationToken.None);
         using var state = new IslandStateMachine(TimeProvider.System, new QaDispatcher());
@@ -241,6 +240,8 @@ internal static class Program
 
     private static StructuralEvidence Inspect(IslandWindow window, IslandBackground theme)
     {
+        var title = (TextBlock)window.FindName("PageTitle");
+        Require(!title.IsVisible || !string.IsNullOrWhiteSpace(title.Text), "Visible production page title is empty");
         var root = (FrameworkElement)window.FindName("Root");
         var body = (WpfPath)window.FindName("Body");
         var outside = new Point(1, root.ActualHeight - 1);

@@ -62,6 +62,8 @@ internal sealed class FixtureModule(string id, int order, ContentPresenter page)
         "todo" => "Todo.Title", "water" => "Water.Title", "pomodoro" => "Pomodoro.Title",
         "translator" => "Translator.Title", "tools" => "Tools.Title", "notifications" => "Notifications.Title", _ => "Media.Title",
     };
+    public string? TitleAccentKey => id is "todo" ? "Todo.TitleAccent" : id is "water" ? "Water.TitleAccent" : null;
+    public string TitleAccentBrushKey => id is "todo" ? "Brush.Green" : "Brush.Blue";
     public string IconKey => "Circle";
     public bool ShowsTitle => id != "media";
     public int Order => order;
