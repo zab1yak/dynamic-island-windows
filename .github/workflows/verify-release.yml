@@ -1,0 +1,77 @@
+name: Verify published installers and update feeds
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/verify-release.yml]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published release tag
+        required: true
+        default: v0.3.2
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read public feeds and installer headers
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || 'v0.3.2' }}
+        run: |
+          import json, os, pathlib, re, urllib.request, urllib.parse
+          tag = os.environ["RELEASE_TAG"]
+          assert re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag), "Invalid version tag"
+          repo = os.environ["GITHUB_REPOSITORY"]
+          def read(url, limit=131072, partial=False):
+              headers = {"User-Agent": "DynamicIsland-release-verification"}
+              if urllib.parse.urlparse(url).hostname == "api.github.com":
+                  headers["Authorization"] = "Bearer " + os.environ["GH_TOKEN"]
+              if partial:
+                  headers["Range"] = "bytes=0-511"
+              with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=45) as response:
+                  return response.read(limit)
+          release = json.loads(read(f"https://api.github.com/repos/{repo}/releases/tags/{tag}"))
+          assert release["tag_name"] == tag and not release["draft"] and not release["prerelease"]
+          assets = {a["name"]: a for a in release["assets"]}
+          report = {"tag": tag, "url": release["html_url"], "feeds": [], "installers": []}
+          def lower_keys(item):
+              return {k.lower(): v for k, v in item.items()}
+          for channel in ("win", "win-arm64"):
+              feed_name = f"releases.{channel}.json"
+              feed_asset = assets[feed_name]
+              assert feed_asset["state"] == "uploaded" and feed_asset["size"] > 0
+              data = json.loads(read(feed_asset["browser_download_url"]).decode("utf-8-sig"))
+              entries = data if isinstance(data, list) else data.get("Assets", data.get("assets"))
+              assert isinstance(entries, list), "Feed has no asset list"
+              matching = [lower_keys(a) for a in entries if str(lower_keys(a).get("version")) == tag[1:] and str(lower_keys(a).get("type")).lower() == "full"]
+              assert matching, f"No full package for {tag} in {feed_name}"
+              for item in matching:
+                  assert item["packageid"] == "DynamicIslandForWindows"
+                  package = assets[item["filename"]]
+                  assert package["state"] == "uploaded" and package["size"] == item["size"]
+                  if item.get("sha256") and package.get("digest"):
+                      assert package["digest"].lower() == "sha256:" + item["sha256"].lower()
+              report["feeds"].append({"name": feed_name, "version": tag[1:], "fullPackages": [a["filename"] for a in matching]})
+              setup_name = f"DynamicIslandForWindows-{channel}-Setup.exe"
+              setup = assets[setup_name]
+              assert setup["state"] == "uploaded" and setup["size"] > 1000000
+              prefix = read(setup["browser_download_url"], limit=512, partial=True)
+              assert prefix[:2] == b"MZ", f"Public installer download is invalid: {setup_name}"
+              report["installers"].append({"name": setup_name, "size": setup["size"], "digest": setup.get("digest"), "publicDownloadHeader": "MZ"})
+          pathlib.Path("release-verification.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+          print(json.dumps(report, indent=2))
+          print("PASS: both public installer downloads and both current-version update feeds")
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Published-release-verification
+          path: release-verification.json
+          if-no-files-found: warn
+          retention-days: 30
