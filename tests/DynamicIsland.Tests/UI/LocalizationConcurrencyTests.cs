@@ -17,7 +17,7 @@ public sealed class LocalizationConcurrencyTests
         var pending = Task.Run(() => localization["Concurrency.Probe"], TestContext.Current.CancellationToken);
         try
         {
-            Assert.True(entered.Wait(TimeSpan.FromSeconds(10)), "Lookup did not enter the resource manager");
+            Assert.True(entered.Wait(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken), "Lookup did not enter the resource manager");
             localization.Register(new ProbeResource());
         }
         finally { release.Set(); }
