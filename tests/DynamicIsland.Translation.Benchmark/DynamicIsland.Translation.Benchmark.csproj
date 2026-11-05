@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <SupportedOSPlatformVersion />
+    <OutputType>Exe</OutputType>
+    <RuntimeIdentifiers>linux-x64;win-x64;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" />
+    <PackageReference Include="Microsoft.ML.Tokenizers" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/ITranslationService.cs" Link="Production/ITranslationService.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/ITranslationPackageManager.cs" Link="Production/ITranslationPackageManager.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/TranslationPackageManager.cs" Link="Production/TranslationPackageManager.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/TranslationModelCatalog.cs" Link="Production/TranslationModelCatalog.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/OfflineTranslationService.cs" Link="Production/OfflineTranslationService.cs" />
+  </ItemGroup>
+</Project>

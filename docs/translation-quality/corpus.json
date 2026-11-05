@@ -1,0 +1,662 @@
+[
+  {
+    "id": "everyday-01",
+    "category": "everyday",
+    "source": "en",
+    "target": "ru",
+    "text": "Good morning, how are you?",
+    "references": [
+      "Доброе утро, как дела?"
+    ]
+  },
+  {
+    "id": "everyday-02",
+    "category": "everyday",
+    "source": "en",
+    "target": "ru",
+    "text": "Could you help me, please?",
+    "references": [
+      "Не могли бы вы мне помочь?"
+    ]
+  },
+  {
+    "id": "everyday-03",
+    "category": "everyday",
+    "source": "en",
+    "target": "ru",
+    "text": "I will be back in ten minutes.",
+    "references": [
+      "Я вернусь через десять минут."
+    ]
+  },
+  {
+    "id": "everyday-04",
+    "category": "everyday",
+    "source": "ru",
+    "target": "en",
+    "text": "Спасибо за помощь.",
+    "references": [
+      "Thank you for your help."
+    ]
+  },
+  {
+    "id": "everyday-05",
+    "category": "everyday",
+    "source": "ru",
+    "target": "en",
+    "text": "Где находится ближайшая остановка?",
+    "references": [
+      "Where is the nearest bus stop?"
+    ]
+  },
+  {
+    "id": "everyday-06",
+    "category": "everyday",
+    "source": "ru",
+    "target": "en",
+    "text": "Я забыл ключи дома.",
+    "references": [
+      "I left my keys at home."
+    ]
+  },
+  {
+    "id": "idioms-01",
+    "category": "idioms",
+    "source": "en",
+    "target": "ru",
+    "text": "Break a leg!",
+    "references": [
+      "Ни пуха ни пера!"
+    ]
+  },
+  {
+    "id": "idioms-02",
+    "category": "idioms",
+    "source": "en",
+    "target": "ru",
+    "text": "It is raining cats and dogs.",
+    "references": [
+      "Дождь льёт как из ведра."
+    ]
+  },
+  {
+    "id": "idioms-03",
+    "category": "idioms",
+    "source": "en",
+    "target": "ru",
+    "text": "Let us call it a day.",
+    "references": [
+      "Давайте на сегодня закончим."
+    ]
+  },
+  {
+    "id": "idioms-04",
+    "category": "idioms",
+    "source": "ru",
+    "target": "en",
+    "text": "Не делай из мухи слона.",
+    "references": [
+      "Do not make a mountain out of a molehill."
+    ]
+  },
+  {
+    "id": "idioms-05",
+    "category": "idioms",
+    "source": "ru",
+    "target": "en",
+    "text": "У меня руки не доходят до этого.",
+    "references": [
+      "I have not got around to it."
+    ]
+  },
+  {
+    "id": "idioms-06",
+    "category": "idioms",
+    "source": "ru",
+    "target": "en",
+    "text": "Это палка о двух концах.",
+    "references": [
+      "It is a double-edged sword."
+    ]
+  },
+  {
+    "id": "conversation-01",
+    "category": "conversation",
+    "source": "en",
+    "target": "ru",
+    "text": "You look upset. What's up?",
+    "references": [
+      "Ты выглядишь расстроенным. Что случилось?"
+    ]
+  },
+  {
+    "id": "conversation-02",
+    "category": "conversation",
+    "source": "en",
+    "target": "ru",
+    "text": "I see what you mean. Let me think about it.",
+    "references": [
+      "Я понимаю, что ты имеешь в виду. Дай мне подумать."
+    ]
+  },
+  {
+    "id": "conversation-03",
+    "category": "conversation",
+    "source": "en",
+    "target": "ru",
+    "text": "Sorry, I did not catch that. Could you say it again?",
+    "references": [
+      "Извините, я не расслышал. Не могли бы вы повторить?"
+    ]
+  },
+  {
+    "id": "conversation-04",
+    "category": "conversation",
+    "source": "ru",
+    "target": "en",
+    "text": "Ты серьёзно? Я думал, ты шутишь.",
+    "references": [
+      "Are you serious? I thought you were joking."
+    ]
+  },
+  {
+    "id": "conversation-05",
+    "category": "conversation",
+    "source": "ru",
+    "target": "en",
+    "text": "Как прошла встреча? Всё получилось?",
+    "references": [
+      "How did the meeting go? Did everything work out?"
+    ]
+  },
+  {
+    "id": "conversation-06",
+    "category": "conversation",
+    "source": "ru",
+    "target": "en",
+    "text": "Ладно, договорились. До завтра!",
+    "references": [
+      "All right, agreed. See you tomorrow!"
+    ]
+  },
+  {
+    "id": "multiple_sentences-01",
+    "category": "multiple_sentences",
+    "source": "en",
+    "target": "ru",
+    "text": "The train was late. We missed the meeting. Nobody called us.",
+    "references": [
+      "Поезд опоздал. Мы пропустили встречу. Никто нам не позвонил."
+    ]
+  },
+  {
+    "id": "multiple_sentences-02",
+    "category": "multiple_sentences",
+    "source": "en",
+    "target": "ru",
+    "text": "Save the file. Close the window. Then restart the application.",
+    "references": [
+      "Сохраните файл. Закройте окно. Затем перезапустите приложение."
+    ]
+  },
+  {
+    "id": "multiple_sentences-03",
+    "category": "multiple_sentences",
+    "source": "en",
+    "target": "ru",
+    "text": "I bought some bread. There was no milk. I will go again tomorrow.",
+    "references": [
+      "Я купил хлеб. Молока не было. Завтра схожу ещё раз."
+    ]
+  },
+  {
+    "id": "multiple_sentences-04",
+    "category": "multiple_sentences",
+    "source": "ru",
+    "target": "en",
+    "text": "Сначала шёл дождь. Потом выглянуло солнце. Мы пошли гулять.",
+    "references": [
+      "First it rained. Then the sun came out. We went for a walk."
+    ]
+  },
+  {
+    "id": "multiple_sentences-05",
+    "category": "multiple_sentences",
+    "source": "ru",
+    "target": "en",
+    "text": "Я прочитал письмо. В нём была ошибка. Я ответил отправителю.",
+    "references": [
+      "I read the letter. It contained an error. I replied to the sender."
+    ]
+  },
+  {
+    "id": "multiple_sentences-06",
+    "category": "multiple_sentences",
+    "source": "ru",
+    "target": "en",
+    "text": "Открой настройки. Выбери русский язык. Нажми сохранить.",
+    "references": [
+      "Open settings. Select Russian. Click save."
+    ]
+  },
+  {
+    "id": "negation-01",
+    "category": "negation",
+    "source": "en",
+    "target": "ru",
+    "text": "I did not say he stole the money.",
+    "references": [
+      "Я не говорил, что он украл деньги."
+    ]
+  },
+  {
+    "id": "negation-02",
+    "category": "negation",
+    "source": "en",
+    "target": "ru",
+    "text": "Do not restart the computer until the update is complete.",
+    "references": [
+      "Не перезагружайте компьютер, пока обновление не завершится."
+    ]
+  },
+  {
+    "id": "negation-03",
+    "category": "negation",
+    "source": "en",
+    "target": "ru",
+    "text": "Neither of the two answers is correct.",
+    "references": [
+      "Ни один из двух ответов не верен."
+    ]
+  },
+  {
+    "id": "negation-04",
+    "category": "negation",
+    "source": "ru",
+    "target": "en",
+    "text": "Я никогда не говорил, что это невозможно.",
+    "references": [
+      "I never said it was impossible."
+    ]
+  },
+  {
+    "id": "negation-05",
+    "category": "negation",
+    "source": "ru",
+    "target": "en",
+    "text": "Не все пользователи согласились с изменениями.",
+    "references": [
+      "Not all users agreed with the changes."
+    ]
+  },
+  {
+    "id": "negation-06",
+    "category": "negation",
+    "source": "ru",
+    "target": "en",
+    "text": "Без твоей помощи мы бы не справились.",
+    "references": [
+      "We would not have managed without your help."
+    ]
+  },
+  {
+    "id": "questions-01",
+    "category": "questions",
+    "source": "en",
+    "target": "ru",
+    "text": "Why did you change your mind?",
+    "references": [
+      "Почему ты передумал?"
+    ]
+  },
+  {
+    "id": "questions-02",
+    "category": "questions",
+    "source": "en",
+    "target": "ru",
+    "text": "Would you rather walk or take the bus?",
+    "references": [
+      "Ты предпочитаешь пойти пешком или поехать на автобусе?"
+    ]
+  },
+  {
+    "id": "questions-03",
+    "category": "questions",
+    "source": "en",
+    "target": "ru",
+    "text": "How long have you been waiting here?",
+    "references": [
+      "Как долго вы здесь ждёте?"
+    ]
+  },
+  {
+    "id": "questions-04",
+    "category": "questions",
+    "source": "ru",
+    "target": "en",
+    "text": "Ты уже отправил документы?",
+    "references": [
+      "Have you sent the documents yet?"
+    ]
+  },
+  {
+    "id": "questions-05",
+    "category": "questions",
+    "source": "ru",
+    "target": "en",
+    "text": "Что бы ты сделал на моём месте?",
+    "references": [
+      "What would you do in my place?"
+    ]
+  },
+  {
+    "id": "questions-06",
+    "category": "questions",
+    "source": "ru",
+    "target": "en",
+    "text": "Разве мы не встречались раньше?",
+    "references": [
+      "Have we not met before?"
+    ]
+  },
+  {
+    "id": "technical-01",
+    "category": "technical",
+    "source": "en",
+    "target": "ru",
+    "text": "The request timed out while connecting to the server.",
+    "references": [
+      "Время ожидания запроса истекло при подключении к серверу."
+    ]
+  },
+  {
+    "id": "technical-02",
+    "category": "technical",
+    "source": "en",
+    "target": "ru",
+    "text": "Enable two-factor authentication before sharing the repository.",
+    "references": [
+      "Включите двухфакторную аутентификацию, прежде чем предоставлять доступ к репозиторию."
+    ]
+  },
+  {
+    "id": "technical-03",
+    "category": "technical",
+    "source": "en",
+    "target": "ru",
+    "text": "This function returns a null value when the cache is empty.",
+    "references": [
+      "Эта функция возвращает пустое значение, когда кэш пуст."
+    ]
+  },
+  {
+    "id": "technical-04",
+    "category": "technical",
+    "source": "ru",
+    "target": "en",
+    "text": "Ошибка возникает только после выхода из спящего режима.",
+    "references": [
+      "The error occurs only after waking from sleep mode."
+    ]
+  },
+  {
+    "id": "technical-05",
+    "category": "technical",
+    "source": "ru",
+    "target": "en",
+    "text": "Обновление драйвера устранило утечку памяти.",
+    "references": [
+      "Updating the driver fixed the memory leak."
+    ]
+  },
+  {
+    "id": "technical-06",
+    "category": "technical",
+    "source": "ru",
+    "target": "en",
+    "text": "Не храните пароли в исходном коде.",
+    "references": [
+      "Do not store passwords in source code."
+    ]
+  },
+  {
+    "id": "numbers_dates-01",
+    "category": "numbers_dates",
+    "source": "en",
+    "target": "ru",
+    "text": "The meeting is on November 5 at 14:30.",
+    "references": [
+      "Встреча состоится 5 ноября в 14:30."
+    ]
+  },
+  {
+    "id": "numbers_dates-02",
+    "category": "numbers_dates",
+    "source": "en",
+    "target": "ru",
+    "text": "The total is 1,250 euros, including tax.",
+    "references": [
+      "Итого 1250 евро, включая налог."
+    ]
+  },
+  {
+    "id": "numbers_dates-03",
+    "category": "numbers_dates",
+    "source": "en",
+    "target": "ru",
+    "text": "Version 0.3.1 supports both x64 and ARM64.",
+    "references": [
+      "Версия 0.3.1 поддерживает x64 и ARM64."
+    ]
+  },
+  {
+    "id": "numbers_dates-04",
+    "category": "numbers_dates",
+    "source": "ru",
+    "target": "en",
+    "text": "Поезд отправляется в 08:15 с платформы 4.",
+    "references": [
+      "The train leaves at 08:15 from platform 4."
+    ]
+  },
+  {
+    "id": "numbers_dates-05",
+    "category": "numbers_dates",
+    "source": "ru",
+    "target": "en",
+    "text": "Температура упала с 12 до минус 3 градусов.",
+    "references": [
+      "The temperature fell from 12 to minus 3 degrees."
+    ]
+  },
+  {
+    "id": "numbers_dates-06",
+    "category": "numbers_dates",
+    "source": "ru",
+    "target": "en",
+    "text": "Скидка действует до 31 декабря 2026 года.",
+    "references": [
+      "The discount is valid until December 31, 2026."
+    ]
+  },
+  {
+    "id": "politeness-01",
+    "category": "politeness",
+    "source": "en",
+    "target": "ru",
+    "text": "Would you mind closing the door?",
+    "references": [
+      "Не могли бы вы закрыть дверь?"
+    ]
+  },
+  {
+    "id": "politeness-02",
+    "category": "politeness",
+    "source": "en",
+    "target": "ru",
+    "text": "I would appreciate it if you could reply today.",
+    "references": [
+      "Буду признателен, если вы сможете ответить сегодня."
+    ]
+  },
+  {
+    "id": "politeness-03",
+    "category": "politeness",
+    "source": "en",
+    "target": "ru",
+    "text": "Please accept my apologies for the delay.",
+    "references": [
+      "Прошу прощения за задержку."
+    ]
+  },
+  {
+    "id": "politeness-04",
+    "category": "politeness",
+    "source": "ru",
+    "target": "en",
+    "text": "Будьте добры, передайте мне соль.",
+    "references": [
+      "Would you please pass me the salt?"
+    ]
+  },
+  {
+    "id": "politeness-05",
+    "category": "politeness",
+    "source": "ru",
+    "target": "en",
+    "text": "Извините за беспокойство, у меня небольшой вопрос.",
+    "references": [
+      "Sorry to bother you, I have a quick question."
+    ]
+  },
+  {
+    "id": "politeness-06",
+    "category": "politeness",
+    "source": "ru",
+    "target": "en",
+    "text": "Не могли бы вы уточнить время встречи?",
+    "references": [
+      "Could you clarify the meeting time?"
+    ]
+  },
+  {
+    "id": "ambiguity_context-01",
+    "category": "ambiguity_context",
+    "source": "en",
+    "target": "ru",
+    "text": "The bank is closed, so we sat on the river bank.",
+    "references": [
+      "Банк закрыт, поэтому мы сели на берегу реки."
+    ]
+  },
+  {
+    "id": "ambiguity_context-02",
+    "category": "ambiguity_context",
+    "source": "en",
+    "target": "ru",
+    "text": "She booked a room and then read a book.",
+    "references": [
+      "Она забронировала номер, а затем почитала книгу."
+    ]
+  },
+  {
+    "id": "ambiguity_context-03",
+    "category": "ambiguity_context",
+    "source": "en",
+    "target": "ru",
+    "text": "The mouse stopped working after I dropped it.",
+    "references": [
+      "Мышь перестала работать после того, как я её уронил."
+    ]
+  },
+  {
+    "id": "ambiguity_context-04",
+    "category": "ambiguity_context",
+    "source": "ru",
+    "target": "en",
+    "text": "Я поставил замок на дверь старого замка.",
+    "references": [
+      "I put a lock on the door of the old castle."
+    ]
+  },
+  {
+    "id": "ambiguity_context-05",
+    "category": "ambiguity_context",
+    "source": "ru",
+    "target": "en",
+    "text": "Ключ лежит у источника, но это не ключ от двери.",
+    "references": [
+      "The key is near the spring, but it is not a door key."
+    ]
+  },
+  {
+    "id": "ambiguity_context-06",
+    "category": "ambiguity_context",
+    "source": "ru",
+    "target": "en",
+    "text": "Он снял очки, чтобы набрать очки в игре.",
+    "references": [
+      "He took off his glasses to score points in the game."
+    ]
+  },
+  {
+    "id": "long_conditions-01",
+    "category": "long_conditions",
+    "source": "en",
+    "target": "ru",
+    "text": "If the package has already been downloaded, the application should work without an internet connection.",
+    "references": [
+      "Если пакет уже загружен, приложение должно работать без подключения к интернету."
+    ]
+  },
+  {
+    "id": "long_conditions-02",
+    "category": "long_conditions",
+    "source": "en",
+    "target": "ru",
+    "text": "Although the weather was bad, we decided to continue because the children were looking forward to the trip.",
+    "references": [
+      "Хотя погода была плохой, мы решили продолжить, потому что дети с нетерпением ждали поездки."
+    ]
+  },
+  {
+    "id": "long_conditions-03",
+    "category": "long_conditions",
+    "source": "en",
+    "target": "ru",
+    "text": "The report that you sent yesterday does not include the changes we discussed last week.",
+    "references": [
+      "Отчёт, который вы отправили вчера, не содержит изменений, которые мы обсуждали на прошлой неделе."
+    ]
+  },
+  {
+    "id": "long_conditions-04",
+    "category": "long_conditions",
+    "source": "ru",
+    "target": "en",
+    "text": "Если файл уже существует, создай резервную копию, прежде чем его перезаписывать.",
+    "references": [
+      "If the file already exists, create a backup before overwriting it."
+    ]
+  },
+  {
+    "id": "long_conditions-05",
+    "category": "long_conditions",
+    "source": "ru",
+    "target": "en",
+    "text": "Несмотря на то что задача оказалась сложнее, чем мы ожидали, команда завершила её вовремя.",
+    "references": [
+      "Although the task proved harder than we expected, the team finished it on time."
+    ]
+  },
+  {
+    "id": "long_conditions-06",
+    "category": "long_conditions",
+    "source": "ru",
+    "target": "en",
+    "text": "Когда закончишь работу, проверь, что все изменения сохранены и ни одно окно не осталось открытым.",
+    "references": [
+      "When you finish working, check that all changes are saved and no windows remain open."
+    ]
+  }
+]
