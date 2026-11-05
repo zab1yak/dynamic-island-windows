@@ -1,11 +1,11 @@
 namespace DynamicIsland.Modules.Translator.Services;
 
-internal sealed record TranslationModelFile(string RemoteName, long Size, string Sha256)
+internal sealed record TranslationModelFile(string RemoteName, long Size, string Sha256, string? InstalledName = null)
 {
-    public string LocalName => Path.GetFileName(RemoteName);
+    public string LocalName => Path.GetFileName(InstalledName ?? RemoteName);
 }
 
-internal sealed record TranslationModel(string Source, string Target, string Repository, string Revision, TranslationModelFile[] Files)
+internal sealed record TranslationModel(string Source, string Target, string Repository, string Revision, TranslationModelFile[] Files, string? LanguagePrefix = null)
 {
     public string Id => Source + "-" + Target;
 }

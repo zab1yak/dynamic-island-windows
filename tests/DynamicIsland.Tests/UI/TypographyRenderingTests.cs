@@ -15,6 +15,7 @@ public sealed class TypographyRenderingTests
     private const string RequiredGlyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789₽€%°«»“”‘’";
     private static readonly int[] Scales = [70, 80, 90, 95, 100, 110, 130];
     private static readonly int[] Dpis = [96, 120, 144, 192];
+    private static readonly bool[] Backgrounds = [true, false];
     private static readonly FontWeight[] Weights = [FontWeights.Normal, FontWeights.Medium, FontWeights.SemiBold, FontWeights.Bold];
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     private sealed record Family(string Name, FontFamily Font, string? ExpectedUri);
@@ -86,7 +87,7 @@ public sealed class TypographyRenderingTests
             {
                 foreach (var dpi in Dpis)
                 {
-                    foreach (var dark in new[] { true, false })
+                    foreach (var dark in Backgrounds)
                     {
                         var visual = new DrawingVisual();
                         var evidence = new List<SampleEvidence>();

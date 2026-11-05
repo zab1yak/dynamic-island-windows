@@ -34,6 +34,10 @@ jobs:
           $env:DI_TYPOGRAPHY_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'typography'
           $env:DI_LAYOUT_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'layout'
           dotnet test -c Release
+      - name: Actual island window, transparency timeline and page matrix
+        shell: pwsh
+        run: |
+          dotnet run --project tests/DynamicIsland.Visual.QA -c Release -- --quick --output "${{ runner.temp }}/visual-qa"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -41,5 +45,6 @@ jobs:
           path: |
             ${{ runner.temp }}/typography/
             ${{ runner.temp }}/layout/
+            ${{ runner.temp }}/visual-qa/
           if-no-files-found: warn
           retention-days: 14

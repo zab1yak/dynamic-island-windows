@@ -1,0 +1,84 @@
+[
+  {
+    "Source": "en",
+    "Target": "ru",
+    "Repository": "TigreGotico/opus-mt-tc-big-en-zle-onnx",
+    "Revision": "5d49b6e3c63c3eddeb6ad2190ec7e2f661b6bd49",
+    "LanguagePrefix": ">>rus<<",
+    "Files": [
+      {
+        "RemoteName": "config.json",
+        "Size": 1018,
+        "Sha256": "b9c87d0ddf054697332e203e65292e1b413199c08a400c67d2f1c9075bbf28ff"
+      },
+      {
+        "RemoteName": "int8/decoder_model.onnx",
+        "Size": 228889401,
+        "Sha256": "9138d3b26a755bf685cb3424b8c9e739ca8c7306e85fc708edf87ca801724cdf",
+        "InstalledName": "decoder_model_quantized.onnx"
+      },
+      {
+        "RemoteName": "int8/encoder_model.onnx",
+        "Size": 140063720,
+        "Sha256": "1361c4babcffa5245986d27a2e67f075132f95c2453b6c56fec1216d6c4d5271",
+        "InstalledName": "encoder_model_quantized.onnx"
+      },
+      {
+        "RemoteName": "source.spm",
+        "Size": 802747,
+        "Sha256": "3612abfe04bf08344ba91115f0e15e228a7a15a621ea856bfd548097dbaeb43c"
+      },
+      {
+        "RemoteName": "target.spm",
+        "Size": 1017004,
+        "Sha256": "22940e744b3a9fd166a04880938fb61f7dfa8ba4b5d2d3f6371a6c4ba8f3b019"
+      },
+      {
+        "RemoteName": "vocab.json",
+        "Size": 2510527,
+        "Sha256": "41dbdff4a0b5a6ab125715c3342c5ce6516e93ffd49608813240403f036c5efb"
+      }
+    ]
+  },
+  {
+    "Source": "ru",
+    "Target": "en",
+    "Repository": "TigreGotico/opus-mt-tc-big-zle-en-onnx",
+    "Revision": "8e66bdc2a181d7f21f65100fd215c7755a6a76b2",
+    "LanguagePrefix": null,
+    "Files": [
+      {
+        "RemoteName": "config.json",
+        "Size": 1018,
+        "Sha256": "fb12546acae58890669d0ec9f34cb36dcea24a2db49dbc6ab1afcb13bc646ab5"
+      },
+      {
+        "RemoteName": "int8/decoder_model.onnx",
+        "Size": 227740288,
+        "Sha256": "c45b1075a7a18e471cb03dde762bc1cd83c277f4f0a2f452411966f9ab866d32",
+        "InstalledName": "decoder_model_quantized.onnx"
+      },
+      {
+        "RemoteName": "int8/encoder_model.onnx",
+        "Size": 139490280,
+        "Sha256": "fde62b663c3bf7ffe62e761b540e10cc4870b7b40ee5545b8df01320140a0a2e",
+        "InstalledName": "encoder_model_quantized.onnx"
+      },
+      {
+        "RemoteName": "source.spm",
+        "Size": 1016851,
+        "Sha256": "a982dbb9362861151e36b0db1595b324cd1ce09acf46ce1f4d6d624e11c5807f"
+      },
+      {
+        "RemoteName": "target.spm",
+        "Size": 802387,
+        "Sha256": "e69faed7f1e60eec38c64cceba35cc4fb05ec6478082f4c8a14b141fd6596e9e"
+      },
+      {
+        "RemoteName": "vocab.json",
+        "Size": 2492486,
+        "Sha256": "92148daf001ba378588442dfcdc7c4529210f2f28635ebc092faecf508190680"
+      }
+    ]
+  }
+]

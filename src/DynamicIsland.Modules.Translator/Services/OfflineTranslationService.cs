@@ -95,7 +95,10 @@ public sealed class OfflineTranslationService : ITranslationService, IDisposable
             cancellationToken.ThrowIfCancellationRequested();
             var tokens = sourceTokenizer.EncodeToTokens(segment, out _);
             if (tokens.Count > 255) throw new TranslationException(TranslationFailure.InvalidInput);
-            var inputIds = tokens.Select(t => (long)vocabulary.GetValueOrDefault(t.Value, vocabulary["<unk>"])).Append(vocabulary["</s>"]).ToArray();
+            IEnumerable<long> input = tokens.Select(t => (long)vocabulary.GetValueOrDefault(t.Value, vocabulary["<unk>"]));
+            // Marian multilingual labels are vocabulary control tokens, never SentencePiece text.
+            if (model.LanguagePrefix is not null) input = input.Prepend(vocabulary[model.LanguagePrefix]);
+            var inputIds = input.Append(vocabulary["</s>"]).ToArray();
             var attention = new DenseTensor<long>(Enumerable.Repeat(1L, inputIds.Length).ToArray(), [1, inputIds.Length]);
             var encoderInputs = new[]
             {

@@ -28,6 +28,7 @@
     <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/*.cs" Link="Production/%(Filename)%(Extension)" />
     <Compile Include="../DynamicIsland.Tests/Translator/TranslationServiceTests.cs" Link="TranslationServiceTests.cs" />
     <Compile Include="../DynamicIsland.Tests/Translator/TranslationPackageTests.cs" Link="TranslationPackageTests.cs" />
+    <Compile Include="../DynamicIsland.Tests/Translator/TranslationSentenceSplitterTests.cs" Link="TranslationSentenceSplitterTests.cs" />
     <Compile Include="../DynamicIsland.Tests/Translator/TranslationHistoryTests.cs" Link="TranslationHistoryTests.cs" />
   </ItemGroup>
 </Project>
