@@ -1,0 +1,45 @@
+name: Post-0.3.1 quality checks
+
+on:
+  push:
+    branches: [work/0.3.2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: X64
+          - os: windows-11-arm
+            arch: Arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Windows tests, typography and production page renders
+        shell: pwsh
+        run: |
+          $env:DI_TYPOGRAPHY_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'typography'
+          $env:DI_LAYOUT_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'layout'
+          dotnet test -c Release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Typography-and-layout-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/typography/
+            ${{ runner.temp }}/layout/
+          if-no-files-found: warn
+          retention-days: 14
