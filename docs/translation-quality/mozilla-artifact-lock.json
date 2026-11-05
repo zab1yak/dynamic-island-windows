@@ -129,5 +129,32 @@
       "id": "5e98f2ef-948f-4de6-a5e7-79728ec686fb",
       "last_modified": 1758912286505
     }
-  ]
+  ],
+  "runtime": {
+    "name": "bergamot-translator",
+    "schema": 1760449158298,
+    "license": "MPL-2.0",
+    "release": "v0.6.0",
+    "version": "4.0",
+    "revision": "1de4a085d3a7afb625c51a60aabb5ad298e4059f",
+    "attachment": {
+      "hash": "327fcfc7b7e9d95f6fa0844ebf899cfc05469872ef02d3aef5783182839a6255",
+      "size": 1211955,
+      "filename": "bergamot-translator.wasm.zst",
+      "location": "main-workspace/translations-wasm-v2/a76f9efe-b185-4a7f-9c3b-5f5d216d12e6.zst",
+      "mimetype": "application/zstd"
+    },
+    "fx_release": "144.0a1",
+    "decompressedHash": "f38ef807636a7c994afedaab7ff8ffe0d590d21897f05139f747b80fd7bbe926",
+    "decompressedSize": 4960506,
+    "filter_expression": "",
+    "id": "ce71828c-5e7a-4024-8f18-03064bf0b9f0",
+    "last_modified": 1760455775494
+  },
+  "glue": {
+    "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/48d55cf7ec80093903e2ef7f58b61a84a22ef716/toolkit/components/translations/bergamot-translator/bergamot-translator.js",
+    "sha256": "faff1ef6285b0d26f01787776fd49299dfb756ecb9688aa990c250e66797b47d",
+    "version": "v0.6.0+eea6e5a8",
+    "firefoxCommit": "48d55cf7ec80093903e2ef7f58b61a84a22ef716"
+  }
 }

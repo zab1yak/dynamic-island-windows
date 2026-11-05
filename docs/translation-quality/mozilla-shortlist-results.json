@@ -1,0 +1,1040 @@
+{
+  "mode": "shortlist",
+  "startedUtc": "2026-11-05T18:13:56.893Z",
+  "platform": "linux",
+  "arch": "x64",
+  "node": "v24.22.1",
+  "engine": "Mozilla official v0.6.0 WASM; Node fallback GEMM (not Firefox mozIntGemm)",
+  "corpusSha256": "6a8d4267fe52b4bad80514e6ed88d522e0e1c5e3e063a7b7bd10fc9cdc129402",
+  "directions": [
+    {
+      "source": "en",
+      "target": "ru",
+      "loadMs": 316.079607,
+      "loadCpuMicroseconds": {
+        "user": 216885,
+        "system": 208191
+      },
+      "config": {
+        "beam-size": 1,
+        "normalize": "1.0",
+        "word-penalty": 0,
+        "max-length-break": 128,
+        "mini-batch-words": 1024,
+        "workspace": 128,
+        "max-length-factor": "2.0",
+        "skip-cost": true,
+        "cpu-threads": 0,
+        "quiet": true,
+        "quiet-translation": true,
+        "gemm-precision": "int8shiftAlphaAll",
+        "alignment": "soft"
+      },
+      "wasmHeapBytes": 71696384,
+      "afterLoad": {
+        "rss": 170496000,
+        "heapTotal": 13684736,
+        "heapUsed": 8051168,
+        "external": 127278973,
+        "arrayBuffers": 51772983
+      },
+      "endMemory": {
+        "rss": 336551936,
+        "heapTotal": 13684736,
+        "heapUsed": 9487880,
+        "external": 274206479,
+        "arrayBuffers": 5107105
+      }
+    },
+    {
+      "source": "ru",
+      "target": "en",
+      "loadMs": 116.49279799999977,
+      "loadCpuMicroseconds": {
+        "user": 105237,
+        "system": 13114
+      },
+      "config": {
+        "beam-size": 1,
+        "normalize": "1.0",
+        "word-penalty": 0,
+        "max-length-break": 128,
+        "mini-batch-words": 1024,
+        "workspace": 128,
+        "max-length-factor": "2.0",
+        "skip-cost": true,
+        "cpu-threads": 0,
+        "quiet": true,
+        "quiet-translation": true,
+        "gemm-precision": "int8shiftAlphaAll",
+        "alignment": "soft"
+      },
+      "wasmHeapBytes": 265289728,
+      "afterLoad": {
+        "rss": 369451008,
+        "heapTotal": 13684736,
+        "heapUsed": 9549232,
+        "external": 311118545,
+        "arrayBuffers": 42019171
+      },
+      "endMemory": {
+        "rss": 350945280,
+        "heapTotal": 13684736,
+        "heapUsed": 10101744,
+        "external": 274206479,
+        "arrayBuffers": 5107105
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "id": "everyday-01",
+      "source": "en",
+      "target": "ru",
+      "input": "Good morning, how are you?",
+      "translated": "Доброе утро, как ты?",
+      "elapsedMs": 560.096441,
+      "cpuMicroseconds": {
+        "user": 363503,
+        "system": 340039
+      },
+      "rssBytes": 326758400,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "everyday-02",
+      "source": "en",
+      "target": "ru",
+      "input": "Could you help me, please?",
+      "translated": "Не могли бы вы мне помочь?",
+      "elapsedMs": 25.965363000000025,
+      "cpuMicroseconds": {
+        "user": 43185,
+        "system": 4220
+      },
+      "rssBytes": 329379840,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "everyday-03",
+      "source": "en",
+      "target": "ru",
+      "input": "I will be back in ten minutes.",
+      "translated": "Я вернусь через десять минут.",
+      "elapsedMs": 27.720901000000026,
+      "cpuMicroseconds": {
+        "user": 73027,
+        "system": 589
+      },
+      "rssBytes": 330559488,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "idioms-01",
+      "source": "en",
+      "target": "ru",
+      "input": "Break a leg!",
+      "translated": "Сломайте ногу!",
+      "elapsedMs": 21.987701000000015,
+      "cpuMicroseconds": {
+        "user": 23871,
+        "system": 0
+      },
+      "rssBytes": 330293248,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "idioms-02",
+      "source": "en",
+      "target": "ru",
+      "input": "It is raining cats and dogs.",
+      "translated": "Идют дождь с собаками и кошками.",
+      "elapsedMs": 33.64801800000009,
+      "cpuMicroseconds": {
+        "user": 48992,
+        "system": 6315
+      },
+      "rssBytes": 330424320,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "idioms-03",
+      "source": "en",
+      "target": "ru",
+      "input": "Let us call it a day.",
+      "translated": "Давайте назовем это днем.",
+      "elapsedMs": 20.68444599999998,
+      "cpuMicroseconds": {
+        "user": 26902,
+        "system": 0
+      },
+      "rssBytes": 330424320,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "conversation-01",
+      "source": "en",
+      "target": "ru",
+      "input": "You look upset. What's up?",
+      "translated": "Ты выглядишь расстроена. - Что за сух.",
+      "elapsedMs": 33.87107999999989,
+      "cpuMicroseconds": {
+        "user": 36212,
+        "system": 0
+      },
+      "rssBytes": 330555392,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "conversation-02",
+      "source": "en",
+      "target": "ru",
+      "input": "I see what you mean. Let me think about it.",
+      "translated": "Я понимаю, что ты имеешь в виду. Дай мне подумать об этом.",
+      "elapsedMs": 43.03800000000001,
+      "cpuMicroseconds": {
+        "user": 57019,
+        "system": 2494
+      },
+      "rssBytes": 330555392,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "conversation-03",
+      "source": "en",
+      "target": "ru",
+      "input": "Sorry, I did not catch that. Could you say it again?",
+      "translated": "Извините, я этого не поймал. Не могли бы вы сказать это снова?",
+      "elapsedMs": 47.181301000000076,
+      "cpuMicroseconds": {
+        "user": 57454,
+        "system": 0
+      },
+      "rssBytes": 331866112,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "multiple_sentences-01",
+      "source": "en",
+      "target": "ru",
+      "input": "The train was late. We missed the meeting. Nobody called us.",
+      "translated": "Поезд опоздал. Мы пропустили встречу. Никто нам не звонили.",
+      "elapsedMs": 66.85673400000019,
+      "cpuMicroseconds": {
+        "user": 100563,
+        "system": 2249
+      },
+      "rssBytes": 324886528,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "multiple_sentences-02",
+      "source": "en",
+      "target": "ru",
+      "input": "Save the file. Close the window. Then restart the application.",
+      "translated": "Сохраните файл. Закрой окно. Затем перезапустить заявку.",
+      "elapsedMs": 54.89426700000013,
+      "cpuMicroseconds": {
+        "user": 67993,
+        "system": 0
+      },
+      "rssBytes": 334323712,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "multiple_sentences-03",
+      "source": "en",
+      "target": "ru",
+      "input": "I bought some bread. There was no milk. I will go again tomorrow.",
+      "translated": "Я купил хлеб. Молока не было. Завтра я снова пойду.",
+      "elapsedMs": 58.2098289999999,
+      "cpuMicroseconds": {
+        "user": 116086,
+        "system": 2224
+      },
+      "rssBytes": 345202688,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "negation-01",
+      "source": "en",
+      "target": "ru",
+      "input": "I did not say he stole the money.",
+      "translated": "Я не говорил, что он украл деньги.",
+      "elapsedMs": 33.55653499999994,
+      "cpuMicroseconds": {
+        "user": 48194,
+        "system": 3767
+      },
+      "rssBytes": 332365824,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "negation-02",
+      "source": "en",
+      "target": "ru",
+      "input": "Do not restart the computer until the update is complete.",
+      "translated": "Не перезапускайте компьютер до полного обновления.",
+      "elapsedMs": 38.1140519999999,
+      "cpuMicroseconds": {
+        "user": 48030,
+        "system": 0
+      },
+      "rssBytes": 332365824,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "negation-03",
+      "source": "en",
+      "target": "ru",
+      "input": "Neither of the two answers is correct.",
+      "translated": "Ни один из двух ответов не является правильным.",
+      "elapsedMs": 30.692924999999832,
+      "cpuMicroseconds": {
+        "user": 41460,
+        "system": 0
+      },
+      "rssBytes": 332365824,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "questions-01",
+      "source": "en",
+      "target": "ru",
+      "input": "Why did you change your mind?",
+      "translated": "Почему ты передумал?",
+      "elapsedMs": 23.806614999999965,
+      "cpuMicroseconds": {
+        "user": 23800,
+        "system": 0
+      },
+      "rssBytes": 332365824,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "questions-02",
+      "source": "en",
+      "target": "ru",
+      "input": "Would you rather walk or take the bus?",
+      "translated": "Вы бы предпочли прогуляли или селом автобуса?",
+      "elapsedMs": 27.70711099999994,
+      "cpuMicroseconds": {
+        "user": 33764,
+        "system": 0
+      },
+      "rssBytes": 332496896,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "questions-03",
+      "source": "en",
+      "target": "ru",
+      "input": "How long have you been waiting here?",
+      "translated": "Как долго вы здесь ждали?",
+      "elapsedMs": 19.86823400000003,
+      "cpuMicroseconds": {
+        "user": 19730,
+        "system": 0
+      },
+      "rssBytes": 332627968,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "technical-01",
+      "source": "en",
+      "target": "ru",
+      "input": "The request timed out while connecting to the server.",
+      "translated": "Спрос при подключению к серверу.",
+      "elapsedMs": 28.684085000000096,
+      "cpuMicroseconds": {
+        "user": 34591,
+        "system": 0
+      },
+      "rssBytes": 332759040,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "technical-02",
+      "source": "en",
+      "target": "ru",
+      "input": "Enable two-factor authentication before sharing the repository.",
+      "translated": "Ввод двухфакторной аутентификации перед разделом хранилища.",
+      "elapsedMs": 48.20821000000001,
+      "cpuMicroseconds": {
+        "user": 66961,
+        "system": 0
+      },
+      "rssBytes": 333152256,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "technical-03",
+      "source": "en",
+      "target": "ru",
+      "input": "This function returns a null value when the cache is empty.",
+      "translated": "Эта функция возвращает нулю, когда кэш пуст.",
+      "elapsedMs": 35.837115999999924,
+      "cpuMicroseconds": {
+        "user": 59563,
+        "system": 0
+      },
+      "rssBytes": 334323712,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "numbers_dates-01",
+      "source": "en",
+      "target": "ru",
+      "input": "The meeting is on November 5 at 14:30.",
+      "translated": "Встреча состоится 5 ноября в 14:30.",
+      "elapsedMs": 23.234103000000005,
+      "cpuMicroseconds": {
+        "user": 23127,
+        "system": 0
+      },
+      "rssBytes": 334323712,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "numbers_dates-02",
+      "source": "en",
+      "target": "ru",
+      "input": "The total is 1,250 euros, including tax.",
+      "translated": "Общая сумма составляет 1,250 евро, включая налог.",
+      "elapsedMs": 28.03830099999982,
+      "cpuMicroseconds": {
+        "user": 31033,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "numbers_dates-03",
+      "source": "en",
+      "target": "ru",
+      "input": "Version 0.3.1 supports both x64 and ARM64.",
+      "translated": "Версия 0.3.1 поддерживает x64 и ARM64.",
+      "elapsedMs": 33.37109499999997,
+      "cpuMicroseconds": {
+        "user": 34959,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "politeness-01",
+      "source": "en",
+      "target": "ru",
+      "input": "Would you mind closing the door?",
+      "translated": "Не могли бы вы закрыть дверь?",
+      "elapsedMs": 23.34168499999987,
+      "cpuMicroseconds": {
+        "user": 23231,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "politeness-02",
+      "source": "en",
+      "target": "ru",
+      "input": "I would appreciate it if you could reply today.",
+      "translated": "Я был бы признателен, если бы вы могли ответить сегодня.",
+      "elapsedMs": 35.25335999999993,
+      "cpuMicroseconds": {
+        "user": 35610,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "politeness-03",
+      "source": "en",
+      "target": "ru",
+      "input": "Please accept my apologies for the delay.",
+      "translated": "Примите мои извинения за задержку.",
+      "elapsedMs": 32.80928800000015,
+      "cpuMicroseconds": {
+        "user": 35266,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "ambiguity_context-01",
+      "source": "en",
+      "target": "ru",
+      "input": "The bank is closed, so we sat on the river bank.",
+      "translated": "Банк закрыт, поэтому мы сидели на берегу реки.",
+      "elapsedMs": 35.15581800000018,
+      "cpuMicroseconds": {
+        "user": 37635,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "ambiguity_context-02",
+      "source": "en",
+      "target": "ru",
+      "input": "She booked a room and then read a book.",
+      "translated": "Она забронировала номер, а затем прочитала книгу.",
+      "elapsedMs": 43.47051299999998,
+      "cpuMicroseconds": {
+        "user": 46634,
+        "system": 0
+      },
+      "rssBytes": 334454784,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "ambiguity_context-03",
+      "source": "en",
+      "target": "ru",
+      "input": "The mouse stopped working after I dropped it.",
+      "translated": "Мышь перестала работать после того, как я ее уронил.",
+      "elapsedMs": 37.31538599999999,
+      "cpuMicroseconds": {
+        "user": 41832,
+        "system": 0
+      },
+      "rssBytes": 336289792,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "long_conditions-01",
+      "source": "en",
+      "target": "ru",
+      "input": "If the package has already been downloaded, the application should work without an internet connection.",
+      "translated": "Если пакет уже загружен, приложение должно работать без подключения к интернету.",
+      "elapsedMs": 54.34325500000023,
+      "cpuMicroseconds": {
+        "user": 54211,
+        "system": 0
+      },
+      "rssBytes": 336289792,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "long_conditions-02",
+      "source": "en",
+      "target": "ru",
+      "input": "Although the weather was bad, we decided to continue because the children were looking forward to the trip.",
+      "translated": "Хотя погода была плохой, мы решили продолжить, потому что дети с нетерпением ждали поездки.",
+      "elapsedMs": 60.49557800000002,
+      "cpuMicroseconds": {
+        "user": 67396,
+        "system": 0
+      },
+      "rssBytes": 336420864,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "long_conditions-03",
+      "source": "en",
+      "target": "ru",
+      "input": "The report that you sent yesterday does not include the changes we discussed last week.",
+      "translated": "Отчет, который вы отправили вчера, не включает изменения, которые мы обсуждали на прошлой неделе.",
+      "elapsedMs": 58.29803200000015,
+      "cpuMicroseconds": {
+        "user": 67070,
+        "system": 0
+      },
+      "rssBytes": 336551936,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "everyday-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Спасибо за помощь.",
+      "translated": "Thanks for your help.",
+      "elapsedMs": 109.95716700000003,
+      "cpuMicroseconds": {
+        "user": 133851,
+        "system": 3270
+      },
+      "rssBytes": 376004608,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "everyday-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Где находится ближайшая остановка?",
+      "translated": "Where is the nearest stop?",
+      "elapsedMs": 17.029872999999952,
+      "cpuMicroseconds": {
+        "user": 29229,
+        "system": 0
+      },
+      "rssBytes": 376135680,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "everyday-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Я забыл ключи дома.",
+      "translated": "I forgot the keys at home.",
+      "elapsedMs": 16.626854000000094,
+      "cpuMicroseconds": {
+        "user": 17792,
+        "system": 2145
+      },
+      "rssBytes": 345067520,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "idioms-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Не делай из мухи слона.",
+      "translated": "Don't make an elephant out of a fly.",
+      "elapsedMs": 24.02024799999981,
+      "cpuMicroseconds": {
+        "user": 29345,
+        "system": 0
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "idioms-05",
+      "source": "ru",
+      "target": "en",
+      "input": "У меня руки не доходят до этого.",
+      "translated": "My hands don't get to that.",
+      "elapsedMs": 22.372981999999865,
+      "cpuMicroseconds": {
+        "user": 22664,
+        "system": 0
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "idioms-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Это палка о двух концах.",
+      "translated": "It's a double-edged stick.",
+      "elapsedMs": 20.931519000000208,
+      "cpuMicroseconds": {
+        "user": 20116,
+        "system": 4053
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "conversation-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Ты серьёзно? Я думал, ты шутишь.",
+      "translated": "You serious? I thought you were kidding.",
+      "elapsedMs": 26.932350999999926,
+      "cpuMicroseconds": {
+        "user": 32765,
+        "system": 1002
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "conversation-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Как прошла встреча? Всё получилось?",
+      "translated": "How was the meeting? It all worked out?",
+      "elapsedMs": 20.768712999999934,
+      "cpuMicroseconds": {
+        "user": 21942,
+        "system": 0
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "conversation-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Ладно, договорились. До завтра!",
+      "translated": "Okay, okay. See you tomorrow!",
+      "elapsedMs": 19.83424200000036,
+      "cpuMicroseconds": {
+        "user": 22547,
+        "system": 0
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "multiple_sentences-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Сначала шёл дождь. Потом выглянуло солнце. Мы пошли гулять.",
+      "translated": "It was raining first. Then the sun looked out. We went for a walk.",
+      "elapsedMs": 37.82009300000027,
+      "cpuMicroseconds": {
+        "user": 40915,
+        "system": 0
+      },
+      "rssBytes": 345198592,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "multiple_sentences-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Я прочитал письмо. В нём была ошибка. Я ответил отправителю.",
+      "translated": "I read the letter. There was a mistake in him. I answered the sender.",
+      "elapsedMs": 40.770638999999846,
+      "cpuMicroseconds": {
+        "user": 79487,
+        "system": 4020
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "multiple_sentences-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Открой настройки. Выбери русский язык. Нажми сохранить.",
+      "translated": "Open the settings. Choose the Russian language. Click save.",
+      "elapsedMs": 40.09448900000007,
+      "cpuMicroseconds": {
+        "user": 41029,
+        "system": 619
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "negation-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Я никогда не говорил, что это невозможно.",
+      "translated": "I never said it was impossible.",
+      "elapsedMs": 20.358734999999797,
+      "cpuMicroseconds": {
+        "user": 21281,
+        "system": 302
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "negation-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Не все пользователи согласились с изменениями.",
+      "translated": "Not all users agreed with the changes.",
+      "elapsedMs": 18.48206200000004,
+      "cpuMicroseconds": {
+        "user": 21966,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "negation-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Без твоей помощи мы бы не справились.",
+      "translated": "Without your help, we wouldn't have made it.",
+      "elapsedMs": 29.13261199999988,
+      "cpuMicroseconds": {
+        "user": 54458,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "questions-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Ты уже отправил документы?",
+      "translated": "Have you sent the papers yet?",
+      "elapsedMs": 17.796237999999903,
+      "cpuMicroseconds": {
+        "user": 20297,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "questions-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Что бы ты сделал на моём месте?",
+      "translated": "What would you do in my place?",
+      "elapsedMs": 23.872765000000072,
+      "cpuMicroseconds": {
+        "user": 31049,
+        "system": 87
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "questions-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Разве мы не встречались раньше?",
+      "translated": "Haven't we met before?",
+      "elapsedMs": 20.944778999999926,
+      "cpuMicroseconds": {
+        "user": 22254,
+        "system": 891
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "technical-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Ошибка возникает только после выхода из спящего режима.",
+      "translated": "The error occurs only after exiting the sleep mode.",
+      "elapsedMs": 29.738646000000244,
+      "cpuMicroseconds": {
+        "user": 29642,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "technical-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Обновление драйвера устранило утечку памяти.",
+      "translated": "The driver update eliminated the memory leak.",
+      "elapsedMs": 25.15127399999983,
+      "cpuMicroseconds": {
+        "user": 24808,
+        "system": 257
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "technical-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Не храните пароли в исходном коде.",
+      "translated": "Do not store passwords in the source code.",
+      "elapsedMs": 31.381319000000076,
+      "cpuMicroseconds": {
+        "user": 32256,
+        "system": 491
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "numbers_dates-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Поезд отправляется в 08:15 с платформы 4.",
+      "translated": "The train departs at 08:15 from platform 4.",
+      "elapsedMs": 46.22659999999996,
+      "cpuMicroseconds": {
+        "user": 46750,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "numbers_dates-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Температура упала с 12 до минус 3 градусов.",
+      "translated": "The temperature dropped from 12 to minus 3 degrees.",
+      "elapsedMs": 42.052282000000105,
+      "cpuMicroseconds": {
+        "user": 43317,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "numbers_dates-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Скидка действует до 31 декабря 2026 года.",
+      "translated": "The discount is valid until December 31, 2026.",
+      "elapsedMs": 47.63289200000008,
+      "cpuMicroseconds": {
+        "user": 48834,
+        "system": 0
+      },
+      "rssBytes": 351096832,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "politeness-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Будьте добры, передайте мне соль.",
+      "translated": "Please give me the salt.",
+      "elapsedMs": 18.616505999999845,
+      "cpuMicroseconds": {
+        "user": 19505,
+        "system": 795
+      },
+      "rssBytes": 351227904,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "politeness-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Извините за беспокойство, у меня небольшой вопрос.",
+      "translated": "Sorry to bother you, I have a little question.",
+      "elapsedMs": 24.07616199999984,
+      "cpuMicroseconds": {
+        "user": 25197,
+        "system": 167
+      },
+      "rssBytes": 351227904,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "politeness-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Не могли бы вы уточнить время встречи?",
+      "translated": "Could you please clarify the meeting time?",
+      "elapsedMs": 18.208150999999816,
+      "cpuMicroseconds": {
+        "user": 19732,
+        "system": 557
+      },
+      "rssBytes": 351227904,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "ambiguity_context-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Я поставил замок на дверь старого замка.",
+      "translated": "I put the lock on the door of the old castle.",
+      "elapsedMs": 27.637564999999995,
+      "cpuMicroseconds": {
+        "user": 32541,
+        "system": 0
+      },
+      "rssBytes": 350945280,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "ambiguity_context-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Ключ лежит у источника, но это не ключ от двери.",
+      "translated": "The key is at the source, but it's not the key to the door.",
+      "elapsedMs": 36.49559899999986,
+      "cpuMicroseconds": {
+        "user": 39932,
+        "system": 0
+      },
+      "rssBytes": 350945280,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "ambiguity_context-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Он снял очки, чтобы набрать очки в игре.",
+      "translated": "He took off the points to score points in the game.",
+      "elapsedMs": 29.35179300000027,
+      "cpuMicroseconds": {
+        "user": 29905,
+        "system": 0
+      },
+      "rssBytes": 350945280,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "long_conditions-04",
+      "source": "ru",
+      "target": "en",
+      "input": "Если файл уже существует, создай резервную копию, прежде чем его перезаписывать.",
+      "translated": "If the file already exists, back up before you overrecord it.",
+      "elapsedMs": 45.950386999999864,
+      "cpuMicroseconds": {
+        "user": 45853,
+        "system": 0
+      },
+      "rssBytes": 350945280,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "long_conditions-05",
+      "source": "ru",
+      "target": "en",
+      "input": "Несмотря на то что задача оказалась сложнее, чем мы ожидали, команда завершила её вовремя.",
+      "translated": "Despite the fact that the task was more difficult than we expected, the team completed it on time.",
+      "elapsedMs": 56.30382300000019,
+      "cpuMicroseconds": {
+        "user": 58823,
+        "system": 0
+      },
+      "rssBytes": 350945280,
+      "wasmHeapBytes": 265289728
+    },
+    {
+      "id": "long_conditions-06",
+      "source": "ru",
+      "target": "en",
+      "input": "Когда закончишь работу, проверь, что все изменения сохранены и ни одно окно не осталось открытым.",
+      "translated": "When you finish the job, check that all changes are saved and no window left open.",
+      "elapsedMs": 54.28895300000022,
+      "cpuMicroseconds": {
+        "user": 55790,
+        "system": 0
+      },
+      "rssBytes": 350945280,
+      "wasmHeapBytes": 265289728
+    }
+  ],
+  "runtimeInitMs": 22.798175,
+  "totalMs": 3301.786703,
+  "totalCpuMicroseconds": {
+    "user": 3514212,
+    "system": 609602
+  },
+  "resourceUsage": {
+    "userCPUTime": 3591135,
+    "systemCPUTime": 631999,
+    "maxRSS": 367704,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 113136,
+    "majorPageFault": 0,
+    "swappedOut": 0,
+    "fsRead": 0,
+    "fsWrite": 2384,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 556,
+    "involuntaryContextSwitches": 204
+  },
+  "hardware": "AMD EPYC 9V74 80-Core Processor (9 virtual CPUs exposed)"
+}
