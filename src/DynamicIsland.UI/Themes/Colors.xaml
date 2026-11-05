@@ -29,6 +29,16 @@
 
     <!-- «Полупрозрачный» island background (settings → Внешний вид). -->
     <Color x:Key="Color.IslandTranslucent">#C0000000</Color>
+    <!-- Window-local translucent surfaces; text/artwork opacity stays unchanged. -->
+    <Color x:Key="Color.Translucent.Surface1">#641C1C1E</Color>
+    <Color x:Key="Color.Translucent.Surface2">#8038383A</Color>
+    <Color x:Key="Color.Translucent.Surface3">#99464649</Color>
+    <Color x:Key="Color.Translucent.Hover">#1EFFFFFF</Color>
+    <Color x:Key="Color.Translucent.Pressed">#30FFFFFF</Color>
+    <Color x:Key="Color.Translucent.Stroke">#26FFFFFF</Color>
+    <Color x:Key="Color.Translucent.TextSecondary">#B3EBEBF5</Color>
+    <Color x:Key="Color.Translucent.TextTertiary">#99EBEBF5</Color>
+    <Color x:Key="Color.Translucent.PopupSurface">#F228282A</Color>
 
     <!-- «Светло-серый» island: iOS light palette, dark text. Swapped in by IslandTheme. -->
     <Color x:Key="Color.Light.Island">#FFDCDCE1</Color>
@@ -49,6 +59,7 @@
     <SolidColorBrush x:Key="Brush.Surface1" Color="{StaticResource Color.Surface1}" />
     <SolidColorBrush x:Key="Brush.Surface2" Color="{StaticResource Color.Surface2}" />
     <SolidColorBrush x:Key="Brush.Surface3" Color="{StaticResource Color.Surface3}" />
+    <SolidColorBrush x:Key="Brush.PopupSurface" Color="{StaticResource Color.Surface2}" />
     <SolidColorBrush x:Key="Brush.TextPrimary" Color="{StaticResource Color.TextPrimary}" />
     <SolidColorBrush x:Key="Brush.TextSecondary" Color="{StaticResource Color.TextSecondary}" />
     <SolidColorBrush x:Key="Brush.TextTertiary" Color="{StaticResource Color.TextTertiary}" />

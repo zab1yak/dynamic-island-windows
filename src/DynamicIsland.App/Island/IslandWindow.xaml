@@ -76,7 +76,7 @@
             <Grid x:Name="CompactLayer" Width="200" Height="34" HorizontalAlignment="Center" VerticalAlignment="Top"
                   RenderTransformOrigin="0.5,0">
                 <Grid.RenderTransform>
-                    <ScaleTransform x:Name="CompactScale" />
+                    <TranslateTransform x:Name="CompactOffset" />
                 </Grid.RenderTransform>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -98,7 +98,7 @@
             <Grid x:Name="LiveLayer" Width="300" Height="34" HorizontalAlignment="Center" VerticalAlignment="Top"
                   RenderTransformOrigin="0.5,0" Opacity="0" IsHitTestVisible="False">
                 <Grid.RenderTransform>
-                    <ScaleTransform x:Name="LiveScale" />
+                    <TranslateTransform x:Name="LiveOffset" />
                 </Grid.RenderTransform>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -116,7 +116,7 @@
             <Grid x:Name="ExpandedLayer" Width="580" Height="160" HorizontalAlignment="Center" VerticalAlignment="Top"
                   RenderTransformOrigin="0.5,0" Opacity="0" IsHitTestVisible="False">
                 <Grid.RenderTransform>
-                    <ScaleTransform x:Name="ExpandedScale" ScaleX="0.96" ScaleY="0.96" />
+                    <TranslateTransform x:Name="ExpandedOffset" Y="2" />
                 </Grid.RenderTransform>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />

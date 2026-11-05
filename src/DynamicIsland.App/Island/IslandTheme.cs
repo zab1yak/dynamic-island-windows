@@ -26,6 +26,20 @@ internal static class IslandTheme
         ("Brush.TextTertiary", "Color.TextTertiary", "Color.Light.TextTertiary"),
         ("Brush.Hover", "Color.Hover", "Color.Light.Hover"),
         ("Brush.Pressed", "Color.Pressed", "Color.Light.Pressed"),
+        ("Brush.PopupSurface", "Color.Surface2", "Color.Light.Surface2"),
+    ];
+
+    private static readonly (string Brush, string Color)[] TranslucentSurfaces =
+    [
+        ("Brush.Surface1", "Color.Translucent.Surface1"),
+        ("Brush.Surface2", "Color.Translucent.Surface2"),
+        ("Brush.Surface3", "Color.Translucent.Surface3"),
+        ("Brush.Hover", "Color.Translucent.Hover"),
+        ("Brush.Pressed", "Color.Translucent.Pressed"),
+        ("Island.Stroke", "Color.Translucent.Stroke"),
+        ("Brush.TextSecondary", "Color.Translucent.TextSecondary"),
+        ("Brush.TextTertiary", "Color.Translucent.TextTertiary"),
+        ("Brush.PopupSurface", "Color.Translucent.PopupSurface"),
     ];
 
     private static IslandBackground? _applied;
@@ -36,13 +50,20 @@ internal static class IslandTheme
     /// </summary>
     public static SolidColorBrush BodyBrush { get; } = new(Colors.Black);
 
+    // The shadow is drawn behind the source, including inside a translucent fill.
+    // Attaching it when the spring settles must not increase the pill's effective alpha.
+    public static bool AllowBodyShadow => _applied != IslandBackground.Translucent;
+
     /// <summary>Applies <paramref name="background"/>; the body colour animates unless it is the first call.</summary>
-    public static void Apply(IslandBackground background)
+    public static void Apply(IslandBackground background, ResourceDictionary? islandResources = null)
     {
-        if (_applied == background || Application.Current is not { } app)
+        if (Application.Current is not { } app)
         {
             return;
         }
+
+        ApplySurfaceScope(background, app, islandResources);
+        if (_applied == background) return;
 
         var animate = _applied is not null;
         _applied = background;
@@ -65,8 +86,15 @@ internal static class IslandTheme
             {
                 if (animate)
                 {
+                    var from = BodyBrush.Color;
+                    BodyBrush.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                    BodyBrush.Color = target;
                     BodyBrush.BeginAnimation(SolidColorBrush.ColorProperty,
-                        new ColorAnimation(target, Duration) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut } });
+                        new ColorAnimation(from, target, Duration)
+                        {
+                            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut },
+                            FillBehavior = FillBehavior.Stop,
+                        });
                 }
                 else
                 {
@@ -77,5 +105,24 @@ internal static class IslandTheme
         }
 
         UI.Theming.ThemeEvents.RaiseChanged();
+    }
+
+    private static void ApplySurfaceScope(IslandBackground background, Application app, ResourceDictionary? resources)
+    {
+        if (resources is null) return;
+        foreach (var (brush, color) in TranslucentSurfaces)
+        {
+            if (background != IslandBackground.Translucent)
+            {
+                resources.Remove(brush);
+                continue;
+            }
+
+            if (app.TryFindResource(color) is not Color target) continue;
+            if (resources[brush] is SolidColorBrush current && current.Color == target) continue;
+            var scoped = new SolidColorBrush(target);
+            scoped.Freeze();
+            resources[brush] = scoped;
+        }
     }
 }

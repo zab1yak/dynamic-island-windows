@@ -288,7 +288,7 @@
                             <c:Icon.RenderTransform><RotateTransform Angle="90" /></c:Icon.RenderTransform>
                         </c:Icon>
                         <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                            <c:SquircleBorder Background="{DynamicResource Brush.Surface2}" CornerRadius="10" BorderBrush="{DynamicResource Island.Stroke}" BorderThickness="1"
+                            <c:SquircleBorder Background="{DynamicResource Brush.PopupSurface}" CornerRadius="10" BorderBrush="{DynamicResource Island.Stroke}" BorderThickness="1"
                                               MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" Padding="4" Margin="0,4,0,0">
                                 <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
                                     <ItemsPresenter />

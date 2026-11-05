@@ -321,7 +321,7 @@ internal sealed partial class IslandWindow : Window
         var s = _settings.Current;
         _stateMachine.ExpandDelay = TimeSpan.FromMilliseconds(s.HoverExpandDelayMs);
         _stateMachine.CollapseDelay = TimeSpan.FromMilliseconds(s.HoverCollapseDelayMs);
-        IslandTheme.Apply(s.Background);
+        IslandTheme.Apply(s.Background, Resources);
         // The outline is set in code only while the shape moves; refresh it for a settled island too.
         _strokeBrush = (System.Windows.Media.Brush)FindResource("Island.Stroke");
         Outline.Stroke = _stateMachine.Mode == IslandMode.DropTarget ? _dropBrush ?? _strokeBrush : _strokeBrush;
@@ -341,6 +341,9 @@ internal sealed partial class IslandWindow : Window
             _fullscreen.Evaluate();
             _stateMachine.SetFullscreen(_fullscreen.IsFullscreen);
         }
+
+        Render();
+        if (_expandedOpacity.Target > 0 && IslandTheme.AllowBodyShadow) _clock.Start();
     }
 
     /// <summary>The hotkey also unlocks a locked island («Заблокировать остров»).</summary>
@@ -550,7 +553,7 @@ internal sealed partial class IslandWindow : Window
 
         // Fade in the shadow on the settled geometry, without rasterising a changing blur
         // on every morph frame or attaching a fully opaque shadow in one frame.
-        _shadowOpacity.Target = _settled && _expandedOpacity.Target > 0 ? 1 : 0;
+        _shadowOpacity.Target = IslandTheme.AllowBodyShadow && _settled && _expandedOpacity.Target > 0 ? 1 : 0;
         moving |= _shadowOpacity.Step(dt);
         Render();
         return moving;
@@ -568,7 +571,7 @@ internal sealed partial class IslandWindow : Window
             ? OutlineGeometry.ToGeometry(IslandShapeMath.Build(parameters, includeTopEdge: false), closed: false)
             : null;
         // The blurred shadow is re-rendered for every new geometry; draw it only once the island rests.
-        Body.Effect = _settled && _shadowOpacity.Value > 0.005 ? BodyShadow : null;
+        Body.Effect = IslandTheme.AllowBodyShadow && _settled && _shadowOpacity.Value > 0.005 ? BodyShadow : null;
         var compact = Math.Clamp(_compactOpacity.Value, 0, 1);
         // Keep full-sized page content out of the compact mask during the early morph.
         var openness = Math.Clamp((_height.Value - IslandMetrics.Compact.Height) /
@@ -576,12 +579,12 @@ internal sealed partial class IslandWindow : Window
         var reveal = Math.Clamp((openness - 0.65) / 0.35, 0, 1);
         reveal = reveal * reveal * (3 - (2 * reveal));
         ExpandedLayer.Opacity = expanded * reveal;
-        ExpandedScale.ScaleX = ExpandedScale.ScaleY = 0.96 + (0.04 * expanded);
+        ExpandedOffset.Y = 2 * (1 - expanded);
         CompactLayer.Opacity = compact;
-        CompactScale.ScaleX = CompactScale.ScaleY = 0.96 + (0.04 * compact);
+        CompactOffset.Y = 1 - compact;
         var live = Math.Clamp(_liveOpacity.Value, 0, 1);
         LiveLayer.Opacity = live;
-        LiveScale.ScaleX = LiveScale.ScaleY = 0.96 + (0.04 * live);
+        LiveOffset.Y = 1 - live;
         Outline.Opacity = expanded;
         _strokeBrush ??= (System.Windows.Media.Brush)FindResource("Island.Stroke");
         _dropBrush ??= (System.Windows.Media.Brush)FindResource("Brush.Blue");
