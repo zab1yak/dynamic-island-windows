@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using DynamicIsland.Modules.Translator.Services;
 
-if (args.Length != 3)
+if (args.Length is < 3 or > 5)
 {
     Console.Error.WriteLine("Usage: translation-benchmark <installed-model-directory> <corpus.json> <results.jsonl>. Never downloads models.");
     return 2;
@@ -12,7 +12,7 @@ var json = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 var cases = JsonSerializer.Deserialize<BenchmarkCase[]>(await File.ReadAllTextAsync(args[1]), json)!;
 using var http = new HttpClient(new NoNetworkHandler());
 using var packages = new TranslationPackageManager(http, args[0]);
-using var engine = new OfflineTranslationService(packages);
+using var engine = new OfflineTranslationService(packages, new(args.Length > 3 ? int.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture) : 1, args.Length > 4 && args[4] == "--sentences"));
 await using var output = new StreamWriter(args[2], append: true) { AutoFlush = true };
 foreach (var item in cases)
 {

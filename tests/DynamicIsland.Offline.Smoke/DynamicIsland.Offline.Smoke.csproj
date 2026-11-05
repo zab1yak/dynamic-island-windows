@@ -12,6 +12,7 @@
     <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/ITranslationPackageManager.cs" Link="Production/ITranslationPackageManager.cs" />
     <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/TranslationPackageManager.cs" Link="Production/TranslationPackageManager.cs" />
     <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/TranslationModelCatalog.cs" Link="Production/TranslationModelCatalog.cs" />
+    <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/TranslationSentenceSplitter.cs" Link="Production/TranslationSentenceSplitter.cs" />
     <Compile Include="../../src/DynamicIsland.Modules.Translator/Services/OfflineTranslationService.cs" Link="Production/OfflineTranslationService.cs" />
   </ItemGroup>
 </Project>

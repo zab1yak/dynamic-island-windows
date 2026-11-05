@@ -7,8 +7,20 @@ using Microsoft.ML.Tokenizers;
 namespace DynamicIsland.Modules.Translator.Services;
 
 /// <summary>Local Marian/OPUS inference. No network operation or process launch occurs here.</summary>
-public sealed class OfflineTranslationService(ITranslationPackageManager packages) : ITranslationService, IDisposable
+public sealed class OfflineTranslationService : ITranslationService, IDisposable
 {
+    private readonly ITranslationPackageManager packages;
+    private readonly OfflineDecodingOptions _decoding;
+
+    public OfflineTranslationService(ITranslationPackageManager packages) : this(packages, new()) { }
+
+    internal OfflineTranslationService(ITranslationPackageManager packages, OfflineDecodingOptions decoding)
+    {
+        this.packages = packages;
+        _decoding = decoding;
+        if (decoding.BeamWidth is < 1 or > 4) throw new ArgumentOutOfRangeException(nameof(decoding));
+    }
+
     private readonly SemaphoreSlim _gate = new(1, 1);
     private int _disposed;
 
@@ -27,7 +39,7 @@ public sealed class OfflineTranslationService(ITranslationPackageManager package
         try
         {
             ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-            return await Task.Run(() => Translate(text, model, path, cancellationToken), cancellationToken).ConfigureAwait(false);
+            return await Task.Run(() => Translate(text, model, path, _decoding, cancellationToken), cancellationToken).ConfigureAwait(false);
         }
         catch (OnnxRuntimeException)
         {
@@ -41,7 +53,7 @@ public sealed class OfflineTranslationService(ITranslationPackageManager package
         finally { _gate.Release(); }
     }
 
-    private static TranslationResult Translate(string text, TranslationModel model, string path, CancellationToken cancellationToken)
+    private static TranslationResult Translate(string text, TranslationModel model, string path, OfflineDecodingOptions decoding, CancellationToken cancellationToken)
     {
         // Verify every installed data file before handing it to a native parser. Models contain no custom operators.
         TranslationPackageManager.RejectReparsePoint(path);
@@ -60,9 +72,6 @@ public sealed class OfflineTranslationService(ITranslationPackageManager package
         var targetTokenizer = SentencePieceTokenizer.Create(targetStream, false, false);
         var vocabulary = JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(Path.Combine(path, "vocab.json")))
             ?? throw new TranslationException(TranslationFailure.InvalidResponse);
-        var tokens = sourceTokenizer.EncodeToTokens(text, out _);
-        if (tokens.Count > 255) throw new TranslationException(TranslationFailure.InvalidInput);
-        var inputIds = tokens.Select(t => (long)vocabulary.GetValueOrDefault(t.Value, vocabulary["<unk>"])).Append(vocabulary["</s>"]).ToArray();
         using var config = JsonDocument.Parse(File.ReadAllText(Path.Combine(path, "config.json")));
         var start = config.RootElement.GetProperty("decoder_start_token_id").GetInt32();
         var end = config.RootElement.GetProperty("eos_token_id").GetInt32();
@@ -79,53 +88,93 @@ public sealed class OfflineTranslationService(ITranslationPackageManager package
         using var run = new RunOptions();
         using var registration = cancellationToken.Register(() => run.Terminate = true);
         cancellationToken.ThrowIfCancellationRequested();
-        var attention = new DenseTensor<long>(Enumerable.Repeat(1L, inputIds.Length).ToArray(), [1, inputIds.Length]);
-        var encoderInputs = new[]
-        {
-            NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(inputIds, [1, inputIds.Length])),
-            NamedOnnxValue.CreateFromTensor("attention_mask", attention),
-        };
-        using var encoded = encoder.Run(encoderInputs, ["last_hidden_state"], run);
-        var hiddenState = encoded.First().AsTensor<float>();
-        var generated = new List<long> { start };
-        var decoded = new List<int>();
-        var byId = vocabulary.ToDictionary(p => p.Value, p => p.Key);
-        for (var step = 0; step < 256; step++)
+        var segments = decoding.SplitSentences ? TranslationSentenceSplitter.Split(text) : [text];
+        var translations = new List<string>();
+        foreach (var segment in segments)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var decoderInputs = new[]
+            var tokens = sourceTokenizer.EncodeToTokens(segment, out _);
+            if (tokens.Count > 255) throw new TranslationException(TranslationFailure.InvalidInput);
+            var inputIds = tokens.Select(t => (long)vocabulary.GetValueOrDefault(t.Value, vocabulary["<unk>"])).Append(vocabulary["</s>"]).ToArray();
+            var attention = new DenseTensor<long>(Enumerable.Repeat(1L, inputIds.Length).ToArray(), [1, inputIds.Length]);
+            var encoderInputs = new[]
             {
-                NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(generated.ToArray(), [1, generated.Count])),
-                NamedOnnxValue.CreateFromTensor("encoder_hidden_states", hiddenState),
-                NamedOnnxValue.CreateFromTensor("encoder_attention_mask", attention),
+                NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(inputIds, [1, inputIds.Length])),
+                NamedOnnxValue.CreateFromTensor("attention_mask", attention),
             };
-            using var result = decoder.Run(decoderInputs, ["logits"], run);
-            var logits = result.First().AsTensor<float>();
-            var vocabularySize = logits.Dimensions[2];
-            var bestId = 0;
-            var bestScore = float.NegativeInfinity;
-            for (var id = 0; id < vocabularySize; id++)
+            using var encoded = encoder.Run(encoderInputs, ["last_hidden_state"], run);
+            var hiddenState = encoded.First().AsTensor<float>();
+            var ids = Generate(decoder, hiddenState, attention, start, end, decoding.BeamWidth, run, cancellationToken);
+            var byId = vocabulary.ToDictionary(p => p.Value, p => p.Key);
+            var decoded = ids.Select(id => byId.TryGetValue((int)id, out var piece) && targetTokenizer.Vocabulary.TryGetValue(piece, out var targetId)
+                ? targetId : targetTokenizer.UnknownId);
+            var output = targetTokenizer.Decode(decoded);
+            if (string.IsNullOrWhiteSpace(output)) throw new TranslationException(TranslationFailure.InvalidResponse);
+            translations.Add(output);
+        }
+        return new(string.Join(" ", translations), model.Source);
+    }
+
+    private sealed record Beam(long[] Tokens, double Score);
+
+    private static long[] Generate(InferenceSession decoder, Tensor<float> hiddenState, Tensor<long> attention,
+        int start, int end, int width, RunOptions run, CancellationToken cancellationToken)
+    {
+        var active = new List<Beam> { new([start], 0) };
+        var completed = new List<Beam>();
+        for (var step = 0; step < 256; step++)
+        {
+            var candidates = new List<Beam>();
+            foreach (var beam in active)
             {
-                if (id == start) continue;
-                var score = logits[0, generated.Count - 1, id];
-                if (score > bestScore) { bestScore = score; bestId = id; }
+                cancellationToken.ThrowIfCancellationRequested();
+                var inputs = new[]
+                {
+                    NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(beam.Tokens, [1, beam.Tokens.Length])),
+                    NamedOnnxValue.CreateFromTensor("encoder_hidden_states", hiddenState),
+                    NamedOnnxValue.CreateFromTensor("encoder_attention_mask", attention),
+                };
+                using var result = decoder.Run(inputs, ["logits"], run);
+                var logits = result.First().AsTensor<float>();
+                var size = logits.Dimensions[2];
+                var top = new List<(int Id, float Score)>();
+                double sum = 0;
+                var max = float.NegativeInfinity;
+                for (var id = 0; id < size; id++)
+                    if (id != start) max = Math.Max(max, logits[0, beam.Tokens.Length - 1, id]);
+                for (var id = 0; id < size; id++)
+                {
+                    if (id == start) continue;
+                    var score = logits[0, beam.Tokens.Length - 1, id];
+                    sum += Math.Exp(score - max);
+                    if (top.Count == width && score <= top[^1].Score) continue;
+                    top.Add((id, score));
+                    top.Sort((a, b) => b.Score.CompareTo(a.Score));
+                    if (top.Count > width) top.RemoveAt(width);
+                }
+                var normalizer = max + Math.Log(sum);
+                foreach (var next in top)
+                {
+                    var candidate = new Beam([.. beam.Tokens, next.Id], beam.Score + next.Score - normalizer);
+                    candidates.Add(candidate);
+                }
             }
-            if (bestId == end)
-            {
-                var output = targetTokenizer.Decode(decoded);
-                if (string.IsNullOrWhiteSpace(output)) throw new TranslationException(TranslationFailure.InvalidResponse);
-                return new(output, model.Source);
-            }
-            generated.Add(bestId);
-            if (byId.TryGetValue(bestId, out var piece) && targetTokenizer.Vocabulary.TryGetValue(piece, out var targetId))
-                decoded.Add(targetId);
-            else decoded.Add(targetTokenizer.UnknownId);
+            // Preserve greedy behavior exactly at width one. For beam search EOS competes
+            // with live hypotheses; length penalty is 1.0, as Marian generation defaults.
+            var ranked = candidates.OrderByDescending(b => b.Score).Take(width).ToArray();
+            foreach (var beam in ranked.Where(b => b.Tokens[^1] == end)) completed.Add(beam);
+            active = ranked.Where(b => b.Tokens[^1] != end).ToList();
+            if (active.Count == 0 || completed.Count >= width)
+                return completed.OrderByDescending(b => b.Score / (b.Tokens.Length - 1)).First().Tokens[1..^1];
         }
         // Never silently return a partial result when the generation budget is exceeded.
         throw new TranslationException(TranslationFailure.InvalidResponse);
     }
 
+
     // No wait handle is created for this managed async gate. Keeping it valid lets an already
     // cancelled/draining operation release it safely during emergency process shutdown.
     public void Dispose() => Interlocked.Exchange(ref _disposed, 1);
 }
+
+internal sealed record OfflineDecodingOptions(int BeamWidth = 1, bool SplitSentences = false);
