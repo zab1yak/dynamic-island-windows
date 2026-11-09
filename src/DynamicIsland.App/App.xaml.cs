@@ -53,6 +53,7 @@ public partial class App : Application
             return;
         }
 
+        StopUpdates();
         try
         {
             _island?.CloseForExit();
@@ -71,6 +72,7 @@ public partial class App : Application
             _logger.LogError(ex, "Error during shutdown");
         }
 
+        PreparePendingUpdate();
         base.OnExit(e);
     }
 
@@ -80,6 +82,7 @@ public partial class App : Application
     private async Task PrepareShutdownAsync(int exitCode)
     {
         _modulesReady = false;
+        StopUpdates();
         try
         {
             _island?.Hide();
@@ -100,8 +103,21 @@ public partial class App : Application
             _shutdownPrepared = true;
             _island?.CloseForExit();
             if (_settingsCreated) _host.Services.GetRequiredService<Settings.SettingsWindow>().CloseForExit();
+            PreparePendingUpdate();
             Shutdown(exitCode);
         }
+    }
+
+    private void StopUpdates()
+    {
+        try { _host.Services.GetRequiredService<UpdateService>().Stop(); }
+        catch (Exception ex) { _logger.LogWarning(ex, "Could not cancel update work during exit"); }
+    }
+
+    private void PreparePendingUpdate()
+    {
+        try { _host.Services.GetRequiredService<UpdateService>().PrepareForExit(); }
+        catch (Exception ex) { _logger.LogWarning(ex, "Could not schedule a pending update on exit"); }
     }
 
     /// <inheritdoc />
@@ -201,7 +217,9 @@ public partial class App : Application
             services.GetRequiredService<LiveActivityHost>().Start();
 
             var updates = services.GetRequiredService<UpdateService>();
-            services.GetRequiredService<Settings.AboutViewModel>().CheckUpdates = () => updates.CheckAsync(notify: false);
+            var about = services.GetRequiredService<Settings.AboutViewModel>();
+            about.AttachUpdates(updates, services.GetRequiredService<DynamicIsland.Core.Threading.IUiDispatcher>());
+            about.ExitForUpdate = () => ShutdownGracefullyAsync();
             updates.Start();
 
             _instance.SetHandler(args => Dispatcher.BeginInvoke(() => HandleArguments(CommandLine.Parse(args))));

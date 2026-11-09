@@ -1,6 +1,9 @@
 using System.Dynamic;
 using System.Reflection;
 using System.Resources;
+using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -155,11 +158,12 @@ internal static class Fixtures
         model["Message"] = null;
         model["Title"] = ru ? "Съешь ещё булок · 2026" : "Soft light · 2026";
         model["Artist"] = ru ? "Тестовый исполнитель" : "Synthetic artist";
-        model["Artwork"] = null;
+        model["Artwork"] = name == "Media" ? SyntheticArtwork() : null;
         model["Notice"] = null;
         model["Accent"] = 0xFF608CE1u;
         model["AppName"] = "Synthetic player";
         model["PositionText"] = "1:18";
+        model["DurationText"] = "4:00";
         model["PlayPauseLabel"] = ru ? "Пауза" : "Pause";
         model["RepeatGlyph"] = "Repeat";
         model["RepeatLabel"] = ru ? "Повтор" : "Repeat";
@@ -172,6 +176,24 @@ internal static class Fixtures
                 new TodoItem { Title = ru ? "Длинная задача с ₽ € % °" : "A longer task with ₽ € % °", Draft = string.Empty, Done = true, IsEditing = false },
             };
         return model;
+    }
+
+    private static byte[] SyntheticArtwork()
+    {
+        var visual = new DrawingVisual();
+        using (var drawing = visual.RenderOpen())
+        {
+            drawing.DrawRectangle(new SolidColorBrush(Color.FromRgb(55, 88, 120)), null, new Rect(0, 0, 84, 84));
+            drawing.DrawEllipse(new SolidColorBrush(Color.FromRgb(220, 225, 210)), null, new Point(52, 28), 18, 18);
+            drawing.DrawRectangle(new SolidColorBrush(Color.FromRgb(30, 48, 70)), null, new Rect(0, 60, 84, 24));
+        }
+        var bitmap = new RenderTargetBitmap(84, 84, 96, 96, PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        using var output = new MemoryStream();
+        encoder.Save(output);
+        return output.ToArray();
     }
 
     private sealed class PackageState

@@ -5,9 +5,11 @@ using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicIsland.App.Island;
+using DynamicIsland.App.Services;
 using DynamicIsland.Core.Input;
 using DynamicIsland.Core.Modules;
 using DynamicIsland.Core.Settings;
+using DynamicIsland.Core.Threading;
 using DynamicIsland.Platform.Windows.Display;
 using DynamicIsland.Platform.Windows.Startup;
 using DynamicIsland.UI.Localization;
@@ -346,20 +348,175 @@ internal sealed partial class ModulesSettingsViewModel : ObservableObject
     }
 }
 
-/// <summary>About page.</summary>
-internal sealed partial class AboutViewModel : ObservableObject
+/// <summary>About page and the user-visible state of the existing application updater.</summary>
+internal sealed partial class AboutViewModel : ObservableObject, IDisposable
 {
     public const string RepositoryUrl = "https://github.com/zab1yak/dynamic-island-windows";
+    private IApplicationUpdateController? _updates;
+    private IUiDispatcher? _dispatcher;
+    private UpdateSnapshot? _snapshot;
+    private CancellationTokenSource? _manualOperation;
+    private bool _disposed;
 
     public string Version { get; } = typeof(AboutViewModel).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
         ?? typeof(AboutViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
 
-    /// <summary>Set by the update service (task: installer and updates).</summary>
-    [ObservableProperty]
-    private string? _updateStatus;
+    public AboutViewModel() => Loc.Instance.CultureChanged += OnCultureChanged;
 
-    /// <summary>Hook for the update check; null when updates are unavailable (development build).</summary>
-    public Func<Task<string>>? CheckUpdates { get; set; }
+    public Func<Task>? ExitForUpdate { get; set; }
+    public bool IsUpdateBusy => _updates?.IsBusy ?? false;
+    public bool ShowDownloadUpdate => _snapshot?.State == UpdateState.Available;
+    public bool ShowApplyUpdate => _snapshot?.State == UpdateState.Ready;
+    public bool ShowCancelUpdate => IsUpdateBusy && _manualOperation is not null;
+    public bool ShowReleaseLink => _snapshot?.State is UpdateState.Available or UpdateState.Ready or UpdateState.Unsupported or UpdateState.Error;
+    public bool IsUpdateProgressIndeterminate => _snapshot?.State == UpdateState.Checking || _snapshot?.ProgressPercent is null;
+    public double UpdateProgress => _snapshot?.ProgressPercent ?? 0;
+    public string CheckUpdatesLabel => Loc.Instance[_snapshot?.State is UpdateState.Error or UpdateState.Cancelled ? "Update.Retry" : "Settings.CheckNow"];
+    public string InstalledVersion => _snapshot?.InstalledVersion is { Length: > 0 } version ? version : Version;
+    public string ReleasePageUrl => IsProjectReleaseUrl(_snapshot?.ReleaseUrl) ? _snapshot!.ReleaseUrl : RepositoryUrl + "/releases/latest";
+
+    public string UpdateStatus
+    {
+        get
+        {
+            if (IsUpdateBusy && _manualOperation?.IsCancellationRequested == true) return Loc.Instance["Update.Cancelling"];
+            var available = _snapshot?.AvailableVersion ?? string.Empty;
+            return _snapshot?.State switch
+            {
+                UpdateState.Checking => Loc.Instance["Update.Checking"],
+                UpdateState.Latest => Loc.Instance.Format("Update.Latest", InstalledVersion),
+                UpdateState.Available => Loc.Instance.Format("Update.Available", available),
+                UpdateState.Downloading when _snapshot.ProgressPercent is { } percent => Loc.Instance.Format("Update.DownloadingPercent", percent),
+                UpdateState.Downloading => Loc.Instance["Update.Downloading"],
+                UpdateState.Ready => Loc.Instance.Format("Update.Downloaded", available),
+                UpdateState.Unsupported => Loc.Instance["Update.Unsupported"],
+                UpdateState.Cancelled => Loc.Instance["Update.Cancelled"],
+                UpdateState.Error => ErrorMessage(),
+                _ => Loc.Instance["Update.ManualHint"],
+            };
+        }
+    }
+
+    public string UpdateDetail
+    {
+        get
+        {
+            var installed = _snapshot?.State is UpdateState.Available or UpdateState.Downloading or UpdateState.Ready
+                ? Loc.Instance.Format("Update.Installed", InstalledVersion) : string.Empty;
+            var checkedAt = _snapshot?.CheckedAt is { } time
+                ? Loc.Instance.Format("Update.CheckedAt", time.ToLocalTime().ToString("g", Loc.Instance.Culture)) : string.Empty;
+            return string.Join(Environment.NewLine, new[] { installed, checkedAt }.Where(value => value.Length > 0));
+        }
+    }
+
+    public string ReadyInstruction => ShowApplyUpdate ? Loc.Instance["Update.InstallOnExit"] : string.Empty;
+
+    internal void AttachUpdates(IApplicationUpdateController updates, IUiDispatcher dispatcher)
+    {
+        ArgumentNullException.ThrowIfNull(updates);
+        ArgumentNullException.ThrowIfNull(dispatcher);
+        if (_updates is not null) _updates.Changed -= OnUpdatesChanged;
+        _updates = updates;
+        _dispatcher = dispatcher;
+        updates.Changed += OnUpdatesChanged;
+        RefreshUpdates();
+    }
+
+    private string ErrorMessage()
+    {
+        var stage = _snapshot?.Failure?.Stage switch
+        {
+            UpdateStage.Downloading => "Update.DownloadFailed",
+            UpdateStage.Preparing => "Update.PrepareFailed",
+            _ => "Update.CheckFailed",
+        };
+        var reason = _snapshot?.Failure?.Reason switch
+        {
+            UpdateFailureReason.Network => "Update.ErrorNetwork",
+            UpdateFailureReason.Timeout => "Update.ErrorTimeout",
+            UpdateFailureReason.InvalidFeed => "Update.ErrorFeed",
+            UpdateFailureReason.Integrity => "Update.ErrorIntegrity",
+            _ => "Update.ErrorUnavailable",
+        };
+        return Loc.Instance[stage] + " " + Loc.Instance[reason];
+    }
+
+    private void OnUpdatesChanged(object? sender, EventArgs e)
+    {
+        if (_dispatcher is { } dispatcher && !dispatcher.CheckAccess()) dispatcher.Post(RefreshUpdates);
+        else RefreshUpdates();
+    }
+
+    private void OnCultureChanged(object? sender, EventArgs e) => OnUpdatesChanged(sender, e);
+
+    private void RefreshUpdates()
+    {
+        if (_disposed) return;
+        _snapshot = _updates?.Current;
+        OnPropertyChanged(nameof(UpdateStatus));
+        OnPropertyChanged(nameof(UpdateDetail));
+        OnPropertyChanged(nameof(IsUpdateBusy));
+        OnPropertyChanged(nameof(ShowDownloadUpdate));
+        OnPropertyChanged(nameof(ShowApplyUpdate));
+        OnPropertyChanged(nameof(ShowCancelUpdate));
+        OnPropertyChanged(nameof(ShowReleaseLink));
+        OnPropertyChanged(nameof(IsUpdateProgressIndeterminate));
+        OnPropertyChanged(nameof(UpdateProgress));
+        OnPropertyChanged(nameof(CheckUpdatesLabel));
+        OnPropertyChanged(nameof(ReadyInstruction));
+        CheckForUpdatesCommand.NotifyCanExecuteChanged();
+        DownloadUpdateCommand.NotifyCanExecuteChanged();
+        CancelUpdateCommand.NotifyCanExecuteChanged();
+        ExitAndInstallCommand.NotifyCanExecuteChanged();
+        OpenReleaseCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanCheck() => !_disposed && _updates is not null && !IsUpdateBusy && _manualOperation is null;
+    private bool CanDownload() => CanCheck() && ShowDownloadUpdate;
+    private bool CanCancel() => _manualOperation is { IsCancellationRequested: false } && IsUpdateBusy;
+    private bool CanApply() => CanCheck() && ShowApplyUpdate && ExitForUpdate is not null;
+    private bool CanOpenRelease() => ShowReleaseLink;
+
+    [RelayCommand(CanExecute = nameof(CanCheck))]
+    private Task CheckForUpdatesAsync() => RunManualAsync(_snapshot?.State == UpdateState.Error && _snapshot.Failure?.Stage == UpdateStage.Downloading);
+
+    [RelayCommand(CanExecute = nameof(CanDownload))]
+    private Task DownloadUpdateAsync() => RunManualAsync(download: true);
+
+    private async Task RunManualAsync(bool download)
+    {
+        if (!CanCheck() || _updates is null) return;
+        using var cancellation = new CancellationTokenSource();
+        _manualOperation = cancellation;
+        RefreshUpdates();
+        try
+        {
+            if (download) await _updates.DownloadAsync(cancellation.Token);
+            else await _updates.CheckAsync(notify: false, cancellationToken: cancellation.Token);
+        }
+        catch (OperationCanceledException) { /* The shared updater publishes its cancelled state. */ }
+        finally { _manualOperation = null; RefreshUpdates(); }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCancel))]
+    private void CancelUpdate() => CancelManualUpdate();
+
+    internal void CancelManualUpdate()
+    {
+        _manualOperation?.Cancel();
+        RefreshUpdates();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanApply))]
+    private Task ExitAndInstallAsync() => ExitForUpdate?.Invoke() ?? Task.CompletedTask;
+
+    [RelayCommand(CanExecute = nameof(CanOpenRelease))]
+    private void OpenRelease() => OpenUrl(ReleasePageUrl);
+
+    internal static bool IsProjectReleaseUrl(string? url) => Uri.TryCreate(url, UriKind.Absolute, out var uri)
+        && uri.Scheme == Uri.UriSchemeHttps && uri.Host == "github.com" && uri.UserInfo.Length == 0
+        && uri.IsDefaultPort && uri.AbsolutePath.StartsWith("/zab1yak/dynamic-island-windows/releases/", StringComparison.Ordinal)
+        && uri.Query.Length == 0 && uri.Fragment.Length == 0;
 
     [RelayCommand]
     private static void OpenRepository() => OpenUrl(RepositoryUrl);
@@ -373,24 +530,21 @@ internal sealed partial class AboutViewModel : ObservableObject
     [RelayCommand]
     private static void OpenNotices() => OpenUrl(RepositoryUrl + "/blob/main/THIRD_PARTY_NOTICES.md");
 
-    [RelayCommand]
-    private async Task CheckForUpdatesAsync()
-    {
-        UpdateStatus = Loc.Instance["Settings.UpdatesChecking"];
-        UpdateStatus = CheckUpdates is null ? Loc.Instance["Settings.UpdatesUnavailable"] : await CheckUpdates();
-    }
-
     private static void OpenUrl(string url)
     {
-        // Only constant project/support URLs are opened; mailto opens a draft in the default client.
-        try
-        {
-            using var _ = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        }
+        try { using var _ = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
-        {
-            // No default browser: nothing else to do.
-        }
+        { /* No default browser: keep the settings window open. */ }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        CancelManualUpdate();
+        _disposed = true;
+        if (_updates is not null) _updates.Changed -= OnUpdatesChanged;
+        Loc.Instance.CultureChanged -= OnCultureChanged;
+        GC.SuppressFinalize(this);
     }
 }
 

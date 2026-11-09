@@ -1,79 +1,68 @@
-using DynamicIsland.App.Settings;
 using DynamicIsland.Core.Settings;
+using DynamicIsland.Core.Threading;
 using DynamicIsland.UI.Localization;
 using Microsoft.Extensions.Logging;
-using Velopack;
-using Velopack.Sources;
 
 namespace DynamicIsland.App.Services;
 
-/// <summary>
-/// Updates from GitHub Releases through Velopack. Only an installed copy updates; a development
-/// build reports that updates are unavailable. A found update is downloaded in the background and
-/// applied when the app exits (no forced restart).
-/// </summary>
-internal sealed class UpdateService(ISettingsService settings, TrayIconService tray, ILogger<UpdateService> logger) : IDisposable
+/// <summary>One updater shared by the About page and the existing daily automatic check.</summary>
+internal sealed class UpdateService : IApplicationUpdateController, IDisposable
 {
     private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(24);
-
-    private readonly UpdateManager _manager = new(new GithubSource(AboutViewModel.RepositoryUrl, accessToken: null, prerelease: false));
+    private readonly ISettingsService _settings;
+    private readonly UpdateCoordinator _coordinator;
     private Timer? _timer;
-    private bool _pending;
+    private int _stopping;
 
-    /// <summary>Whether this copy was installed by Velopack (and can update itself).</summary>
-    public bool IsInstalled => _manager.IsInstalled;
+    public UpdateService(ISettingsService settings, TrayIconService tray, ILogger<UpdateService> logger, IUiDispatcher dispatcher)
+    {
+        _settings = settings;
+        _coordinator = new(new VelopackUpdateBackend(), TimeProvider.System,
+            snapshot =>
+            {
+                if (Volatile.Read(ref _stopping) != 0) return;
+                dispatcher.Post(() =>
+                {
+                    if (Volatile.Read(ref _stopping) == 0)
+                        tray.Notify(Loc.Instance["Update.Title"], Loc.Instance.Format("Update.Body", snapshot.AvailableVersion));
+                });
+            },
+            (exception, stage) => logger.LogWarning(exception, "Update operation {Stage} failed", stage));
+        _coordinator.Changed += OnChanged;
+    }
 
-    /// <summary>Starts the daily background check when enabled in settings.</summary>
+    public UpdateSnapshot Current => _coordinator.Current;
+    public bool IsInstalled => _coordinator.IsInstalled;
+    public bool IsBusy => _coordinator.IsBusy;
+    public event EventHandler? Changed;
+    private void OnChanged(object? sender, EventArgs e) => Changed?.Invoke(this, EventArgs.Empty);
+
     public void Start()
     {
-        if (!IsInstalled || !settings.Current.CheckForUpdates)
+        if (Volatile.Read(ref _stopping) != 0 || !IsInstalled || !_settings.Current.CheckForUpdates || _timer is not null) return;
+        _timer = new Timer(_ =>
         {
-            return;
-        }
-
-        _timer = new Timer(_ => _ = CheckAsync(notify: true), null, TimeSpan.FromMinutes(1), CheckInterval);
+            if (_settings.Current.CheckForUpdates) _ = CheckAsync(notify: true);
+        }, null, TimeSpan.FromMinutes(1), CheckInterval);
     }
 
-    /// <summary>Checks now; returns a short status for the About page.</summary>
-    public async Task<string> CheckAsync(bool notify)
+    public Task CheckAsync(bool notify = false, CancellationToken cancellationToken = default) => Volatile.Read(ref _stopping) != 0 ? Task.CompletedTask : _coordinator.CheckAsync(notify, cancellationToken);
+    public Task DownloadAsync(CancellationToken cancellationToken = default) => Volatile.Read(ref _stopping) != 0 ? Task.CompletedTask : _coordinator.DownloadAsync(cancellationToken);
+    public void Cancel() => _coordinator.Cancel();
+    public bool PrepareForExit() => _coordinator.PrepareForExit();
+
+    public void Stop()
     {
-        if (!IsInstalled)
-        {
-            return Loc.Instance["Settings.UpdatesUnavailable"];
-        }
-
-        if (_pending)
-        {
-            return Loc.Instance["Update.Ready"];
-        }
-
-        try
-        {
-            var info = await _manager.CheckForUpdatesAsync();
-            if (info is null)
-            {
-                return Loc.Instance.Format("Update.UpToDate", _manager.CurrentVersion?.ToString() ?? string.Empty);
-            }
-
-            await _manager.DownloadUpdatesAsync(info);
-            _manager.WaitExitThenApplyUpdates(info.TargetFullRelease, silent: true, restart: false);
-            _pending = true;
-            var version = info.TargetFullRelease.Version.ToString();
-            logger.LogInformation("Update {Version} downloaded; it will be applied on exit", version);
-            if (notify)
-            {
-                tray.Notify(Loc.Instance["Update.Title"], Loc.Instance.Format("Update.Body", version));
-            }
-
-            return Loc.Instance["Update.Ready"];
-        }
-        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or IOException or InvalidOperationException or TaskCanceledException)
-        {
-            logger.LogWarning(ex, "Update check failed");
-            return Loc.Instance["Update.Failed"];
-        }
+        Interlocked.Exchange(ref _stopping, 1);
+        Interlocked.Exchange(ref _timer, null)?.Dispose();
+        _coordinator.Cancel();
     }
 
-    /// <inheritdoc />
-    public void Dispose() => _timer?.Dispose();
+    public void Dispose()
+    {
+        Stop();
+        _coordinator.Changed -= OnChanged;
+        _coordinator.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

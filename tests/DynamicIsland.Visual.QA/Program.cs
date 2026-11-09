@@ -58,6 +58,7 @@ internal static class Program
             try
             {
                 await RunAsync(output, quick);
+                await AboutUpdateVisualQa.CaptureAsync(System.IO.Path.Combine(output, "update-states"));
             }
             catch (Exception exception)
             {

@@ -74,4 +74,30 @@
   <data name="Update.Ready" xml:space="preserve"><value>Обновление готово и установится при выходе</value></data>
   <data name="Update.Title" xml:space="preserve"><value>Обновление загружено</value></data>
   <data name="Update.UpToDate" xml:space="preserve"><value>Установлена последняя версия ({0})</value></data>
+  <data name="Update.Checking" xml:space="preserve"><value>Проверяем обновления…</value></data>
+  <data name="Update.Latest" xml:space="preserve"><value>Установлена последняя версия — v{0}. Обновлений нет.</value></data>
+  <data name="Update.Available" xml:space="preserve"><value>Доступна версия v{0}</value></data>
+  <data name="Update.Downloading" xml:space="preserve"><value>Загрузка обновления…</value></data>
+  <data name="Update.DownloadingPercent" xml:space="preserve"><value>Загрузка обновления… {0}%</value></data>
+  <data name="Update.Downloaded" xml:space="preserve"><value>Обновление v{0} загружено</value></data>
+  <data name="Update.Unsupported" xml:space="preserve"><value>Это portable/dev-версия: автоматическая установка обновлений недоступна. Установщик можно скачать на странице релиза.</value></data>
+  <data name="Update.Installed" xml:space="preserve"><value>Сейчас установлена версия v{0}</value></data>
+  <data name="Update.CheckedAt" xml:space="preserve"><value>Последняя успешная проверка: {0}</value></data>
+  <data name="Update.ManualHint" xml:space="preserve"><value>Проверьте, есть ли новая версия на GitHub.</value></data>
+  <data name="Update.CheckFailed" xml:space="preserve"><value>Не удалось проверить обновления.</value></data>
+  <data name="Update.DownloadFailed" xml:space="preserve"><value>Не удалось скачать обновление.</value></data>
+  <data name="Update.PrepareFailed" xml:space="preserve"><value>Не удалось подготовить установку.</value></data>
+  <data name="Update.ErrorNetwork" xml:space="preserve"><value>Проверьте подключение к интернету; возможно, GitHub недоступен.</value></data>
+  <data name="Update.ErrorTimeout" xml:space="preserve"><value>Истекло время ожидания. Повторите попытку.</value></data>
+  <data name="Update.ErrorFeed" xml:space="preserve"><value>Данные обновления повреждены или не содержат совместимого пакета.</value></data>
+  <data name="Update.ErrorIntegrity" xml:space="preserve"><value>Проверка целостности пакета не пройдена. Повторите загрузку.</value></data>
+  <data name="Update.ErrorUnavailable" xml:space="preserve"><value>Повторите попытку или откройте страницу релиза.</value></data>
+  <data name="Update.InstallOnExit" xml:space="preserve"><value>Обновление установится при полном выходе из приложения через меню в трее. Автоматического перезапуска не будет.</value></data>
+  <data name="Update.Retry" xml:space="preserve"><value>Повторить</value></data>
+  <data name="Update.Download" xml:space="preserve"><value>Скачать обновление</value></data>
+  <data name="Update.ExitAndInstall" xml:space="preserve"><value>Выйти и установить</value></data>
+  <data name="Update.OpenRelease" xml:space="preserve"><value>Открыть страницу релиза</value></data>
+  <data name="Update.Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Update.Cancelled" xml:space="preserve"><value>Операция обновления отменена. Можно повторить попытку.</value></data>
+  <data name="Update.Cancelling" xml:space="preserve"><value>Отменяем операцию обновления…</value></data>
 </root>

@@ -234,10 +234,20 @@
                 </StackPanel>
                 <c:SquircleBorder Style="{DynamicResource Settings.Group}">
                     <StackPanel>
-                        <DockPanel Style="{DynamicResource Settings.Row}">
-                            <TextBlock Text="{Binding UpdateStatus}" Style="{DynamicResource Settings.Label}" Foreground="{DynamicResource Brush.TextSecondary}" />
-                            <Button DockPanel.Dock="Right" Style="{DynamicResource PillButton}" Content="{loc:Tr Settings.CheckNow}" Command="{Binding CheckForUpdatesCommand}" VerticalAlignment="Center" />
-                        </DockPanel>
+                        <Grid MinHeight="40">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <TextBlock x:Name="UpdateStatusLabel" Text="{Binding UpdateStatus}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" Margin="0,8,12,8" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Style="{DynamicResource PillButton}" Content="{Binding CheckUpdatesLabel}" Command="{Binding CheckForUpdatesCommand}" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Text="{Binding UpdateDetail}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <ProgressBar Foreground="{DynamicResource Brush.Blue}" Background="{DynamicResource Brush.Surface3}" Height="4" Minimum="0" Maximum="100" Value="{Binding UpdateProgress, Mode=OneWay}" IsIndeterminate="{Binding IsUpdateProgressIndeterminate}" Visibility="{Binding IsUpdateBusy, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8" />
+                        <TextBlock Text="{Binding ReadyInstruction}" Style="{DynamicResource Text.Secondary}" TextWrapping="Wrap" Visibility="{Binding ShowApplyUpdate, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8" />
+                        <WrapPanel Margin="0,0,0,8">
+                            <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Update.Download}" Command="{Binding DownloadUpdateCommand}" Visibility="{Binding ShowDownloadUpdate, Converter={StaticResource BoolToVisibility}}" Margin="0,0,8,0" />
+                            <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Update.ExitAndInstall}" Command="{Binding ExitAndInstallCommand}" Visibility="{Binding ShowApplyUpdate, Converter={StaticResource BoolToVisibility}}" Margin="0,0,8,0" />
+                            <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Update.OpenRelease}" Command="{Binding OpenReleaseCommand}" Visibility="{Binding ShowReleaseLink, Converter={StaticResource BoolToVisibility}}" Margin="0,0,8,0" />
+                            <Button Style="{DynamicResource PillButton}" Content="{loc:Tr Update.Cancel}" Command="{Binding CancelUpdateCommand}" Visibility="{Binding ShowCancelUpdate, Converter={StaticResource BoolToVisibility}}" />
+                        </WrapPanel>
                         <Rectangle Style="{DynamicResource Settings.Separator}" />
                         <DockPanel Style="{DynamicResource Settings.Row}">
                             <TextBlock Text="GitHub — zab1yak/dynamic-island-windows" Style="{DynamicResource Settings.Label}" />

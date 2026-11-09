@@ -8,79 +8,57 @@
     <DataTemplate DataType="{x:Type vm:MediaViewModel}">
         <Grid>
             <!-- Nothing playing. -->
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+            <StackPanel x:Name="EmptyState" VerticalAlignment="Center" HorizontalAlignment="Center"
                         Visibility="{Binding HasMedia, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
                 <c:Icon Glyph="Music" Width="28" Height="28" Foreground="{DynamicResource Brush.TextTertiary}" />
                 <TextBlock Text="{loc:Tr Media.NothingPlaying}" Style="{DynamicResource Text.Title}" HorizontalAlignment="Center" Margin="0,8,0,2" />
                 <TextBlock Text="{loc:Tr Media.NothingPlayingHint}" Style="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" />
             </StackPanel>
 
-            <!-- Layout of the reference photo: artwork + title/artist, then time · bar · time left, then transport. -->
-            <Grid Visibility="{Binding HasMedia, Converter={StaticResource BoolToVisibility}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+            <!-- Reference composition: large cover left, title/progress centre, transport right. -->
+            <Grid x:Name="TrackView" Visibility="{Binding HasMedia, Converter={StaticResource BoolToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="84" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="108" />
+                </Grid.ColumnDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <!-- Artwork with the accent glow. -->
-                    <Grid Width="46" Height="46" VerticalAlignment="Center">
-                        <c:SquircleBorder CornerRadius="11" Background="{Binding Accent, Converter={StaticResource ArgbToBrush}, ConverterParameter=0.35}" />
-                        <c:SquircleBorder CornerRadius="11">
-                            <Image Source="{Binding Artwork, Converter={StaticResource BytesToImage}}" Stretch="UniformToFill"
-                                   RenderOptions.BitmapScalingMode="HighQuality" />
-                        </c:SquircleBorder>
-                        <c:Icon Glyph="Music" Width="20" Height="20" Foreground="{DynamicResource Brush.TextSecondary}"
-                                Visibility="{Binding Artwork, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}" />
+                <Grid x:Name="ArtworkHost" Width="84" Height="84" VerticalAlignment="Center">
+                    <c:SquircleBorder CornerRadius="16" Background="{Binding Accent, Converter={StaticResource ArgbToBrush}, ConverterParameter=0.35}" />
+                    <c:SquircleBorder CornerRadius="16">
+                        <Image Source="{Binding Artwork, Converter={StaticResource BytesToImage}}" Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                    </c:SquircleBorder>
+                    <c:Icon Glyph="Music" Width="28" Height="28" Foreground="{DynamicResource Brush.TextSecondary}"
+                            Visibility="{Binding Artwork, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}" />
+                </Grid>
+
+                <StackPanel x:Name="TrackDetails" Grid.Column="1" Margin="16,0,14,0" VerticalAlignment="Center">
+                    <c:MarqueeText x:Name="TrackTitle" Text="{Binding Title}" TextStyle="{DynamicResource Text.Title}" />
+                    <Grid Margin="0,1,0,0">
+                        <c:MarqueeText Text="{Binding Artist}" TextStyle="{DynamicResource Text.Secondary}"
+                                       Visibility="{Binding Notice, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}" />
+                        <TextBlock Text="{Binding Notice}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.Orange}"
+                                   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Notice}"
+                                   Visibility="{Binding Notice, Converter={StaticResource NullToVisibility}}" />
                     </Grid>
-                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <c:MarqueeText Text="{Binding Title}" TextStyle="{DynamicResource Text.Title}" />
-                        <Grid Margin="0,1,0,0">
-                            <c:MarqueeText Text="{Binding Artist}" TextStyle="{DynamicResource Text.Secondary}"
-                                           Visibility="{Binding Notice, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}" />
-                            <TextBlock Text="{Binding Notice}" Style="{DynamicResource Text.Secondary}" Foreground="{DynamicResource Brush.Orange}"
-                                       Visibility="{Binding Notice, Converter={StaticResource NullToVisibility}}" />
-                        </Grid>
-                    </StackPanel>
-                </Grid>
-
-                <Grid Grid.Row="1" Margin="0,8,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="44" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="44" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding PositionText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Secondary}" VerticalAlignment="Center" />
-                    <c:Scrubber Grid.Column="1" Value="{Binding Progress, Mode=OneWay}" IsInteractive="{Binding CanSeek}"
+                    <c:Scrubber x:Name="SeekBar" Value="{Binding Progress, Mode=OneWay}" IsInteractive="{Binding CanSeek}"
                                 SeekCommand="{Binding SeekCommand}" IsDragging="{Binding IsScrubbing, Mode=OneWayToSource}"
-                                FillBrush="{DynamicResource Brush.TextPrimary}" TrackBrush="{DynamicResource Brush.Surface3}" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="2" Text="{Binding RemainingText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Secondary}"
-                               HorizontalAlignment="Right" VerticalAlignment="Center" />
-                </Grid>
+                                FillBrush="{DynamicResource Brush.TextPrimary}" TrackBrush="{DynamicResource Brush.Surface3}" Margin="0,8,0,0" />
+                    <Grid>
+                        <TextBlock x:Name="Elapsed" Text="{Binding PositionText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Secondary}" />
+                        <TextBlock x:Name="Duration" Text="{Binding DurationText}" Style="{DynamicResource Text.Secondary}" FontSize="{DynamicResource FontSize.Secondary}"
+                                   HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,2,0,0">
-                    <!-- Bottom-left: switch between players (where the photo has its extra button). -->
-                    <Button Style="{DynamicResource IconButton}" HorizontalAlignment="Left" Width="28" Height="28" Command="{Binding NextSessionCommand}"
-                            Visibility="{Binding HasMultipleSessions, Converter={StaticResource BoolToVisibility}}"
-                            AutomationProperties.Name="{loc:Tr Media.SwitchSource}" ToolTip="{Binding AppName}">
-                        <c:Icon Glyph="Headphones" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
-                    </Button>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="0,0,12,0"
-                                Command="{Binding ToggleShuffleCommand}" IsEnabled="{Binding CanShuffle}"
-                                AutomationProperties.Name="{Binding ShuffleLabel}" ToolTip="{Binding ShuffleLabel}" ToolTipService.ShowOnDisabled="True">
-                            <c:Icon x:Name="ShuffleGlyph" Glyph="Shuffle" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
-                        </Button>
+                <Grid Grid.Column="2">
+                    <StackPanel x:Name="Transport" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Button Style="{DynamicResource IconButton}" Command="{Binding PreviousCommand}" IsEnabled="{Binding CanPrevious}"
                                 AutomationProperties.Name="{loc:Tr Media.Previous}" ToolTip="{loc:Tr Media.Previous}">
                             <c:Icon Glyph="Previous" Filled="True" Width="16" Height="16" />
                         </Button>
-                        <Button Style="{DynamicResource IconButton}" Width="36" Height="36" Margin="10,0" Command="{Binding PlayPauseCommand}"
+                        <Button Style="{DynamicResource IconButton}" Width="36" Height="36" Margin="4,0" Command="{Binding PlayPauseCommand}"
                                 AutomationProperties.Name="{Binding PlayPauseLabel}" ToolTip="{Binding PlayPauseLabel}">
                             <Grid>
                                 <c:Icon x:Name="PlayGlyph" Glyph="Play" Filled="True" Width="22" Height="22" RenderTransformOrigin="0.5,0.5">
@@ -95,10 +73,23 @@
                                 AutomationProperties.Name="{loc:Tr Media.Next}" ToolTip="{loc:Tr Media.Next}">
                             <c:Icon Glyph="Next" Filled="True" Width="16" Height="16" />
                         </Button>
-                        <Button Style="{DynamicResource IconButton}" Width="28" Height="28" Margin="12,0,0,0"
+                    </StackPanel>
+                    <!-- Existing secondary actions stay available without joining the primary transport row. -->
+                    <StackPanel x:Name="SecondaryActions" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                        <Button Style="{DynamicResource IconButton}" Width="22" Height="22" Command="{Binding NextSessionCommand}"
+                                Visibility="{Binding HasMultipleSessions, Converter={StaticResource BoolToVisibility}}"
+                                AutomationProperties.Name="{loc:Tr Media.SwitchSource}" ToolTip="{Binding AppName}">
+                            <c:Icon Glyph="Headphones" Width="12" Height="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </Button>
+                        <Button Style="{DynamicResource IconButton}" Width="22" Height="22" Margin="2,0"
+                                Command="{Binding ToggleShuffleCommand}" IsEnabled="{Binding CanShuffle}"
+                                AutomationProperties.Name="{Binding ShuffleLabel}" ToolTip="{Binding ShuffleLabel}" ToolTipService.ShowOnDisabled="True">
+                            <c:Icon x:Name="ShuffleGlyph" Glyph="Shuffle" Width="12" Height="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </Button>
+                        <Button Style="{DynamicResource IconButton}" Width="22" Height="22" Margin="2,0"
                                 Command="{Binding ToggleRepeatCommand}" IsEnabled="{Binding CanRepeat}"
                                 AutomationProperties.Name="{Binding RepeatLabel}" ToolTip="{Binding RepeatLabel}" ToolTipService.ShowOnDisabled="True">
-                            <c:Icon x:Name="RepeatGlyph" Glyph="{Binding RepeatGlyph}" Width="15" Height="15" Foreground="{DynamicResource Brush.TextSecondary}" />
+                            <c:Icon x:Name="RepeatGlyph" Glyph="{Binding RepeatGlyph}" Width="12" Height="12" Foreground="{DynamicResource Brush.TextSecondary}" />
                         </Button>
                     </StackPanel>
                 </Grid>

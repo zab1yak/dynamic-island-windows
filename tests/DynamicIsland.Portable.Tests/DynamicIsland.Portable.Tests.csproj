@@ -16,7 +16,11 @@
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
     <PackageReference Include="Microsoft.ML.OnnxRuntime" />
     <PackageReference Include="Microsoft.ML.Tokenizers" />
+    <PackageReference Include="Velopack" />
     <Using Include="Xunit" />
+    <Compile Include="../../src/DynamicIsland.App/Services/UpdateCoordinator.cs" Link="Production/UpdateCoordinator.cs" />
+    <Compile Include="../../src/DynamicIsland.App/Services/VelopackUpdateBackend.cs" Link="Production/VelopackUpdateBackend.cs" />
+    <Compile Include="../DynamicIsland.Tests/Updates/*.cs" Link="Updates/%(Filename)%(Extension)" />
     <Compile Include="../DynamicIsland.Tests/InlineDispatcher.cs" Link="InlineDispatcher.cs" />
     <Compile Include="../DynamicIsland.Tests/TempFolder.cs" Link="TempFolder.cs" />
     <Compile Include="../DynamicIsland.Tests/Island/*.cs" Link="Island/%(Filename)%(Extension)" />

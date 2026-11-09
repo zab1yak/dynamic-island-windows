@@ -53,6 +53,7 @@ internal sealed partial class SettingsWindow : Window
         if (!_exiting)
         {
             e.Cancel = true;
+            ViewModel.About.CancelManualUpdate();
             Hide();
         }
     }

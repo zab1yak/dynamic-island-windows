@@ -1,0 +1,61 @@
+name: Music and update hotfix checks
+
+on:
+  push:
+    branches: [work/0.3.3]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/verify_hotfix_scope.py"
+      - "Directory.Build.props"
+      - ".github/workflows/hotfix.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hotfix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: X64
+          - os: windows-11-arm
+            arch: Arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Verify protected production scope
+        run: python scripts/verify_hotfix_scope.py
+      - name: Windows behavior and music layout tests
+        shell: pwsh
+        run: |
+          $env:DI_MEDIA_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'hotfix-media'
+          $env:DI_LAYOUT_SCREENSHOTS = Join-Path $env:RUNNER_TEMP 'hotfix-layout'
+          dotnet test -c Release
+      - name: Actual island and settings-window renders
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: dotnet run --project tests/DynamicIsland.Visual.QA -c Release -- --quick --output "${{ runner.temp }}/hotfix-window"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Music-and-update-UI-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/hotfix-media/
+            ${{ runner.temp }}/hotfix-layout/
+            ${{ runner.temp }}/hotfix-window/
+          if-no-files-found: warn
+          retention-days: 14

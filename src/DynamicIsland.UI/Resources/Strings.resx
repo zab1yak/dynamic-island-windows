@@ -74,4 +74,30 @@
   <data name="Update.Ready" xml:space="preserve"><value>An update is ready and will be installed on exit</value></data>
   <data name="Update.Title" xml:space="preserve"><value>Update downloaded</value></data>
   <data name="Update.UpToDate" xml:space="preserve"><value>You have the latest version ({0})</value></data>
+  <data name="Update.Checking" xml:space="preserve"><value>Checking for updates…</value></data>
+  <data name="Update.Latest" xml:space="preserve"><value>The latest version is installed — v{0}. No updates available.</value></data>
+  <data name="Update.Available" xml:space="preserve"><value>Version v{0} is available</value></data>
+  <data name="Update.Downloading" xml:space="preserve"><value>Downloading update…</value></data>
+  <data name="Update.DownloadingPercent" xml:space="preserve"><value>Downloading update… {0}%</value></data>
+  <data name="Update.Downloaded" xml:space="preserve"><value>Update v{0} downloaded</value></data>
+  <data name="Update.Unsupported" xml:space="preserve"><value>This portable/development copy cannot install updates automatically. Open the release page to download the installer.</value></data>
+  <data name="Update.Installed" xml:space="preserve"><value>Installed version: v{0}</value></data>
+  <data name="Update.CheckedAt" xml:space="preserve"><value>Last successful check: {0}</value></data>
+  <data name="Update.ManualHint" xml:space="preserve"><value>Check GitHub for a new version.</value></data>
+  <data name="Update.CheckFailed" xml:space="preserve"><value>Could not check for updates.</value></data>
+  <data name="Update.DownloadFailed" xml:space="preserve"><value>Could not download the update.</value></data>
+  <data name="Update.PrepareFailed" xml:space="preserve"><value>Could not schedule installation.</value></data>
+  <data name="Update.ErrorNetwork" xml:space="preserve"><value>Check your internet connection; GitHub may be unavailable.</value></data>
+  <data name="Update.ErrorTimeout" xml:space="preserve"><value>The request timed out. Try again.</value></data>
+  <data name="Update.ErrorFeed" xml:space="preserve"><value>The update data is invalid or has no compatible package.</value></data>
+  <data name="Update.ErrorIntegrity" xml:space="preserve"><value>The package failed its integrity check. Download it again.</value></data>
+  <data name="Update.ErrorUnavailable" xml:space="preserve"><value>Please try again or open the release page.</value></data>
+  <data name="Update.InstallOnExit" xml:space="preserve"><value>The update installs when you fully exit from the tray menu. The app will not restart automatically.</value></data>
+  <data name="Update.Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Update.Download" xml:space="preserve"><value>Download update</value></data>
+  <data name="Update.ExitAndInstall" xml:space="preserve"><value>Exit and install</value></data>
+  <data name="Update.OpenRelease" xml:space="preserve"><value>Open release page</value></data>
+  <data name="Update.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Update.Cancelled" xml:space="preserve"><value>Update operation cancelled. You can try again.</value></data>
+  <data name="Update.Cancelling" xml:space="preserve"><value>Cancelling update operation…</value></data>
 </root>
