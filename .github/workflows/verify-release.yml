@@ -9,7 +9,7 @@ on:
       tag:
         description: Published release tag
         required: true
-        default: v0.3.2
+        default: v0.3.3
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
         shell: python
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.tag || 'v0.3.2' }}
+          RELEASE_TAG: ${{ inputs.tag || 'v0.3.3' }}
         run: |
           import json, os, pathlib, re, urllib.request, urllib.parse
           tag = os.environ["RELEASE_TAG"]

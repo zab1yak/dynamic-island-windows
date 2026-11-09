@@ -124,3 +124,31 @@ or a full installed-copy upgrade on the owner's machine. Manual acceptance:
 The first upgrade from old v0.3.2 still uses its old updater until the new version
 is installed. The direct Setup.exe is a fallback; the exit-helper fix applies
 inside v0.3.3, not retroactively to the running old binary.
+
+## Changed files
+
+- `src/DynamicIsland.Modules.Media/Views/MediaTemplates.xaml`: reference music layout.
+- `src/DynamicIsland.App/Services/UpdateCoordinator.cs`, `VelopackUpdateBackend.cs`,
+  `UpdateService.cs`: serialized updater state, native download/verification and exit handling.
+- `src/DynamicIsland.App/Settings/SettingsViewModel.cs`, `SettingsWindow.xaml`,
+  `SettingsWindow.xaml.cs`: About status/actions and manual cancellation on hide.
+- `src/DynamicIsland.App/App.xaml.cs`: attach About controller, stop updates and
+  prepare a verified pending package at actual graceful exit.
+- `src/DynamicIsland.UI/Resources/Strings.resx`, `Strings.ru.resx`:26 new update
+  strings in each language; existing strings unchanged.
+- `Directory.Build.props`:0.3.3; release notes/audit/QA evidence under `docs/`.
+- Tests under `tests/DynamicIsland.Tests/Updates` and `UI`, the portable test links,
+  actual-window QA fixtures, `.github/workflows/hotfix.yml`, and
+  `scripts/verify_hotfix_scope.py` verify the two scoped changes.
+- `.github/workflows/verify-release.yml`: published installer/feed verification
+  target advanced to0.3.3 after both release architectures finish uploading.
+
+## Publication
+
+[Release v0.3.3](https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.3)
+was published from commit `334fd342b4ba1ae76a54e33d5c53956f61038341`.
+[Release workflow42694463186](https://github.com/zab1yak/dynamic-island-windows/actions/runs/42694463186)
+passed all version/test/tag and x64/ARM64 packaging/upload jobs. Both Setup.exe
+installers, full/delta packages and platform update feeds are uploaded.
+The follow-up verifier reads both public feeds and installer headers and checks
+version/package size/hash metadata; it does not execute an installed-copy upgrade.
