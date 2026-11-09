@@ -41,6 +41,9 @@ internal static class Program
         output = System.IO.Path.GetFullPath(output);
         Directory.CreateDirectory(output);
         var quick = args.Contains("--quick", StringComparer.Ordinal);
+        // The production settings icon uses an application-root pack URI.
+        // This separate executable must resolve it against the real app assembly.
+        Application.ResourceAssembly = typeof(IslandWindow).Assembly;
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         app.DispatcherUnhandledException += (_, error) =>
         {

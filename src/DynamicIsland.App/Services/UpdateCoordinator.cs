@@ -112,11 +112,7 @@ internal sealed class UpdateCoordinator : IApplicationUpdateController, IDisposa
             if (_candidate is null) return;
             stage = UpdateStage.Downloading;
             Set(Current with { State = UpdateState.Downloading, ProgressPercent = null, Failure = null });
-            await _backend.DownloadAsync(_candidate, percent =>
-            {
-                if (!ReferenceEquals(Volatile.Read(ref _operation), operation) || operation.IsCancellationRequested || Current.State != UpdateState.Downloading) return;
-                Set(Current with { ProgressPercent = percent is >= 0 and <= 100 ? percent : null });
-            }, operation.Token).ConfigureAwait(false);
+            await _backend.DownloadAsync(_candidate, percent => ReportProgress(operation, percent), operation.Token).ConfigureAwait(false);
             operation.Token.ThrowIfCancellationRequested();
             _pending = _candidate;
             Set(Current with { State = UpdateState.Ready, ProgressPercent = 100, Failure = null });
@@ -146,22 +142,41 @@ internal sealed class UpdateCoordinator : IApplicationUpdateController, IDisposa
 
     public bool PrepareForExit()
     {
+        Exception failure;
         lock (_sync)
         {
             if (_prepared || _pending is null) return true;
             try { _backend.PrepareForExit(_pending); _prepared = true; return true; }
             catch (Exception exception) when (exception is not OutOfMemoryException)
             {
-                _logFailure?.Invoke(exception, UpdateStage.Preparing);
-                Set(Current with { State = UpdateState.Error, Failure = new(UpdateStage.Preparing, Classify(exception, UpdateStage.Preparing)) });
-                return false;
+                failure = exception;
+                Volatile.Write(ref _current, _current with
+                {
+                    State = UpdateState.Error,
+                    Failure = new(UpdateStage.Preparing, Classify(exception, UpdateStage.Preparing)),
+                });
             }
         }
+        _logFailure?.Invoke(failure, UpdateStage.Preparing);
+        Changed?.Invoke(this, EventArgs.Empty);
+        return false;
+    }
+
+    private void ReportProgress(CancellationTokenSource operation, int percent)
+    {
+        lock (_sync)
+        {
+            // The generation/state check and write share the same lock as terminal
+            // transitions: a callback cannot resurrect Downloading after Ready/Error.
+            if (!ReferenceEquals(_operation, operation) || operation.IsCancellationRequested || _current.State != UpdateState.Downloading) return;
+            Volatile.Write(ref _current, _current with { ProgressPercent = percent is >= 0 and <= 100 ? percent : null });
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
     }
 
     private void Set(UpdateSnapshot snapshot)
     {
-        Volatile.Write(ref _current, snapshot);
+        lock (_sync) { Volatile.Write(ref _current, snapshot); }
         Changed?.Invoke(this, EventArgs.Empty);
     }
 

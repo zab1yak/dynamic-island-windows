@@ -203,6 +203,34 @@ public sealed class UpdateCoordinatorTests
         await retry;
     }
 
+    [Fact]
+    public async Task Concurrent_progress_and_completion_preserve_terminal_ready_state()
+    {
+        for (var iteration = 0; iteration < 128; iteration++)
+        {
+            Action<int>? report = null;
+            var complete = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var backend = new Backend
+            {
+                Candidate = NewVersion, ProgressObserved = callback => report = callback, Download = _ => complete.Task,
+            };
+            using var controller = new UpdateCoordinator(backend, TimeProvider.System);
+            await controller.CheckAsync(cancellationToken: TestContext.Current.CancellationToken);
+            var download = controller.DownloadAsync(TestContext.Current.CancellationToken);
+            using var start = new Barrier(2);
+            var progress = Task.Run(() =>
+            {
+                start.SignalAndWait(TestContext.Current.CancellationToken);
+                for (var percent = 0; percent < 100; percent++) report!(percent);
+            }, TestContext.Current.CancellationToken);
+            start.SignalAndWait(TestContext.Current.CancellationToken);
+            complete.SetResult();
+            await Task.WhenAll(download, progress).WaitAsync(TestContext.Current.CancellationToken);
+            Assert.Equal(UpdateState.Ready, controller.Current.State);
+            Assert.Equal(100, controller.Current.ProgressPercent);
+        }
+    }
+
     private static readonly UpdateCandidate NewVersion = new("0.3.10", "https://github.com/zab1yak/dynamic-island-windows/releases/tag/v0.3.10");
     private sealed class Backend : IUpdateBackend
     {
