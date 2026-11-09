@@ -6,6 +6,8 @@
     <NoWarn>$(NoWarn);CA1031;CA2007</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Match the production application-root icon URI in this separate test host. -->
+    <Resource Include="../../src/DynamicIsland.App/Assets/island.ico" Link="Assets/island.ico" />
     <ProjectReference Include="../../src/DynamicIsland.App/DynamicIsland.App.csproj" />
   </ItemGroup>
 </Project>

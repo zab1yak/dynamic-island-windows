@@ -35,6 +35,12 @@ public sealed class MediaLayoutTests
             var theme = (ResourceDictionary)Application.LoadComponent(new Uri("/DynamicIsland.UI;component/Themes/Theme.xaml", UriKind.Relative));
             var media = (ResourceDictionary)Application.LoadComponent(new Uri("/DynamicIsland.Modules.Media;component/Views/MediaTemplates.xaml", UriKind.Relative));
             media.MergedDictionaries.Add(theme);
+            // Deferred storyboard resources need an explicit template scope even when
+            // another test has already created and shut down Application.Current.
+            foreach (var template in media.Values.OfType<DataTemplate>())
+            {
+                template.Resources.MergedDictionaries.Add(theme);
+            }
             Loc.Instance.Register(new ResourceManager("DynamicIsland.Modules.Media.Resources.Strings", typeof(MediaModule).Assembly));
             try
             {
