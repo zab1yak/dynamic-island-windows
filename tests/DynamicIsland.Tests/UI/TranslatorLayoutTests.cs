@@ -32,7 +32,7 @@ public sealed class TranslatorLayoutTests
             // Production pages resolve StaticResource references during InitializeComponent,
             // so give them the same Application resource scope used by the real app.
             var previousLanguage = Loc.Instance.Culture.TwoLetterISOLanguageName;
-            var application = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+            var application = Application.Current;
             application.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(
                 new Uri("/DynamicIsland.UI;component/Themes/Theme.xaml", UriKind.Relative)));
             Loc.Instance.Register(new ResourceManager("DynamicIsland.Modules.Translator.Resources.Strings", typeof(TranslatorModule).Assembly));
@@ -53,7 +53,6 @@ public sealed class TranslatorLayoutTests
             finally
             {
                 Loc.Instance.SetLanguage(previousLanguage);
-                application.Shutdown();
             }
         });
     }
@@ -173,19 +172,7 @@ public sealed class TranslatorLayoutTests
         }
     }
 
-    private static void OnSta(Action action)
-    {
-        Exception? failure = null;
-        var thread = new Thread(() =>
-        {
-            try { action(); }
-            catch (Exception ex) { failure = ex; }
-        }) { IsBackground = true };
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        Assert.True(thread.Join(TimeSpan.FromSeconds(60)), "WPF layout test timed out");
-        if (failure is not null) { throw new InvalidOperationException("WPF layout/render regression failed", failure); }
-    }
+    private static void OnSta(Action action) => LayoutTestApplication.Run(action);
 
     private sealed class Service(bool fail) : ITranslationService
     {

@@ -35,12 +35,6 @@ public sealed class MediaLayoutTests
             var theme = (ResourceDictionary)Application.LoadComponent(new Uri("/DynamicIsland.UI;component/Themes/Theme.xaml", UriKind.Relative));
             var media = (ResourceDictionary)Application.LoadComponent(new Uri("/DynamicIsland.Modules.Media;component/Views/MediaTemplates.xaml", UriKind.Relative));
             media.MergedDictionaries.Add(theme);
-            // Deferred storyboard resources need an explicit template scope even when
-            // another test has already created and shut down Application.Current.
-            foreach (var template in media.Values.OfType<DataTemplate>())
-            {
-                template.Resources.MergedDictionaries.Add(theme);
-            }
             Loc.Instance.Register(new ResourceManager("DynamicIsland.Modules.Media.Resources.Strings", typeof(MediaModule).Assembly));
             try
             {
@@ -248,17 +242,5 @@ public sealed class MediaLayoutTests
         }
     }
 
-    private static void OnSta(Action action)
-    {
-        Exception? failure = null;
-        var thread = new Thread(() =>
-        {
-            try { action(); }
-            catch (Exception exception) { failure = exception; }
-        }) { IsBackground = true };
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        Assert.True(thread.Join(TimeSpan.FromSeconds(90)), "Music WPF layout test timed out");
-        if (failure is not null) throw new InvalidOperationException("Music WPF layout/render regression failed", failure);
-    }
+    private static void OnSta(Action action) => LayoutTestApplication.Run(action);
 }
