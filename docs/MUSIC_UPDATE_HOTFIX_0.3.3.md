@@ -76,10 +76,23 @@ real pinned Velopack types and isolated locators/feed sources.
 - Portable suite: 190 passed, including 20 update cases after the atomic progress/completion review fix.
 - First Windows x64/ARM64 checkpoint: 496 tests and 588 island-window captures
   passed on each architecture. The separate settings QA host initially resolved
-  its root icon URI against the test executable; its resource assembly is now set
-  to the real app assembly. This was a QA-host error, not a product icon change.
-- The final code adds the concurrent-progress regression; final Windows execution
-  and image inspection are recorded below before publication.
+  its root icon URI against the test executable; the separate QA host now embeds
+  the same existing icon at that URI. This was a QA-host error, not a product icon change.
+  Resource-dependent layout tests now use one isolated WPF Application/dispatcher,
+  so the music test does not depend on the translator test running first or last.
+- Final native Windows x64 and ARM64 run [42693692138](https://github.com/zab1yak/dynamic-island-windows/actions/runs/42693692138):
+  **497 tests, zero failures on each architecture**,112 music page/live captures,
+  **588 island-window captures +96 About-window captures on each architecture**,
+  plus9 timed alpha observations. Scope verification passed on both.
+- Standard CI [42693692135](https://github.com/zab1yak/dynamic-island-windows/actions/runs/42693692135): passed.
+- Visual inspection: music matches the reference composition with the existing
+  header/navigation retained. About available/downloading/ready/error/portable
+  states were inspected in RU/EN; actions and status text are visible. Selected
+  evidence and all96 state records are committed in [qa-0.3.3](qa-0.3.3/README.md).
+  These are WPF-rendered windows with synthetic data, not physical monitor or
+  installed-upgrade acceptance.
+- Release candidate production code: remote commit `a26f582a23f0f13fa52e1d060524abf745323cc3`.
+  The publication commit adds only this audit and selected visual evidence.
 
 Windows tests include the existing regression suite plus new update coordinator,
 actual Velopack manager/cache, About command/dispatcher and music layout checks.
